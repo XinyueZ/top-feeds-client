@@ -1,8 +1,13 @@
 <resources>
-    <string name="app_name">Top Feeds</string>
+    <string name="app_name">IT业内快讯</string>
     <string name="lbl_title">标题</string>
     <string name="lbl_desc">描述</string>
     <string name="lbl_csdn">CSDN</string>
+    <string name="lbl_pub_date">发布日期</string>
     <string name="lbl_osc">开源中国</string>
+    <string name="lbl_load_more">提取更多</string>
+    <string name="lbl_retry">失败，重新尝试？</string>
+    <string name="lbl_yes">好</string>
+    <string name="lbl_no">不</string>
     <string name="action_settings">设置</string>
 </resources>

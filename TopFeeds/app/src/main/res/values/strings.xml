@@ -2,7 +2,12 @@
     <string name="app_name">Top Feeds</string>
     <string name="lbl_title">Title</string>
     <string name="lbl_desc">Description</string>
-    <string name="lbl_csdn">csdn</string>
+    <string name="lbl_csdn">CSDN</string>
+    <string name="lbl_pub_date">Publish-date</string>
     <string name="lbl_osc">oschina</string>
+    <string name="lbl_load_more">Loading more.</string>
+    <string name="lbl_retry">Retry</string>
+    <string name="lbl_yes">Yes</string>
+    <string name="lbl_no">No</string>
     <string name="action_settings">Settings</string>
 </resources>

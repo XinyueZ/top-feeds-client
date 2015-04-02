@@ -26,9 +26,9 @@ public final class NewsListPagersAdapter extends FragmentStatePagerAdapter {
 	@Override
 	public Fragment getItem(int position) {
 		switch (position) {
-		case 0:
-			return OscNewsListPageFragment.newInstance(mContext);
 		case 1:
+			return OscNewsListPageFragment.newInstance(mContext);
+		case 0:
 			return CsdnNewsListPageFragment.newInstance(mContext);
 		}
 		return null;

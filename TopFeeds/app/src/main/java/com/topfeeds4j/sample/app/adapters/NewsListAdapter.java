@@ -82,10 +82,11 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			holder.mDescTv.setVisibility(View.VISIBLE);
 			holder.mDescTv.setText(entry.getDesc());
 		}
+		holder.mPubDateTv.setText(entry.getPubDate());
 		holder.itemView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrl()));
+				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrlMobile()));
 			}
 		});
 	}
@@ -101,11 +102,13 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	static class ViewHolder extends RecyclerView.ViewHolder {
 		private TextView mTitleTv;
 		private TextView mDescTv;
+		private TextView mPubDateTv;
 
 		ViewHolder(View convertView) {
 			super(convertView);
 			mTitleTv = (TextView) convertView.findViewById(R.id.title_tv);
 			mDescTv = (TextView) convertView.findViewById(R.id.desc_tv);
+			mPubDateTv = (TextView) convertView.findViewById(R.id.pub_date_tv);
 		}
 	}
 }

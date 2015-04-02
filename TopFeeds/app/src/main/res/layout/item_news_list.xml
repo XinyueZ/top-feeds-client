@@ -10,14 +10,20 @@
         android:layout_height="wrap_content"
         android:padding="@dimen/common_padding">
 
-        <com.topfeeds4j.sample.widgets.FontTextView
+        <TextView
             android:id="@+id/title_tv"
             android:text="@string/lbl_title"
             style="@style/Item_Title" />
 
-        <com.topfeeds4j.sample.widgets.FontTextView
+        <TextView
             android:id="@+id/desc_tv"
             android:text="@string/lbl_desc"
             style="@style/Item_Desc" />
+
+        <TextView
+            android:id="@+id/pub_date_tv"
+            android:text="@string/lbl_pub_date"
+            style="@style/Item_PubDate"
+            android:layout_gravity="end" />
     </LinearLayout>
 </android.support.v7.widget.CardView>
