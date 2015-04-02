@@ -1,0 +1,49 @@
+<resources>
+
+    <style name="ActionBar_ToolBar">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:minHeight">?attr/actionBarSize</item>
+        <item name="android:theme">@style/AppTheme</item>
+        <item name="theme">@style/AppTheme</item>
+        <item name="android:popupTheme">@style/AppTheme</item>
+        <item name="popupTheme">@style/AppTheme</item>
+        <item name="android:background">@color/primary_color</item>
+        <item name="background">@color/primary_color</item>
+    </style>
+
+    <style name="ListItemCardView">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
+        <item name="contentPadding">5dp</item>
+        <item name="cardElevation">1dp</item>
+        <item name="cardMaxElevation">2dp</item>
+    </style>
+
+
+    <style name="CardView" parent="@style/ListItemCardView" />
+
+
+    <style name="GradientProgressBar" parent="SmoothProgressBar">
+        <item name="spb_stroke_separator_length">0dp</item>
+        <item name="spb_sections_count">3</item>
+        <item name="spb_speed">1.7</item>
+        <item name="spb_stroke_width">@dimen/pb_height</item>
+        <item name="android:interpolator">@android:anim/decelerate_interpolator</item>
+        <item name="spb_colors">@array/loading_colors</item>
+        <item name="spb_gradients">true</item>
+    </style>
+
+    <style name="Item_Title">
+        <item name="font">bold</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+    <style name="Item_Desc">
+        <item name="font">medium</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+
+</resources>

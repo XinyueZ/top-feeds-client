@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Top Feeds</string>
+    <string name="lbl_title">标题</string>
+    <string name="lbl_desc">描述</string>
+    <string name="lbl_csdn">CSDN</string>
+    <string name="lbl_osc">开源中国</string>
+    <string name="action_settings">设置</string>
+</resources>

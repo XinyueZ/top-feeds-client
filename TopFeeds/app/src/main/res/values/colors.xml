@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <color name="common_black">#000000</color>
+    <color name="common_white">#FFFFFF</color>
+    <color name="common_transparent">@android:color/transparent</color>
+    <color name="common_grey">#f5f5f5</color>
+    <color name="common_half_grey">#809E9E9E</color>
+    <color name="common_orange">#FF9800</color>
+    <color name="common_orange_mid">#FFB74D</color>
+    <color name="common_orange_deep">#E65100</color>
+    <color name="common_blue_grey_50">#607D8B</color>
+
+    <color name="text_common_black">@color/common_black</color>
+    <color name="text_common_white">@color/common_white</color>
+
+    <color name="primary_color">@color/common_orange</color>
+    <color name="primary_dark_color">@color/common_orange_deep</color>
+    <color name="primary_accent">@color/common_orange_mid</color>
+
+    <integer-array name="loading_colors">
+        <item>@color/color_pocket_1</item>
+        <item>@color/color_pocket_2</item>
+        <item>@color/color_pocket_3</item>
+        <item>@color/color_pocket_4</item>
+    </integer-array>
+
+
+    <color name="color_pocket_1">#4CAF50</color>
+    <color name="color_pocket_2">#3F51B5</color>
+    <color name="color_pocket_3">#F44336</color>
+    <color name="color_pocket_4">#009688</color>
+
+    <integer-array name="pocket_background_colors">
+        <item>@color/color_pocket_1</item>
+        <item>@color/color_pocket_2</item>
+        <item>@color/color_pocket_3</item>
+        <item>@color/color_pocket_4</item>
+    </integer-array>
+
+
+    <integer-array name="pocket_bar_colors">
+        <item>@color/color_pocket_1</item>
+        <item>@color/color_pocket_1</item>
+        <item>@color/color_pocket_1</item>
+        <item>@color/color_pocket_1</item>
+        <item>@color/color_pocket_2</item>
+        <item>@color/color_pocket_2</item>
+        <item>@color/color_pocket_2</item>
+        <item>@color/color_pocket_2</item>
+        <item>@color/color_pocket_3</item>
+        <item>@color/color_pocket_3</item>
+        <item>@color/color_pocket_3</item>
+        <item>@color/color_pocket_3</item>
+        <item>@color/color_pocket_4</item>
+        <item>@color/color_pocket_4</item>
+        <item>@color/color_pocket_4</item>
+        <item>@color/color_pocket_4</item>
+    </integer-array>
+
+</resources>

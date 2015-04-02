@@ -1,0 +1,15 @@
+package com.topfeeds4j.sample.app.events;
+
+public final class OpenLinkEvent {
+	private String mUrl;
+
+
+	public OpenLinkEvent(String url) {
+		mUrl = url;
+	}
+
+
+	public String getUrl() {
+		return mUrl;
+	}
+}
