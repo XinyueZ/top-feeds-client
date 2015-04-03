@@ -15,7 +15,7 @@ import com.topfeeds4j.sample.app.fragments.OscNewsListPageFragment;
  * @author Xinyue Zhao
  */
 public final class NewsListPagersAdapter extends FragmentStatePagerAdapter {
-	private final int[] TITLES = { R.string.lbl_osc, R.string.lbl_csdn, };
+	private final int[] TITLES = {  R.string.lbl_csdn, R.string.lbl_osc, };
 	private Context mContext;
 
 	public NewsListPagersAdapter(Context cxt, FragmentManager fm) {

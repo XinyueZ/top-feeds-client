@@ -1,7 +1,6 @@
 package com.topfeeds4j.sample.app.fragments;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,13 +9,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.chopping.application.BasicPrefs;
+import com.chopping.fragments.BaseFragment;
 import com.topfeeds4j.Api;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.adapters.NewsListAdapter;
+import com.topfeeds4j.sample.utils.Prefs;
 
-import de.greenrobot.event.EventBus;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -24,7 +25,7 @@ import retrofit.client.Response;
 /**
  * System base {@link android.support.v4.app.Fragment}
  */
-public abstract class TopFeedsFragment extends Fragment implements Callback<NewsEntries> {
+public abstract class TopFeedsFragment extends BaseFragment implements Callback<NewsEntries> {
 
 	/**
 	 * Main layout for this component.
@@ -60,21 +61,6 @@ public abstract class TopFeedsFragment extends Fragment implements Callback<News
 	 */
 	public void onEvent(Object e) {
 
-	}
-
-
-	@Override
-	public void onResume() {
-
-		EventBus.getDefault().registerSticky(this);
-		super.onResume();
-	}
-
-	@Override
-	public void onPause() {
-
-		EventBus.getDefault().unregister(this);
-		super.onPause();
 	}
 
 
@@ -177,5 +163,10 @@ public abstract class TopFeedsFragment extends Fragment implements Callback<News
 
 	protected boolean isInProgress() {
 		return mInProgress;
+	}
+
+	@Override
+	protected BasicPrefs getPrefs() {
+		return Prefs.getInstance();
 	}
 }

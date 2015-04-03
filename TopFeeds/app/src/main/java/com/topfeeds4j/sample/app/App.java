@@ -33,6 +33,9 @@ package com.topfeeds4j.sample.app;
 
 import android.app.Application;
 
+import com.chopping.net.TaskHelper;
+import com.topfeeds4j.sample.utils.Prefs;
+
 /**
  * Created by czhao on 02.04.15.
  */
@@ -44,4 +47,13 @@ public final class App extends Application {
 	{
 		Instance = this;
 	}
+
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        TaskHelper.init(getApplicationContext());
+        Prefs.createInstance(this);
+    }
+
 }
