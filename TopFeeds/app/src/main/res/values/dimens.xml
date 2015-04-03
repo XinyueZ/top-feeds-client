@@ -4,6 +4,6 @@
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="common_margin">5dp</dimen>
     <dimen name="common_padding">5dp</dimen>
-    <dimen name="pb_height">3dp</dimen>
+    <dimen name="pb_height">5dp</dimen>
     <dimen name="drawer_left_width">300dp</dimen>
 </resources>

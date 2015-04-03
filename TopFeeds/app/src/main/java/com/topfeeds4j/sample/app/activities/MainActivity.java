@@ -16,7 +16,7 @@ import com.astuetz.PagerSlidingTabStrip;
 import com.chopping.activities.BaseActivity;
 import com.chopping.application.BasicPrefs;
 import com.chopping.bus.CloseDrawerEvent;
-import com.github.mrengineer13.snackbar.SnackBar;
+import com.chopping.utils.Utils;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.adapters.NewsListPagersAdapter;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
@@ -39,7 +39,6 @@ public class MainActivity extends BaseActivity {
 	 * Adapter for {@link #mViewPager}.
 	 */
 	private NewsListPagersAdapter mPagerAdapter;
-	private SnackBar mSnackBar;
 
 
 	/**
@@ -83,7 +82,7 @@ public class MainActivity extends BaseActivity {
 	 * 		Event {@link com.topfeeds4j.sample.app.events.LoadMoreEvent}.
 	 */
 	public void onEvent(LoadMoreEvent e) {
-		mSnackBar.show(getString(R.string.lbl_load_more));
+		Utils.showShortToast(getApplicationContext(), R.string.lbl_load_more);
 	}
 
 	/**
@@ -105,8 +104,6 @@ public class MainActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-		mSnackBar = new SnackBar(this);
-
 
 		//Actionbar and navi-drawer.
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
