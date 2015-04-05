@@ -6,4 +6,6 @@
     <dimen name="common_padding">5dp</dimen>
     <dimen name="pb_height">5dp</dimen>
     <dimen name="drawer_left_width">300dp</dimen>
+
+    <dimen name="padding_eula">16dp</dimen>
 </resources>

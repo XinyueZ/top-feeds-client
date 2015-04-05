@@ -1,13 +1,20 @@
 package com.topfeeds4j.sample.app.activities;
 
+import android.app.AlertDialog.Builder;
+import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -17,11 +24,17 @@ import com.chopping.activities.BaseActivity;
 import com.chopping.application.BasicPrefs;
 import com.chopping.bus.CloseDrawerEvent;
 import com.chopping.utils.Utils;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.adapters.NewsListPagersAdapter;
+import com.topfeeds4j.sample.app.events.EULAConfirmedEvent;
+import com.topfeeds4j.sample.app.events.EULARejectEvent;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
 import com.topfeeds4j.sample.app.events.OpenLinkEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
+import com.topfeeds4j.sample.app.fragments.AboutDialogFragment;
+import com.topfeeds4j.sample.app.fragments.AboutDialogFragment.EulaConfirmationDialog;
 import com.topfeeds4j.sample.app.fragments.AppListImpFragment;
 import com.topfeeds4j.sample.utils.Prefs;
 
@@ -99,6 +112,30 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 
+
+	/**
+	 * Handler for {@link  EULARejectEvent}.
+	 *
+	 * @param e
+	 * 		Event {@link  EULARejectEvent}.
+	 */
+	public void onEvent(EULARejectEvent e) {
+		finish();
+	}
+
+	/**
+	 * Handler for {@link EULAConfirmedEvent}
+	 *
+	 * @param e
+	 * 		Event {@link  EULAConfirmedEvent}.
+	 */
+	public void onEvent(EULAConfirmedEvent e) {
+
+		initViewPager();
+
+	}
+
+
 	//------------------------------------------------
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -113,14 +150,7 @@ public class MainActivity extends BaseActivity {
 		//Navi-drawer.
 		initDrawer();
 
-		mViewPager = (ViewPager) findViewById(R.id.vp);
-		mViewPager.setOffscreenPageLimit(3);
-		mPagerAdapter = new NewsListPagersAdapter(MainActivity.this, getSupportFragmentManager());
-		mViewPager.setAdapter(mPagerAdapter);
-		// Bind the tabs to the ViewPager
-		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-		mTabs.setViewPager(mViewPager);
-		mTabs.setIndicatorColorResource(R.color.common_white);
+
 	}
 
 
@@ -145,10 +175,11 @@ public class MainActivity extends BaseActivity {
 		}
 		int id = item.getItemId();
 
-		if (id == R.id.action_settings) {
-			return true;
+		switch (item.getItemId()) {
+		case R.id.action_about:
+			showDialogFragment(AboutDialogFragment.newInstance(this), null);
+			break;
 		}
-
 		return super.onOptionsItemSelected(item);
 	}
 
@@ -161,12 +192,60 @@ public class MainActivity extends BaseActivity {
 	protected void onAppConfigLoaded() {
 		super.onAppConfigLoaded();
 		showAppList();
+		checkAndInit();
 	}
 
 	@Override
 	protected void onAppConfigIgnored() {
 		super.onAppConfigIgnored();
 		showAppList();
+		checkAndInit();
+	}
+
+
+	/**
+	 * Check play-service and do init-pages.
+	 */
+	private void checkAndInit() {
+		checkPlayService();
+		if (Prefs.getInstance().isEULAOnceConfirmed() && mViewPager == null) {
+			initViewPager();
+		}
+	}
+
+
+	/**
+	 * To confirm whether the validation of the Play-service of Google Inc.
+	 */
+	private void checkPlayService() {
+		final int isFound = GooglePlayServicesUtil.isGooglePlayServicesAvailable(this);
+		if (isFound == ConnectionResult.SUCCESS) {//Ignore update.
+			//The "End User License Agreement" must be confirmed before you use this application.
+			if (!Prefs.getInstance().isEULAOnceConfirmed()) {
+				showDialogFragment(new EulaConfirmationDialog(), null);
+			}
+		} else {
+			new Builder(this).setTitle(R.string.application_name).setMessage(R.string.lbl_play_service).setCancelable(
+					false).setPositiveButton(R.string.lbl_yes, new DialogInterface.OnClickListener() {
+				public void onClick(DialogInterface dialog, int whichButton) {
+					dialog.dismiss();
+					Intent intent = new Intent(Intent.ACTION_VIEW);
+					intent.setData(Uri.parse(getString(R.string.play_service_url)));
+					try {
+						startActivity(intent);
+					} catch (ActivityNotFoundException e0) {
+						intent.setData(Uri.parse(getString(R.string.play_service_web)));
+						try {
+							startActivity(intent);
+						} catch (Exception e1) {
+							//Ignore now.
+						}
+					} finally {
+						finish();
+					}
+				}
+			}).create().show();
+		}
 	}
 
 
@@ -195,4 +274,53 @@ public class MainActivity extends BaseActivity {
 
 		}
 	}
+
+	/**
+	 * Make the main screen, pages, friends-list etc.
+	 */
+	private void initViewPager() {
+		mViewPager = (ViewPager) findViewById(R.id.vp);
+		mViewPager.setOffscreenPageLimit(3);
+		mPagerAdapter = new NewsListPagersAdapter(MainActivity.this, getSupportFragmentManager());
+		mViewPager.setAdapter(mPagerAdapter);
+		// Bind the tabs to the ViewPager
+		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+		mTabs.setViewPager(mViewPager);
+		mTabs.setIndicatorColorResource(R.color.common_white);
+		mTabs.setVisibility(View.VISIBLE);
+	}
+
+
+	/**
+	 * Show  {@link android.support.v4.app.DialogFragment}.
+	 *
+	 * @param dlgFrg
+	 * 		An instance of {@link android.support.v4.app.DialogFragment}.
+	 * @param tagName
+	 * 		Tag name for dialog, default is "dlg". To grantee that only one instance of {@link
+	 * 		android.support.v4.app.DialogFragment} can been seen.
+	 */
+	protected void showDialogFragment(DialogFragment dlgFrg, String tagName) {
+		try {
+			if (dlgFrg != null) {
+				DialogFragment dialogFragment = dlgFrg;
+				FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+				// Ensure that there's only one dialog to the user.
+				Fragment prev = getSupportFragmentManager().findFragmentByTag("dlg");
+				if (prev != null) {
+					ft.remove(prev);
+				}
+				try {
+					if (TextUtils.isEmpty(tagName)) {
+						dialogFragment.show(ft, "dlg");
+					} else {
+						dialogFragment.show(ft, tagName);
+					}
+				} catch (Exception _e) {
+				}
+			}
+		} catch (Exception _e) {
+		}
+	}
+
 }
