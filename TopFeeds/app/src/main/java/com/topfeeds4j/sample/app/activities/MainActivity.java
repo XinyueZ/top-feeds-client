@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -26,6 +27,8 @@ import com.chopping.bus.CloseDrawerEvent;
 import com.chopping.utils.Utils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.tinyurl4j.Api;
+import com.tinyurl4j.data.Response;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.adapters.NewsListPagersAdapter;
 import com.topfeeds4j.sample.app.events.EULAConfirmedEvent;
@@ -37,6 +40,9 @@ import com.topfeeds4j.sample.app.fragments.AboutDialogFragment;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment.EulaConfirmationDialog;
 import com.topfeeds4j.sample.app.fragments.AppListImpFragment;
 import com.topfeeds4j.sample.utils.Prefs;
+
+import retrofit.Callback;
+import retrofit.RetrofitError;
 
 
 public class MainActivity extends BaseActivity {
@@ -166,6 +172,42 @@ public class MainActivity extends BaseActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_main, menu);
 		return true;
+	}
+
+
+	@Override
+	public boolean onPrepareOptionsMenu(final Menu menu) {
+
+		Api.getTinyUrl(getString(R.string.lbl_store_url, getPackageName()), new Callback<Response>() {
+			@Override
+			public void success(Response response, retrofit.client.Response response2) {
+
+				MenuItem menuShare = menu.findItem(R.id.action_share_app);
+				//Getting the actionprovider associated with the menu item whose id is share.
+				android.support.v7.widget.ShareActionProvider provider =
+						(android.support.v7.widget.ShareActionProvider) MenuItemCompat.getActionProvider(menuShare);
+				//Setting a share intent.
+				String subject = String.format(getString(R.string.lbl_share_app_title), getString(
+						R.string.application_name));
+				String text = getString(R.string.lbl_share_app_content, getString(R.string.application_name), response.getResult() );
+				provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
+			}
+
+			@Override
+			public void failure(RetrofitError error) {
+
+				MenuItem menuShare = menu.findItem(R.id.action_share_app);
+				//Getting the actionprovider associated with the menu item whose id is share.
+				android.support.v7.widget.ShareActionProvider provider =
+						(android.support.v7.widget.ShareActionProvider) MenuItemCompat.getActionProvider(menuShare);
+				//Setting a share intent.
+				String subject = String.format(getString(R.string.lbl_share_app_title), getString(R.string.application_name));
+				String text = getString(R.string.lbl_share_app_content,  getString(R.string.application_name), getString(R.string.lbl_store_url, getPackageName()));
+				provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
+			}
+		});
+
+		return super.onPrepareOptionsMenu(menu);
 	}
 
 	@Override

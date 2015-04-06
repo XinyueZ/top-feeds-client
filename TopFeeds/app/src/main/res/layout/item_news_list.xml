@@ -16,14 +16,24 @@
             style="@style/Item_Title" />
 
         <TextView
+
             android:id="@+id/desc_tv"
             android:text="@string/lbl_desc"
             style="@style/Item_Desc" />
 
-        <TextView
-            android:id="@+id/pub_date_tv"
-            android:text="@string/lbl_pub_date"
-            style="@style/Item_PubDate"
-            android:layout_gravity="end" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                style="@style/ActionBar_ToolBar_On_Item" />
+
+            <TextView
+                android:id="@+id/pub_date_tv"
+                android:text="@string/lbl_pub_date"
+                style="@style/Item_PubDate"
+                android:layout_gravity="start" />
+        </FrameLayout>
     </LinearLayout>
 </android.support.v7.widget.CardView>
