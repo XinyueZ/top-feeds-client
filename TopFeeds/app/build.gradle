@@ -1,5 +1,7 @@
 apply plugin: 'com.android.application'
 
+def buildNumber = 'bld' + (System.env.BUILD_NUMBER ?: 'SNAPSHOT')
+
 android {
     compileSdkVersion 21
     buildToolsVersion "21.1.2"
@@ -12,10 +14,19 @@ android {
         versionName "1.0"
     }
     buildTypes {
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        debug {
+            versionNameSuffix buildNumber
         }
+        release {
+
+        }
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
     }
 }
 
@@ -35,3 +46,15 @@ dependencies {
     compile project(':volley_cz')
     compile project(':ChoppingBootstrap')
 }
+
+
+
+// Rename final apks
+android.applicationVariants.all {  variant ->
+    variant.outputs.each  { output ->
+        output.outputFile = new File(
+                output.outputFile.parent, output.outputFile.name.replace("_Android", "")
+                .replace(".apk", "-${android.defaultConfig.versionName}${buildNumber}.apk"))
+    }
+}
+

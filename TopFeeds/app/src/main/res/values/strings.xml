@@ -49,4 +49,6 @@
         accordance with Google\'s Privacy Policy and Google Terms of Service.</string>
     <string name="play_service_url">market://details?id=com.google.android.gms</string>
     <string name="play_service_web">https://play.google.com/store/apps/details?id=com.google.android.gms</string>
+
+    <string name="ad_unit_id">ca-app-pub-9133982521997162/9826688532</string>
 </resources>

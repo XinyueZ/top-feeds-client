@@ -103,7 +103,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			holder.mDescTv.setVisibility(View.VISIBLE);
 			holder.mDescTv.setText(entry.getDesc());
 		}
-		holder.mPubDateTv.setText(DateTimeUtils.timeConvert1(App.Instance, entry.getPubDate() * 1000));
+		holder.mPubDateTv.setText(DateTimeUtils.timeConvert2(App.Instance, entry.getPubDate() * 1000));
 
 		MenuItem shareMi = holder.mToolbar.getMenu().findItem(R.id.action_share_item);
 		shareMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {

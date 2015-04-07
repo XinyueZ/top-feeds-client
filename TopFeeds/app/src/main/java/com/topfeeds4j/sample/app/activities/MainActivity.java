@@ -27,6 +27,8 @@ import com.chopping.activities.BaseActivity;
 import com.chopping.application.BasicPrefs;
 import com.chopping.bus.CloseDrawerEvent;
 import com.chopping.utils.Utils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.tinyurl4j.Api;
@@ -61,7 +63,10 @@ public class MainActivity extends BaseActivity {
 	 * Adapter for {@link #mViewPager}.
 	 */
 	private NewsListPagersAdapter mPagerAdapter;
-
+	/**
+	 * The interstitial ad.
+	 */
+	private InterstitialAd mInterstitialAd;
 
 	/**
 	 * Navigation drawer.
@@ -181,8 +186,15 @@ public class MainActivity extends BaseActivity {
 
 		mPbDlg = ProgressDialog.show(this, null, getString(R.string.msg_load_config));
 		mPbDlg.setCancelable(false);
+
+		makeAds();
 	}
 
+	@Override
+	protected void onDestroy() {
+		displayInterstitial();
+		super.onDestroy();
+	}
 
 	@Override
 	public void onResume() {
@@ -397,5 +409,30 @@ public class MainActivity extends BaseActivity {
 		} catch (Exception _e) {
 		}
 	}
+
+
+	/**
+	 * Make an Admob.
+	 *
+	 */
+	private void makeAds() {
+		// Create an ad.
+		mInterstitialAd = new InterstitialAd(this);
+		mInterstitialAd.setAdUnitId(getString(R.string.ad_unit_id));
+		// Create ad request.
+		AdRequest adRequest = new AdRequest.Builder().build();
+		// Begin loading your interstitial.
+		mInterstitialAd.loadAd(adRequest);
+	}
+
+	/**
+	 * Invoke displayInterstitial() when you are ready to display an interstitial.
+	 */
+	public void displayInterstitial() {
+		if (mInterstitialAd.isLoaded()) {
+			mInterstitialAd.show();
+		}
+	}
+
 
 }
