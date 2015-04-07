@@ -4,6 +4,10 @@ Top Feeds (Client)
 SDK for https://github.com/XinyueZ/top-feeds
 Sample for this SDK.
 
+Example App:
+
+[![https://play.google.com/store/apps/details?id=com.topfeeds4j.sample](https://dl.dropbox.com/s/phrg0387osr3riz/images.jpeg)](https://play.google.com/store/apps/details?id=com.topfeeds4j.sample)
+
 #License
 
 ```
