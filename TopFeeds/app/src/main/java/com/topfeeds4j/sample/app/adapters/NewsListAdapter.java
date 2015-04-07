@@ -3,9 +3,11 @@ package com.topfeeds4j.sample.app.adapters;
 import java.util.List;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.MenuItem.OnMenuItemClickListener;
@@ -14,6 +16,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.chopping.utils.DateTimeUtils;
 import com.tinyurl4j.Api;
 import com.tinyurl4j.data.Response;
 import com.topfeeds4j.ds.NewsEntry;
@@ -92,16 +95,18 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	public void onBindViewHolder(final ViewHolder holder, int position) {
 		final NewsEntry entry = mData.get(position);
 		holder.mTitleTv.setText(entry.getTitle());
+		boolean isToday = DateUtils.isToday(entry.getPubDate() * 1000);
+		holder.mTitleTv.setTypeface(isToday ? Typeface.DEFAULT_BOLD : Typeface.SANS_SERIF);
 		if (TextUtils.isEmpty(entry.getDesc())) {
 			holder.mDescTv.setVisibility(View.GONE);
 		} else {
 			holder.mDescTv.setVisibility(View.VISIBLE);
 			holder.mDescTv.setText(entry.getDesc());
 		}
-		holder.mPubDateTv.setText(entry.getPubDate());
+		holder.mPubDateTv.setText(DateTimeUtils.timeConvert1(App.Instance, entry.getPubDate() * 1000));
 
-		MenuItem menuItem = holder.mToolbar.getMenu().findItem(R.id.action_share_item);
-		menuItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		MenuItem shareMi = holder.mToolbar.getMenu().findItem(R.id.action_share_item);
+		shareMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
 				Api.getTinyUrl(entry.getUrlMobile(), new Callback<Response>() {
@@ -121,6 +126,14 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 						EventBus.getDefault().post(new ShareEvent(subject, text));
 					}
 				});
+				return true;
+			}
+		});
+		MenuItem openSiteMi = holder.mToolbar.getMenu().findItem(R.id.action_open_site);
+		openSiteMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrl()));
 				return true;
 			}
 		});

@@ -15,7 +15,7 @@ public final class NewsEntry implements Serializable {
 	@SerializedName("url_mobile")
 	private String mUrlMobile;
 	@SerializedName("pubDate")
-	private String mPubDate;
+	private long mPubDate;
 
 
 	public String getTitle() {
@@ -34,7 +34,7 @@ public final class NewsEntry implements Serializable {
 		return mUrlMobile;
 	}
 
-	public String getPubDate() {
+	public long getPubDate() {
 		return mPubDate;
 	}
 }

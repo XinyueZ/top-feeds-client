@@ -1,5 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
     >
+
+    <item
+        android:id="@+id/action_open_site"
+        android:title="@string/action_open_site"
+        android:icon="@drawable/ic_open_site"
+        app:showAsAction="ifRoom" />
+
     <item
         android:id="@+id/action_share_item"
         android:title="@string/action_share"

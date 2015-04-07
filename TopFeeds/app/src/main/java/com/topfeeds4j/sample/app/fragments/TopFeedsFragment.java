@@ -6,15 +6,18 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.chopping.application.BasicPrefs;
 import com.chopping.fragments.BaseFragment;
+import com.chopping.utils.Utils;
 import com.topfeeds4j.Api;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
+import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListAdapter;
 import com.topfeeds4j.sample.utils.Prefs;
 
@@ -71,8 +74,22 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 
 
 	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_to_top:
+			if (mAdp != null && mAdp.getItemCount() > 0) {
+				mLayoutManager.scrollToPositionWithOffset(0, 0);
+				Utils.showShortToast(App.Instance, R.string.action_to_top);
+			}
+			break;
+		}
+		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
+		setHasOptionsMenu(true);
 		mRv = (RecyclerView) view.findViewById(R.id.news_list_rv);
 		mRv.setLayoutManager(mLayoutManager = new LinearLayoutManager(getActivity()));
 		mRv.setHasFixedSize(false);
@@ -104,7 +121,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	 * @return A list of {@link NewsEntry}s.
 	 */
 	protected void getNewsList() {
-		if(!isInProgress()) {
+		if (!isInProgress()) {
 			setInProgress(true);
 			Api.getNewsEntries(getNewsHostType(), 0, this);
 		}
