@@ -20,6 +20,8 @@ public final class Prefs extends BasicPrefs {
 	 * Storage for the tinyurl of the application's store-location.
 	 */
 	private static final String KEY_APP_TINYURL = "key_app_tinyurl";
+	private static final String KEY_SHOWN_DETAILS_ADS_TIMES = "ads";
+	private static final String KEY_SHOWN_DETAILS_TIMES = "key.details.shown.times";
 	/**
 	 * The Instance.
 	 */
@@ -103,5 +105,16 @@ public final class Prefs extends BasicPrefs {
 	 */
 	public void setAppTinyUrl(String url) {
 		setString(KEY_APP_TINYURL, url);
+	}
+
+	public int getShownDetailsAdsTimes() {
+		return getInt(KEY_SHOWN_DETAILS_ADS_TIMES, 5);
+	}
+
+	public void setShownDetailsTimes(int times) {
+		setInt(KEY_SHOWN_DETAILS_TIMES, times);
+	}
+	public int getShownDetailsTimes() {
+		return getInt(KEY_SHOWN_DETAILS_TIMES, 1);
 	}
 }

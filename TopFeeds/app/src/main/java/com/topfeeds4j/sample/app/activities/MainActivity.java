@@ -27,6 +27,7 @@ import com.chopping.activities.BaseActivity;
 import com.chopping.application.BasicPrefs;
 import com.chopping.bus.CloseDrawerEvent;
 import com.chopping.utils.Utils;
+import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.common.ConnectionResult;
@@ -190,11 +191,7 @@ public class MainActivity extends BaseActivity {
 		makeAds();
 	}
 
-	@Override
-	protected void onDestroy() {
-		displayInterstitial();
-		super.onDestroy();
-	}
+
 
 	@Override
 	public void onResume() {
@@ -416,13 +413,27 @@ public class MainActivity extends BaseActivity {
 	 *
 	 */
 	private void makeAds() {
-		// Create an ad.
-		mInterstitialAd = new InterstitialAd(this);
-		mInterstitialAd.setAdUnitId(getString(R.string.ad_unit_id));
-		// Create ad request.
-		AdRequest adRequest = new AdRequest.Builder().build();
-		// Begin loading your interstitial.
-		mInterstitialAd.loadAd(adRequest);
+		Prefs prefs = Prefs.getInstance( );
+		int curTime  = prefs.getShownDetailsTimes();
+		int adsTimes = prefs.getShownDetailsAdsTimes();
+		if(curTime % adsTimes == 0) {
+			// Create an ad.
+			mInterstitialAd = new InterstitialAd(this);
+			mInterstitialAd.setAdUnitId(getString(R.string.ad_unit_id));
+			// Create ad request.
+			AdRequest adRequest = new AdRequest.Builder().build();
+			// Begin loading your interstitial.
+			mInterstitialAd.setAdListener(new AdListener() {
+				@Override
+				public void onAdLoaded() {
+					super.onAdLoaded();
+					displayInterstitial();
+				}
+			});
+			mInterstitialAd.loadAd(adRequest);
+		}
+		curTime++;
+		prefs.setShownDetailsTimes(curTime);
 	}
 
 	/**
