@@ -1,6 +1,7 @@
 package com.topfeeds4j.sample.app.activities;
 
 import android.app.AlertDialog.Builder;
+import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -14,6 +15,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -35,6 +37,7 @@ import com.topfeeds4j.sample.app.events.EULAConfirmedEvent;
 import com.topfeeds4j.sample.app.events.EULARejectEvent;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
 import com.topfeeds4j.sample.app.events.OpenLinkEvent;
+import com.topfeeds4j.sample.app.events.ShareEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment.EulaConfirmationDialog;
@@ -68,6 +71,12 @@ public class MainActivity extends BaseActivity {
 	 * Use navigation-drawer for this fork.
 	 */
 	private ActionBarDrawerToggle mDrawerToggle;
+
+	/**
+	 * Indicator when loading application config.
+	 */
+	private ProgressDialog mPbDlg;
+
 	//------------------------------------------------
 	//Subscribes, event-handlers
 	//------------------------------------------------
@@ -141,6 +150,20 @@ public class MainActivity extends BaseActivity {
 
 	}
 
+	/**
+	 * Handler for {@link com.topfeeds4j.sample.app.events.ShareEvent}.
+	 *
+	 * @param e
+	 * 		Event {@link com.topfeeds4j.sample.app.events.ShareEvent}.
+	 */
+	public void onEvent(ShareEvent e) {
+		Intent sendIntent = new Intent();
+		sendIntent.setAction(Intent.ACTION_SEND);
+		sendIntent.putExtra(Intent.EXTRA_SUBJECT, e.getSubject());
+		sendIntent.putExtra(Intent.EXTRA_TEXT, e.getContent());
+		sendIntent.setType("text/plain");
+		startActivity(sendIntent);
+	}
 
 	//------------------------------------------------
 	@Override
@@ -156,7 +179,8 @@ public class MainActivity extends BaseActivity {
 		//Navi-drawer.
 		initDrawer();
 
-
+		mPbDlg = ProgressDialog.show(this, null, getString(R.string.msg_load_config));
+		mPbDlg.setCancelable(false);
 	}
 
 
@@ -177,36 +201,14 @@ public class MainActivity extends BaseActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(final Menu menu) {
-
-		Api.getTinyUrl(getString(R.string.lbl_store_url, getPackageName()), new Callback<Response>() {
-			@Override
-			public void success(Response response, retrofit.client.Response response2) {
-
-				MenuItem menuShare = menu.findItem(R.id.action_share_app);
-				//Getting the actionprovider associated with the menu item whose id is share.
-				android.support.v7.widget.ShareActionProvider provider =
-						(android.support.v7.widget.ShareActionProvider) MenuItemCompat.getActionProvider(menuShare);
-				//Setting a share intent.
-				String subject = String.format(getString(R.string.lbl_share_app_title), getString(
-						R.string.application_name));
-				String text = getString(R.string.lbl_share_app_content, getString(R.string.application_name), response.getResult() );
-				provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
-			}
-
-			@Override
-			public void failure(RetrofitError error) {
-
-				MenuItem menuShare = menu.findItem(R.id.action_share_app);
-				//Getting the actionprovider associated with the menu item whose id is share.
-				android.support.v7.widget.ShareActionProvider provider =
-						(android.support.v7.widget.ShareActionProvider) MenuItemCompat.getActionProvider(menuShare);
-				//Setting a share intent.
-				String subject = String.format(getString(R.string.lbl_share_app_title), getString(R.string.application_name));
-				String text = getString(R.string.lbl_share_app_content,  getString(R.string.application_name), getString(R.string.lbl_store_url, getPackageName()));
-				provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
-			}
-		});
-
+		MenuItem menuShare = menu.findItem(R.id.action_share_app);
+		ShareActionProvider provider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuShare);
+		//Share application.
+		String subject = String.format(getString(R.string.lbl_share_app_title), getString(
+				R.string.application_name));
+		String text = getString(R.string.lbl_share_app_content, getString(R.string.application_name),
+				Prefs.getInstance().getAppTinyuUrl());
+		provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
 		return super.onPrepareOptionsMenu(menu);
 	}
 
@@ -215,8 +217,6 @@ public class MainActivity extends BaseActivity {
 		if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
 			return true;
 		}
-		int id = item.getItemId();
-
 		switch (item.getItemId()) {
 		case R.id.action_about:
 			showDialogFragment(AboutDialogFragment.newInstance(this), null);
@@ -233,15 +233,48 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void onAppConfigLoaded() {
 		super.onAppConfigLoaded();
-		showAppList();
-		checkAndInit();
+		doAppConfig();
 	}
 
 	@Override
 	protected void onAppConfigIgnored() {
 		super.onAppConfigIgnored();
+		doAppConfig();
+	}
+
+	/**
+	 * Work with application's configuration.
+	 */
+	private void doAppConfig() {
+		String url = Prefs.getInstance().getAppTinyuUrl();
+		if (TextUtils.isEmpty(url) || !url.contains("tinyurl")) {
+			Api.getTinyUrl(getString(R.string.lbl_store_url, getPackageName()), new Callback<Response>() {
+				@Override
+				public void success(Response response, retrofit.client.Response response2) {
+					Prefs.getInstance().setAppTinyUrl(response.getResult());
+					showAll();
+				}
+
+				@Override
+				public void failure(RetrofitError error) {
+					Prefs.getInstance().setAppTinyUrl(getString(R.string.lbl_store_url, getPackageName()));
+					showAll();
+				}
+			});
+		} else {
+			showAll();
+		}
+	}
+
+	/**
+	 * Show all list.
+	 */
+	private void showAll() {
 		showAppList();
 		checkAndInit();
+		if (mPbDlg != null && mPbDlg.isShowing()) {
+			mPbDlg.dismiss();
+		}
 	}
 
 

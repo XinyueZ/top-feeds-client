@@ -3,24 +3,25 @@ package com.topfeeds4j.sample.app.adapters;
 import java.util.List;
 
 import android.content.Context;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
+import android.view.MenuItem.OnMenuItemClickListener;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.chopping.utils.Utils;
 import com.tinyurl4j.Api;
 import com.tinyurl4j.data.Response;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.OpenLinkEvent;
+import com.topfeeds4j.sample.app.events.ShareEvent;
+import com.topfeeds4j.sample.utils.Prefs;
 
 import de.greenrobot.event.EventBus;
 import retrofit.Callback;
@@ -98,93 +99,31 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			holder.mDescTv.setText(entry.getDesc());
 		}
 		holder.mPubDateTv.setText(entry.getPubDate());
-		holder.mToolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+
+		MenuItem menuItem = holder.mToolbar.getMenu().findItem(R.id.action_share_item);
+		menuItem.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			@Override
-			public boolean onMenuItemClick(final MenuItem item) {
-				switch (item.getItemId()) {
-				case R.id.action_share_item:
-					Api.getTinyUrl(App.Instance.getString(R.string.lbl_store_url, App.Instance.getPackageName()),
-							new Callback<Response>() {
-								@Override
-								public void success(Response response, retrofit.client.Response response2) {
+			public boolean onMenuItemClick(MenuItem item) {
+				Api.getTinyUrl(entry.getUrlMobile(), new Callback<Response>() {
+					@Override
+					public void success(Response response, retrofit.client.Response response2) {
+						String subject = App.Instance.getString(R.string.lbl_share_item_title);
+						String text = App.Instance.getString(R.string.lbl_share_item_content, entry.getTitle(),
+								response.getResult(), subject, Prefs.getInstance().getAppTinyuUrl());
+						EventBus.getDefault().post(new ShareEvent(subject, text));
+					}
 
-									final String storeUrl = response.getResult();
-									Api.getTinyUrl(entry.getUrlMobile(), new Callback<Response>() {
-										@Override
-										public void success(Response response, retrofit.client.Response response2) {
-											//Getting the actionprovider associated with the menu item whose id is share.
-											android.support.v7.widget.ShareActionProvider provider =
-													(android.support.v7.widget.ShareActionProvider) MenuItemCompat
-															.getActionProvider(item);
-											//Setting a share intent.
-											String subject = App.Instance.getString(R.string.lbl_share_item_title);
-											String text = App.Instance.getString(R.string.lbl_share_item_title,
-													entry.getTitle(), response.getResult(), storeUrl);
-											provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject,
-													text));
-										}
-
-										@Override
-										public void failure(RetrofitError error) {
-
-											//Getting the actionprovider associated with the menu item whose id is share.
-											android.support.v7.widget.ShareActionProvider provider =
-													(android.support.v7.widget.ShareActionProvider) MenuItemCompat
-															.getActionProvider(item);
-											//Setting a share intent.
-											String subject = App.Instance.getString(R.string.lbl_share_item_title);
-											String text = App.Instance.getString(R.string.lbl_share_item_title,
-													entry.getTitle(), entry.getUrlMobile(), storeUrl);
-											provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject,
-													text));
-										}
-									});
-
-								}
-
-								@Override
-								public void failure(RetrofitError error) {
-
-									final String storeUrl = App.Instance.getString(R.string.lbl_store_url,
-											App.Instance.getPackageName());
-									Api.getTinyUrl(entry.getUrlMobile(), new Callback<Response>() {
-										@Override
-										public void success(Response response, retrofit.client.Response response2) {
-											//Getting the actionprovider associated with the menu item whose id is share.
-											android.support.v7.widget.ShareActionProvider provider =
-													(android.support.v7.widget.ShareActionProvider) MenuItemCompat
-															.getActionProvider(item);
-											//Setting a share intent.
-											String subject = App.Instance.getString(R.string.lbl_share_item_title);
-											String text = App.Instance.getString(R.string.lbl_share_item_title,
-													entry.getTitle(), response.getResult(), storeUrl);
-											provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject,
-													text));
-										}
-
-										@Override
-										public void failure(RetrofitError error) {
-
-											//Getting the actionprovider associated with the menu item whose id is share.
-											android.support.v7.widget.ShareActionProvider provider =
-													(android.support.v7.widget.ShareActionProvider) MenuItemCompat
-															.getActionProvider(item);
-											//Setting a share intent.
-											String subject = App.Instance.getString(R.string.lbl_share_item_title);
-											String text = App.Instance.getString(R.string.lbl_share_item_title,
-													entry.getTitle(), entry.getUrlMobile(), storeUrl);
-											provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject,
-													text));
-										}
-									});
-								}
-							});
-					break;
-				}
+					@Override
+					public void failure(RetrofitError error) {
+						String subject = App.Instance.getString(R.string.lbl_share_item_title);
+						String text = App.Instance.getString(R.string.lbl_share_item_content, entry.getTitle(),
+								entry.getUrlMobile(), subject, Prefs.getInstance().getAppTinyuUrl());
+						EventBus.getDefault().post(new ShareEvent(subject, text));
+					}
+				});
 				return true;
 			}
 		});
-
 		holder.itemView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {

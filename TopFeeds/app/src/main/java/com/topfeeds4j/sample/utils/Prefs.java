@@ -17,6 +17,10 @@ public final class Prefs extends BasicPrefs {
 	 */
 	private static final String KEY_EULA_SHOWN = "key_eula_shown";
 	/**
+	 * Storage for the tinyurl of the application's store-location.
+	 */
+	private static final String KEY_APP_TINYURL = "key_app_tinyurl";
+	/**
 	 * The Instance.
 	 */
 	private static Prefs sInstance;
@@ -85,4 +89,19 @@ public final class Prefs extends BasicPrefs {
 		setBoolean(KEY_EULA_SHOWN, isConfirmed);
 	}
 
+	/**
+	 *
+	 * @return Storage for the tinyurl of the application's store-location.
+	 */
+	public String getAppTinyuUrl() {
+		return getString(KEY_APP_TINYURL, null);
+	}
+
+	/**
+	 * Set the storage for the tinyurl of the application's store-location.
+	 * @param url the application's store-location.
+	 */
+	public void setAppTinyUrl(String url) {
+		setString(KEY_APP_TINYURL, url);
+	}
 }
