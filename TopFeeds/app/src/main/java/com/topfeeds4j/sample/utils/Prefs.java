@@ -117,4 +117,20 @@ public final class Prefs extends BasicPrefs {
 	public int getShownDetailsTimes() {
 		return getInt(KEY_SHOWN_DETAILS_TIMES, 1);
 	}
+
+	/**
+	 *
+	 * @return Cache size for response.
+	 */
+	public int getCacheSize() {
+		return getInt("cache_size", 1024);
+	}
+
+	/**
+	 *
+	 * @return Location of API.
+	 */
+	public String getTopFeeds4JHost() {
+		return getString("topfeeds4j_host", "http://top-feeds-90308.appspot.com/");
+	}
 }

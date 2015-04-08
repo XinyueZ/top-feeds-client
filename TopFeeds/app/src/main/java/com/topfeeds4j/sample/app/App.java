@@ -55,5 +55,4 @@ public final class App extends Application {
         TaskHelper.init(getApplicationContext());
         Prefs.createInstance(this);
     }
-
 }

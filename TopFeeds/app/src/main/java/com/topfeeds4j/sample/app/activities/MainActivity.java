@@ -35,6 +35,7 @@ import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.tinyurl4j.Api;
 import com.tinyurl4j.data.Response;
 import com.topfeeds4j.sample.R;
+import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListPagersAdapter;
 import com.topfeeds4j.sample.app.events.EULAConfirmedEvent;
 import com.topfeeds4j.sample.app.events.EULARejectEvent;
@@ -243,6 +244,9 @@ public class MainActivity extends BaseActivity {
 	protected void onAppConfigLoaded() {
 		super.onAppConfigLoaded();
 		doAppConfig();
+
+		Prefs prefs = Prefs.getInstance();
+		com.topfeeds4j.Api.initialize(App.Instance, prefs.getTopFeeds4JHost(), prefs.getCacheSize());
 	}
 
 	@Override

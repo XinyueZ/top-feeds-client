@@ -141,6 +141,9 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 			mAdp.setData(newsEntries.getNewsEntries());
 			mAdp.notifyDataSetChanged();
 		} else {
+			if(mAdp != null && mAdp.getData().size() > 0) {
+				return;
+			}
 			mErrorV.setVisibility(View.VISIBLE);
 		}
 	}
