@@ -1,4 +1,4 @@
-Top Feeds (Client)
+Top Feeds (Client for Android)
 ==============
 
 SDK for https://github.com/XinyueZ/top-feeds 
