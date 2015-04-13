@@ -1,20 +1,21 @@
 package com.topfeeds4j.sample.app.events;
 
 
+import android.content.Intent;
+
+/**
+ * Common and native sharing event .
+ *
+ * @author Xinyue Zhao
+ */
 public final class ShareEvent {
-	private String mSubject;
-	private String mContent;
+	private Intent mIntent;
 
-	public ShareEvent(String subject, String content) {
-		mSubject = subject;
-		mContent = content;
+	public ShareEvent(Intent intent) {
+		mIntent = intent;
 	}
 
-	public String getSubject() {
-		return mSubject;
-	}
-
-	public String getContent() {
-		return mContent;
+	public Intent getIntent() {
+		return mIntent;
 	}
 }

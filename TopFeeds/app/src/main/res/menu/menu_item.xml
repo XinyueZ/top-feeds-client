@@ -25,5 +25,6 @@
         android:id="@+id/action_share_item"
         android:title="@string/action_share"
         android:icon="@drawable/ic_item_share"
-        app:showAsAction="always" />
+        app:showAsAction="always"
+        app:actionProviderClass="com.topfeeds4j.sample.utils.DynamicShareActionProvider"/>
 </menu>

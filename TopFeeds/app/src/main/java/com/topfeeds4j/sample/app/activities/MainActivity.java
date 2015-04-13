@@ -168,13 +168,14 @@ public class MainActivity extends BaseActivity {
 	 * @param e
 	 * 		Event {@link com.topfeeds4j.sample.app.events.ShareEvent}.
 	 */
-	public void onEvent(ShareEvent e) {
-		Intent sendIntent = new Intent();
-		sendIntent.setAction(Intent.ACTION_SEND);
-		sendIntent.putExtra(Intent.EXTRA_SUBJECT, e.getSubject());
-		sendIntent.putExtra(Intent.EXTRA_TEXT, e.getContent());
-		sendIntent.setType("text/plain");
-		startActivity(sendIntent);
+	public void onEvent(final ShareEvent e) {
+//		Intent sendIntent = new Intent();
+//		sendIntent.setAction(Intent.ACTION_SEND);
+//		sendIntent.putExtra(Intent.EXTRA_SUBJECT, e.getSubject());
+//		sendIntent.putExtra(Intent.EXTRA_TEXT, e.getContent());
+//		sendIntent.setType("text/plain");
+//		startActivity(sendIntent);
+		startActivity(e.getIntent());
 	}
 
 	WebDialog fbDlg;
@@ -246,11 +247,10 @@ public class MainActivity extends BaseActivity {
 		return true;
 	}
 
-
 	@Override
 	public boolean onPrepareOptionsMenu(final Menu menu) {
-		MenuItem menuShare = menu.findItem(R.id.action_share_app);
-		ShareActionProvider provider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuShare);
+		MenuItem  menuAppShare = menu.findItem(R.id.action_share_app);
+		ShareActionProvider provider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuAppShare);
 		//Share application.
 		String subject = String.format(getString(R.string.lbl_share_app_title), getString(R.string.application_name));
 		String text = getString(R.string.lbl_share_app_content, getString(R.string.application_name),

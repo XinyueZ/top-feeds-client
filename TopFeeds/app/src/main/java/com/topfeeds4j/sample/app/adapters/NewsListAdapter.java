@@ -3,7 +3,9 @@ package com.topfeeds4j.sample.app.adapters;
 import java.util.List;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -26,6 +28,7 @@ import com.topfeeds4j.sample.app.events.OpenLinkEvent;
 import com.topfeeds4j.sample.app.events.ShareEntryEvent;
 import com.topfeeds4j.sample.app.events.ShareEntryEvent.Type;
 import com.topfeeds4j.sample.app.events.ShareEvent;
+import com.topfeeds4j.sample.utils.DynamicShareActionProvider;
 import com.topfeeds4j.sample.utils.Prefs;
 
 import de.greenrobot.event.EventBus;
@@ -108,16 +111,21 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		holder.mPubDateTv.setText(DateTimeUtils.timeConvert2(App.Instance, entry.getPubDate() * 1000));
 
 		MenuItem shareMi = holder.mToolbar.getMenu().findItem(R.id.action_share_item);
-		shareMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		DynamicShareActionProvider
+				shareLaterProvider = (DynamicShareActionProvider) MenuItemCompat.getActionProvider(shareMi);
+		shareLaterProvider.setShareDataType("text/plain");
+		shareLaterProvider.setOnShareLaterListener(new DynamicShareActionProvider.OnShareLaterListener() {
 			@Override
-			public boolean onMenuItemClick(MenuItem item) {
+			public void onShareClick(final Intent shareIntent) {
 				Api.getTinyUrl(entry.getUrlMobile(), new Callback<Response>() {
 					@Override
 					public void success(Response response, retrofit.client.Response response2) {
 						String subject = App.Instance.getString(R.string.lbl_share_item_title);
 						String text = App.Instance.getString(R.string.lbl_share_item_content, entry.getTitle(),
 								response.getResult(), subject, Prefs.getInstance().getAppTinyuUrl());
-						EventBus.getDefault().post(new ShareEvent(subject, text));
+						shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+						shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+						EventBus.getDefault().post(new ShareEvent(shareIntent));
 					}
 
 					@Override
@@ -125,12 +133,14 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 						String subject = App.Instance.getString(R.string.lbl_share_item_title);
 						String text = App.Instance.getString(R.string.lbl_share_item_content, entry.getTitle(),
 								entry.getUrlMobile(), subject, Prefs.getInstance().getAppTinyuUrl());
-						EventBus.getDefault().post(new ShareEvent(subject, text));
+						shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
+						shareIntent.putExtra(Intent.EXTRA_TEXT, text);
+						EventBus.getDefault().post(new ShareEvent(shareIntent));
 					}
 				});
-				return true;
 			}
 		});
+
 		MenuItem openSiteMi = holder.mToolbar.getMenu().findItem(R.id.action_open_site);
 		openSiteMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			@Override

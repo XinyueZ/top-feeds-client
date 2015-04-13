@@ -3,9 +3,9 @@ package com.topfeeds4j.sample.app.events;
 import com.topfeeds4j.ds.NewsEntry;
 
 /**
- * Share message with Facebook or Tweet.
+ * Share news with Facebook or Tweet.
  *
- * @author Xinyue Zhap
+ * @author Xinyue Zhao
  */
 public final class ShareEntryEvent {
 	/**

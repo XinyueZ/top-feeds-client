@@ -53,6 +53,12 @@
     <string name="play_service_url">market://details?id=com.google.android.gms</string>
     <string name="play_service_web">https://play.google.com/store/apps/details?id=com.google.android.gms</string>
 
+    <string name="no_app_to_share">No app installed to share data of type %s!</string>
+    <string name="no_share_type">No share type specified!</string>
+    <string name="error_occurred">Sorry, an error occurred.</string>
+
+
+
     <string name="ad_unit_id">ca-app-pub-9133982521997162/9826688532</string>
     <string name="applicationId">979520732071920</string>
 </resources>
