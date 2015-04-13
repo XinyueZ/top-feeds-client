@@ -5,11 +5,25 @@
         android:id="@+id/action_open_site"
         android:title="@string/action_open_site"
         android:icon="@drawable/ic_open_site"
-        app:showAsAction="ifRoom" />
-
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_bookmark_item"
+        android:title="@string/action_bookmark"
+        android:icon="@drawable/ic_bookmarked" android:visible="false"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/action_not_bookmarked_item"
+        android:title="@string/action_not_bookmarked"
+        android:icon="@drawable/ic_not_bookmarked"
+        app:showAsAction="always" android:visible="true"/>
+    <item
+        android:id="@+id/action_fb_share_item"
+        android:title="@string/action_fb_share"
+        android:icon="@drawable/ic_fb_share"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_share_item"
         android:title="@string/action_share"
         android:icon="@drawable/ic_item_share"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 </menu>

@@ -23,6 +23,8 @@ import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.OpenLinkEvent;
+import com.topfeeds4j.sample.app.events.ShareEntryEvent;
+import com.topfeeds4j.sample.app.events.ShareEntryEvent.Type;
 import com.topfeeds4j.sample.app.events.ShareEvent;
 import com.topfeeds4j.sample.utils.Prefs;
 
@@ -137,13 +139,21 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 				return true;
 			}
 		});
+		MenuItem fbShareMi = holder.mToolbar.getMenu().findItem(R.id.action_fb_share_item);
+		fbShareMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(MenuItem item) {
+				EventBus.getDefault().post(new ShareEntryEvent(entry, Type.Facebook));
+				return true;
+			}
+		});
+
 		holder.itemView.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrlMobile()));
 			}
 		});
-
 	}
 
 	@Override

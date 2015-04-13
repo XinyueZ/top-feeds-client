@@ -27,6 +27,9 @@ import com.chopping.activities.BaseActivity;
 import com.chopping.application.BasicPrefs;
 import com.chopping.bus.CloseDrawerEvent;
 import com.chopping.utils.Utils;
+import com.facebook.FacebookException;
+import com.facebook.widget.WebDialog;
+import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -34,6 +37,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.tinyurl4j.Api;
 import com.tinyurl4j.data.Response;
+import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListPagersAdapter;
@@ -41,6 +45,7 @@ import com.topfeeds4j.sample.app.events.EULAConfirmedEvent;
 import com.topfeeds4j.sample.app.events.EULARejectEvent;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
 import com.topfeeds4j.sample.app.events.OpenLinkEvent;
+import com.topfeeds4j.sample.app.events.ShareEntryEvent;
 import com.topfeeds4j.sample.app.events.ShareEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment;
@@ -172,6 +177,40 @@ public class MainActivity extends BaseActivity {
 		startActivity(sendIntent);
 	}
 
+	WebDialog fbDlg;
+
+	/**
+	 * Handler for {@link  ShareEntryEvent}.
+	 *
+	 * @param e
+	 * 		Event {@link  ShareEntryEvent}.
+	 */
+	public void onEvent(ShareEntryEvent e) {
+		NewsEntry msg = e.getEntry();
+		switch (e.getType()) {
+		case Facebook:
+			Bundle postParams = new Bundle();
+			String desc = !TextUtils.isEmpty(msg.getDesc()) ? msg.getDesc() : null;
+			if (desc == null) {
+				fbDlg = new WebDialog.FeedDialogBuilder(this, getString(R.string.applicationId), postParams).setName(
+						msg.getTitle()).setLink(msg.getUrlMobile()).build();
+			} else {
+				fbDlg = new WebDialog.FeedDialogBuilder(this, getString(R.string.applicationId), postParams).setName(
+						msg.getTitle()).setDescription(desc).setLink(msg.getUrlMobile()).build();
+			}
+			fbDlg.setOnCompleteListener(new OnCompleteListener() {
+				@Override
+				public void onComplete(Bundle bundle, FacebookException e) {
+					fbDlg.dismiss();
+				}
+			});
+			fbDlg.show();
+			break;
+		case Tweet:
+			break;
+		}
+	}
+
 	//------------------------------------------------
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -191,7 +230,6 @@ public class MainActivity extends BaseActivity {
 
 		makeAds();
 	}
-
 
 
 	@Override
@@ -214,8 +252,7 @@ public class MainActivity extends BaseActivity {
 		MenuItem menuShare = menu.findItem(R.id.action_share_app);
 		ShareActionProvider provider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuShare);
 		//Share application.
-		String subject = String.format(getString(R.string.lbl_share_app_title), getString(
-				R.string.application_name));
+		String subject = String.format(getString(R.string.lbl_share_app_title), getString(R.string.application_name));
 		String text = getString(R.string.lbl_share_app_content, getString(R.string.application_name),
 				Prefs.getInstance().getAppTinyuUrl());
 		provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
@@ -414,13 +451,12 @@ public class MainActivity extends BaseActivity {
 
 	/**
 	 * Make an Admob.
-	 *
 	 */
 	private void makeAds() {
-		Prefs prefs = Prefs.getInstance( );
-		int curTime  = prefs.getShownDetailsTimes();
+		Prefs prefs = Prefs.getInstance();
+		int curTime = prefs.getShownDetailsTimes();
 		int adsTimes = prefs.getShownDetailsAdsTimes();
-		if(curTime % adsTimes == 0) {
+		if (curTime % adsTimes == 0) {
 			// Create an ad.
 			mInterstitialAd = new InterstitialAd(this);
 			mInterstitialAd.setAdUnitId(getString(R.string.ad_unit_id));
