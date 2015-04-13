@@ -50,6 +50,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	//Indicator for not load and error.
 	private View mNotLoadV;
 	private View mErrorV;
+	private View mEmpty;
 
 	private LinearLayoutManager mLayoutManager;
 	/**
@@ -100,10 +101,11 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 		mRv = (RecyclerView) view.findViewById(R.id.news_list_rv);
 		mRv.setLayoutManager(mLayoutManager = new LinearLayoutManager(getActivity()));
 		mRv.setHasFixedSize(false);
-		mRv.setAdapter(mAdp = new NewsListAdapter(null, isRefreshBookmark()));
+		mRv.setAdapter(mAdp = new NewsListAdapter(null));
 
 		mNotLoadV = view.findViewById(R.id.not_loaded_pb);
 		mErrorV = view.findViewById(R.id.error_iv);
+		mEmpty = view.findViewById(R.id.empty_iv);
 
 		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.content_srl);
 		mSwipeRefreshLayout.setColorSchemeResources(R.color.color_pocket_1, R.color.color_pocket_2,
@@ -115,13 +117,6 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 			}
 		});
 
-	}
-
-	/**
-	 * Should refresh bookmark-list or normal list.
-	 */
-	protected boolean isRefreshBookmark() {
-		return true;
 	}
 
 
@@ -151,8 +146,14 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	public void success(NewsEntries newsEntries, Response response) {
 		onFinishLoading();
 		if (newsEntries.getStatus() == 200) {
-			mAdp.setData(newsEntries.getNewsEntries());
-			mAdp.notifyDataSetChanged();
+			if (newsEntries.getNewsEntries() != null && newsEntries.getNewsEntries().size() > 0) {
+				mAdp.setData(newsEntries.getNewsEntries());
+				mAdp.notifyDataSetChanged();
+			} else {
+				if (mAdp.getData() == null || mAdp.getData().size() == 0) {
+					mEmpty.setVisibility(View.VISIBLE);
+				}
+			}
 		} else {
 			if (mAdp != null && mAdp.getData() != null && mAdp.getData().size() > 0) {
 				return;
@@ -175,6 +176,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 		setInProgress(false);
 		mNotLoadV.setVisibility(View.GONE);
 		mErrorV.setVisibility(View.GONE);
+		mEmpty.setVisibility(View.GONE);
 		mSwipeRefreshLayout.setRefreshing(false);
 	}
 

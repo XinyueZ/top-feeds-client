@@ -61,10 +61,6 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	 */
 	private List<NewsEntry> mData;
 
-	/**
-	 * Should refresh bookmark-list or normal list.
-	 */
-	private boolean mRefreshBookmarkList;
 
 	/**
 	 * Constructor of {@link NewsListAdapter}.
@@ -72,9 +68,8 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	 * @param data
 	 * 		Data-source.
 	 */
-	public NewsListAdapter(List<NewsEntry> data, boolean refreshBookmarkList) {
+	public NewsListAdapter(List<NewsEntry> data ) {
 		setData(data);
-		mRefreshBookmarkList = refreshBookmarkList;
 	}
 
 	/**
@@ -173,8 +168,6 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		notBookmarkedMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(final MenuItem item) {
-				bookmarkMi.setVisible(true);
-				notBookmarkedMi.setVisible(false);
 				bookmarkMi.setEnabled(false);
 				notBookmarkedMi.setEnabled(false);
 				com.topfeeds4j.Api.removeBookmark(entry, new Callback<Status>() {
@@ -184,6 +177,8 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 						bookmarkMi.setEnabled(true);
 						notBookmarkedMi.setEnabled(true);
 						EventBus.getDefault().post(new RefreshListEvent());
+						EventBus.getDefault().post(new ShowToastEvent(ShowToastEvent.Type.INFO, App.Instance.getString(
+								R.string.msg_removed_bookmark)));
 					}
 
 					@Override
@@ -201,8 +196,6 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		bookmarkMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(final MenuItem item) {
-				bookmarkMi.setVisible(false);
-				notBookmarkedMi.setVisible(true);
 				bookmarkMi.setEnabled(false);
 				notBookmarkedMi.setEnabled(false);
 				com.topfeeds4j.Api.bookmark(entry, new Callback<Status>() {
@@ -211,7 +204,8 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 						App.Instance.addBookmark(entry);
 						bookmarkMi.setEnabled(true);
 						notBookmarkedMi.setEnabled(true);
-						EventBus.getDefault().post(new RefreshListEvent());
+						EventBus.getDefault().post(new RefreshListEvent());	EventBus.getDefault().post(new ShowToastEvent(ShowToastEvent.Type.INFO, App.Instance.getString(
+								R.string.msg_added_bookmark)));
 					}
 
 					@Override

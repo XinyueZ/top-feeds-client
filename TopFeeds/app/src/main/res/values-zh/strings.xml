@@ -13,6 +13,8 @@
     <string name="lbl_no">不</string>
 
     <string name="msg_error">发生错误…</string>
+    <string name="msg_added_bookmark">添加收藏</string>
+    <string name="msg_removed_bookmark">移出收藏</string>
     <string name="msg_load_config">读取应用配置…</string>
 
 

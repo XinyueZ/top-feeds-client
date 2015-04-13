@@ -42,10 +42,6 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 		getNewsList();
 	}
 
-	@Override
-	protected boolean isRefreshBookmark() {
-		return false;
-	}
 
 	@Override
 	protected int getNewsHostType() {
