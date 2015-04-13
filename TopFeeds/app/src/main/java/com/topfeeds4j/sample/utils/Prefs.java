@@ -22,6 +22,7 @@ public final class Prefs extends BasicPrefs {
 	private static final String KEY_APP_TINYURL = "key_app_tinyurl";
 	private static final String KEY_SHOWN_DETAILS_ADS_TIMES = "ads";
 	private static final String KEY_SHOWN_DETAILS_TIMES = "key.details.shown.times";
+	private static final String KEY_DEVICE_IDENT = "key.device.ident";
 	/**
 	 * The Instance.
 	 */
@@ -92,7 +93,6 @@ public final class Prefs extends BasicPrefs {
 	}
 
 	/**
-	 *
 	 * @return Storage for the tinyurl of the application's store-location.
 	 */
 	public String getAppTinyuUrl() {
@@ -101,7 +101,9 @@ public final class Prefs extends BasicPrefs {
 
 	/**
 	 * Set the storage for the tinyurl of the application's store-location.
-	 * @param url the application's store-location.
+	 *
+	 * @param url
+	 * 		the application's store-location.
 	 */
 	public void setAppTinyUrl(String url) {
 		setString(KEY_APP_TINYURL, url);
@@ -114,12 +116,12 @@ public final class Prefs extends BasicPrefs {
 	public void setShownDetailsTimes(int times) {
 		setInt(KEY_SHOWN_DETAILS_TIMES, times);
 	}
+
 	public int getShownDetailsTimes() {
 		return getInt(KEY_SHOWN_DETAILS_TIMES, 1);
 	}
 
 	/**
-	 *
 	 * @return Cache size for response.
 	 */
 	public int getCacheSize() {
@@ -127,10 +129,26 @@ public final class Prefs extends BasicPrefs {
 	}
 
 	/**
-	 *
 	 * @return Location of API.
 	 */
 	public String getTopFeeds4JHost() {
 		return getString("topfeeds4j_host", "http://top-feeds-90308.appspot.com/");
+	}
+
+	/**
+	 * Set device identifier for remote storage.
+	 *
+	 * @param ident
+	 * 		An identifier.
+	 */
+	public void setDeviceIdent(String ident) {
+		setString(KEY_DEVICE_IDENT, ident);
+	}
+
+	/**
+	 * @return The device identifier for remote storage.
+	 */
+	public String getDeviceIdent() {
+		return getString(KEY_DEVICE_IDENT, null);
 	}
 }

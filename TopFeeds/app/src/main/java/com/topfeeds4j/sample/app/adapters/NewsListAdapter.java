@@ -1,5 +1,6 @@
 package com.topfeeds4j.sample.app.adapters;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import android.content.Context;
@@ -31,6 +32,7 @@ import com.topfeeds4j.sample.app.events.ShareEntryEvent;
 import com.topfeeds4j.sample.app.events.ShareEntryEvent.Type;
 import com.topfeeds4j.sample.app.events.ShareEvent;
 import com.topfeeds4j.sample.app.events.ShowToastEvent;
+import com.topfeeds4j.sample.utils.DeviceUniqueUtil;
 import com.topfeeds4j.sample.utils.DynamicShareActionProvider;
 import com.topfeeds4j.sample.utils.Prefs;
 
@@ -170,7 +172,13 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			public boolean onMenuItemClick(final MenuItem item) {
 				bookmarkMi.setEnabled(false);
 				notBookmarkedMi.setEnabled(false);
-				com.topfeeds4j.Api.removeBookmark(entry, new Callback<Status>() {
+				String ident = null;
+				try {
+					ident = DeviceUniqueUtil.getDeviceIdent(App.Instance);
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
+				com.topfeeds4j.Api.removeBookmark(ident, entry, new Callback<Status>() {
 					@Override
 					public void success(Status status, retrofit.client.Response response) {
 						App.Instance.removeBookmark(entry);
@@ -198,7 +206,13 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			public boolean onMenuItemClick(final MenuItem item) {
 				bookmarkMi.setEnabled(false);
 				notBookmarkedMi.setEnabled(false);
-				com.topfeeds4j.Api.bookmark(entry, new Callback<Status>() {
+				String ident = null;
+				try {
+					ident = DeviceUniqueUtil.getDeviceIdent(App.Instance);
+				} catch (NoSuchAlgorithmException e) {
+					e.printStackTrace();
+				}
+				com.topfeeds4j.Api.bookmark(ident, entry, new Callback<Status>() {
 					@Override
 					public void success(Status status, retrofit.client.Response response) {
 						App.Instance.addBookmark(entry);

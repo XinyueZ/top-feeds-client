@@ -127,13 +127,13 @@ public final class Api {
 		void getNewsEntries(@Query("type") int type, @Query("page") int page, Callback<NewsEntries> callback);
 
 		@POST("/bookmarkList")
-		void getBookmarkList(Callback<NewsEntries> callback);
+		void getBookmarkList(@Query("ident")String ident, Callback<NewsEntries> callback);
 
 		@POST("/bookmark")
-		void bookmark( @Body NewsEntry newsEntry,  Callback<Status> callback);
+		void bookmark( @Body NewsEntry newsEntry, @Query("ident")String ident, Callback<Status> callback);
 
 		@POST("/removeBookmark")
-		void removeBookmark( @Body  NewsEntry newsEntry,  Callback<Status> callback);
+		void removeBookmark( @Body  NewsEntry newsEntry, @Query("ident")String ident,  Callback<Status> callback);
 	}
 
 	/**
@@ -174,46 +174,49 @@ public final class Api {
 
 	/**
 	 * Add a news-entry to bookmark-list.
+	 * @param ident User identifier.
 	 * @param newsEntry {@link NewsEntry}, a news to bookmark.
 	 * @param callback 	Callback after being bookmarked.
 	 */
-	public static final void bookmark(NewsEntry newsEntry, Callback<Status> callback) {
+	public static final void bookmark( String ident,  NewsEntry newsEntry, Callback<Status> callback) {
 		assertCall();
 		if (s == null) {
 			RestAdapter adapter = new RestAdapter.Builder().setClient(sClient).setRequestInterceptor(
 					sInterceptor).setLogLevel(RestAdapter.LogLevel.FULL).setEndpoint(sHost).build();
 			s = adapter.create(S.class);
 		}
-		s.bookmark(newsEntry, callback);
+		s.bookmark(newsEntry,ident, callback);
 	}
 
 
 	/**
 	 * Remove a news-entry to bookmark-list.
+	 * @param ident User identifier.
 	 * @param newsEntry {@link NewsEntry}, which will be removed from bookmark-list
 	 * @param callback 	Callback after being removed from bookmark-list.
 	 */
-	public static final void removeBookmark(NewsEntry newsEntry, Callback<Status> callback) {
+	public static final void removeBookmark( String ident,  NewsEntry newsEntry, Callback<Status> callback) {
 		assertCall();
 		if (s == null) {
 			RestAdapter adapter = new RestAdapter.Builder().setClient(sClient).setRequestInterceptor(
 					sInterceptor).setLogLevel(RestAdapter.LogLevel.FULL).setEndpoint(sHost).build();
 			s = adapter.create(S.class);
 		}
-		s.removeBookmark(newsEntry, callback);
+		s.removeBookmark(newsEntry,ident, callback);
 	}
 
 	/**
 	 * Get list of bookmarked {@link NewsEntry}.
+	 * @param ident User identifier.
 	 * @param callback 	Callback contains list of bookmarked {@link NewsEntry}.
 	 */
-	public static final void getBookmarkList( Callback<NewsEntries> callback) {
+	public static final void getBookmarkList( String ident,  Callback<NewsEntries> callback) {
 		assertCall();
 		if (s == null) {
 			RestAdapter adapter = new RestAdapter.Builder().setClient(sClient).setRequestInterceptor(
 					sInterceptor).setLogLevel(RestAdapter.LogLevel.FULL).setEndpoint(sHost).build();
 			s = adapter.create(S.class);
 		}
-		s.getBookmarkList(callback);
+		s.getBookmarkList(ident, callback);
 	}
 }
