@@ -50,7 +50,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	//Indicator for not load and error.
 	private View mNotLoadV;
 	private View mErrorV;
-	private View mEmpty;
+	private View mEmptyV;
 
 	private LinearLayoutManager mLayoutManager;
 	/**
@@ -105,7 +105,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 
 		mNotLoadV = view.findViewById(R.id.not_loaded_pb);
 		mErrorV = view.findViewById(R.id.error_iv);
-		mEmpty = view.findViewById(R.id.empty_iv);
+		mEmptyV = view.findViewById(R.id.empty_iv);
 
 		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.content_srl);
 		mSwipeRefreshLayout.setColorSchemeResources(R.color.color_pocket_1, R.color.color_pocket_2,
@@ -151,7 +151,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 				mAdp.notifyDataSetChanged();
 			} else {
 				if (mAdp.getData() == null || mAdp.getData().size() == 0) {
-					mEmpty.setVisibility(View.VISIBLE);
+					mEmptyV.setVisibility(View.VISIBLE);
 				}
 			}
 		} else {
@@ -176,7 +176,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 		setInProgress(false);
 		mNotLoadV.setVisibility(View.GONE);
 		mErrorV.setVisibility(View.GONE);
-		mEmpty.setVisibility(View.GONE);
+		mEmptyV.setVisibility(View.GONE);
 		mSwipeRefreshLayout.setRefreshing(false);
 	}
 
@@ -203,5 +203,9 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	@Override
 	protected BasicPrefs getPrefs() {
 		return Prefs.getInstance();
+	}
+
+	protected View getEmptyView() {
+		return mEmptyV;
 	}
 }

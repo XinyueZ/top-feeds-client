@@ -10,6 +10,7 @@ import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
+import com.topfeeds4j.sample.app.events.RefreshListEvent;
 
 import de.greenrobot.event.EventBus;
 import retrofit.RetrofitError;
@@ -23,6 +24,26 @@ import retrofit.client.Response;
  */
 public final class BookmarkListPageFragment extends TopFeedsFragment {
 
+
+	//------------------------------------------------
+	//Subscribes, event-handlers
+	//------------------------------------------------
+
+	/**
+	 * Handler for {@link RefreshListEvent}.
+	 *
+	 * @param e
+	 * 		Event {@link RefreshListEvent}.
+	 */
+	public void onEvent(RefreshListEvent e) {
+		super.onEvent(e);
+		if (App.Instance.getBookmarkList() == null || App.Instance.getBookmarkList().size() == 0) {
+			getEmptyView().setVisibility(View.VISIBLE);
+		} else {
+			getEmptyView().setVisibility(View.GONE);
+		}
+	}
+	//------------------------------------------------
 
 	/**
 	 * Initialize an {@link  BookmarkListPageFragment}.
