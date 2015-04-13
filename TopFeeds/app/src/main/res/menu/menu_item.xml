@@ -1,5 +1,5 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
-    >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:id="@+id/action_open_site"
@@ -9,13 +9,15 @@
     <item
         android:id="@+id/action_bookmark_item"
         android:title="@string/action_bookmark"
-        android:icon="@drawable/ic_bookmarked" android:visible="false"
+        android:icon="@drawable/ic_not_bookmarked"
+        android:visible="true"
         app:showAsAction="always" />
     <item
         android:id="@+id/action_not_bookmarked_item"
         android:title="@string/action_not_bookmarked"
-        android:icon="@drawable/ic_not_bookmarked"
-        app:showAsAction="always" android:visible="true"/>
+        android:icon="@drawable/ic_bookmarked"
+        app:showAsAction="always"
+        android:visible="false" />
     <item
         android:id="@+id/action_fb_share_item"
         android:title="@string/action_fb_share"
@@ -26,5 +28,5 @@
         android:title="@string/action_share"
         android:icon="@drawable/ic_item_share"
         app:showAsAction="always"
-        app:actionProviderClass="com.topfeeds4j.sample.utils.DynamicShareActionProvider"/>
+        app:actionProviderClass="com.topfeeds4j.sample.utils.DynamicShareActionProvider" />
 </menu>

@@ -14,6 +14,7 @@ import com.topfeeds4j.Api;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
+import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
 
 import de.greenrobot.event.EventBus;
@@ -41,6 +42,26 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 	private int mTotalItemCount;
 	private boolean mLoading = true;
 
+
+	//------------------------------------------------
+	//Subscribes, event-handlers
+	//------------------------------------------------
+
+
+
+	/**
+	 * Handler for {@link LoadedBookmarkEvent}.
+	 *
+	 * @param e
+	 * 		Event {@link LoadedBookmarkEvent}.
+	 */
+	public void onEvent(LoadedBookmarkEvent e) {
+		getNewsList();
+	}
+
+
+
+	//------------------------------------------------
 	/**
 	 * Initialize an {@link  OscNewsListPageFragment}.
 	 *
@@ -128,12 +149,12 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 						public Dialog onCreateDialog(Bundle savedInstanceState) {
 							// Use the Builder class for convenient dialog construction
 							AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-							builder.setMessage(R.string.lbl_retry).setNegativeButton(R.string.lbl_no, null).setPositiveButton(
-									R.string.lbl_yes, new DialogInterface.OnClickListener() {
-										public void onClick(DialogInterface dialog, int id) {
-											getMoreNews();
-										}
-									});
+							builder.setMessage(R.string.lbl_retry).setNegativeButton(R.string.lbl_no, null)
+									.setPositiveButton(R.string.lbl_yes, new DialogInterface.OnClickListener() {
+												public void onClick(DialogInterface dialog, int id) {
+													getMoreNews();
+												}
+											});
 							return builder.create();
 						}
 					}.show(getChildFragmentManager(), null);

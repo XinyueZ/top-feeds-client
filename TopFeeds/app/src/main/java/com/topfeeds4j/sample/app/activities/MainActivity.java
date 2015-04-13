@@ -30,6 +30,12 @@ import com.chopping.utils.Utils;
 import com.facebook.FacebookException;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
+import com.github.johnpersano.supertoasts.SuperCardToast;
+import com.github.johnpersano.supertoasts.SuperToast.Animations;
+import com.github.johnpersano.supertoasts.SuperToast.Background;
+import com.github.johnpersano.supertoasts.SuperToast.IconPosition;
+import com.github.johnpersano.supertoasts.SuperToast.Type;
+import com.github.johnpersano.supertoasts.util.Wrappers;
 import com.google.android.gms.ads.AdListener;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.InterstitialAd;
@@ -48,6 +54,7 @@ import com.topfeeds4j.sample.app.events.OpenLinkEvent;
 import com.topfeeds4j.sample.app.events.ShareEntryEvent;
 import com.topfeeds4j.sample.app.events.ShareEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
+import com.topfeeds4j.sample.app.events.ShowToastEvent;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment.EulaConfirmationDialog;
 import com.topfeeds4j.sample.app.fragments.AppListImpFragment;
@@ -55,6 +62,8 @@ import com.topfeeds4j.sample.utils.Prefs;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
+
+import static com.github.johnpersano.supertoasts.SuperToast.Icon.Dark.INFO;
 
 
 public class MainActivity extends BaseActivity {
@@ -212,11 +221,36 @@ public class MainActivity extends BaseActivity {
 		}
 	}
 
+
+	/**
+	 * Handler for {@link  ShowToastEvent}.
+	 *
+	 * @param e
+	 * 		Event {@link  ShowToastEvent}.
+	 */
+	public void onEventMainThread(ShowToastEvent e) {
+		switch (e.getType()) {
+		case WARNING:
+			showWarningToast(e.getText());
+			break;
+		case INFO:
+			showInfoToast(e.getText());
+			break;
+		case ERROR:
+			showErrorToast(e.getText());
+			break;
+		}
+	}
+
 	//------------------------------------------------
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		final Wrappers wrappers = new Wrappers();
+		//		wrappers.add(onClickWrapper);
+		//		wrappers.add(onDismissWrapper);
+		SuperCardToast.onRestoreState(savedInstanceState, this, wrappers);
 
 		//Actionbar and navi-drawer.
 		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -232,6 +266,13 @@ public class MainActivity extends BaseActivity {
 		makeAds();
 	}
 
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		SuperCardToast.onSaveState(outState);
+
+	}
 
 	@Override
 	public void onResume() {
@@ -290,7 +331,41 @@ public class MainActivity extends BaseActivity {
 	protected void onAppConfigIgnored() {
 		super.onAppConfigIgnored();
 		doAppConfig();
+
+		Prefs prefs = Prefs.getInstance();
+		com.topfeeds4j.Api.initialize(App.Instance, prefs.getTopFeeds4JHost(), prefs.getCacheSize());
 	}
+
+	private void showWarningToast(String text) {
+		SuperCardToast toast = new SuperCardToast(this, Type.STANDARD);
+		toast.setAnimations(Animations.POPUP);
+		toast.setBackground(Background.BLUE);
+		toast.setText(text);
+		toast.setTextColor(getResources().getColor(R.color.common_white));
+		toast.setIcon(INFO, IconPosition.LEFT);
+		toast.show();
+	}
+
+	private void showErrorToast(String text) {
+		SuperCardToast toast = new SuperCardToast(this, Type.STANDARD);
+		toast.setAnimations(Animations.FADE);
+		toast.setBackground(Background.RED);
+		toast.setText(text);
+		toast.setTextColor(getResources().getColor(R.color.common_white));
+		toast.setIcon(INFO, IconPosition.LEFT);
+		toast.show();
+	}
+
+	private void showInfoToast(String text) {
+		SuperCardToast toast = new SuperCardToast(this, Type.STANDARD);
+		toast.setAnimations(Animations.FLYIN);
+		toast.setBackground(Background.GREEN);
+		toast.setText(text);
+		toast.setTextColor(getResources().getColor(R.color.common_white));
+		toast.setIcon(INFO, IconPosition.LEFT);
+		toast.show();
+	}
+
 
 	/**
 	 * Work with application's configuration.
@@ -425,7 +500,7 @@ public class MainActivity extends BaseActivity {
 	 * 		Tag name for dialog, default is "dlg". To grantee that only one instance of {@link
 	 * 		android.support.v4.app.DialogFragment} can been seen.
 	 */
-	protected void showDialogFragment(DialogFragment dlgFrg, String tagName) {
+	private void showDialogFragment(DialogFragment dlgFrg, String tagName) {
 		try {
 			if (dlgFrg != null) {
 				DialogFragment dialogFragment = dlgFrg;
@@ -479,7 +554,7 @@ public class MainActivity extends BaseActivity {
 	/**
 	 * Invoke displayInterstitial() when you are ready to display an interstitial.
 	 */
-	public void displayInterstitial() {
+	private void displayInterstitial() {
 		if (mInterstitialAd.isLoaded()) {
 			mInterstitialAd.show();
 		}

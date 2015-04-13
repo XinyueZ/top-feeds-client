@@ -19,6 +19,7 @@ import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListAdapter;
+import com.topfeeds4j.sample.app.events.RefreshListEvent;
 import com.topfeeds4j.sample.utils.Prefs;
 
 import retrofit.Callback;
@@ -56,16 +57,22 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	 */
 	private boolean mInProgress;
 
+	//------------------------------------------------
+	//Subscribes, event-handlers
+	//------------------------------------------------
+
 	/**
-	 * Handler for {@link}.
+	 * Handler for {@link RefreshListEvent}.
 	 *
 	 * @param e
-	 * 		Event {@link}.
+	 * 		Event {@link RefreshListEvent}.
 	 */
-	public void onEvent(Object e) {
-
+	public void onEvent(RefreshListEvent e) {
+		if (getAdapter() != null) {
+			getAdapter().notifyDataSetChanged();
+		}
 	}
-
+	//------------------------------------------------
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -93,7 +100,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 		mRv = (RecyclerView) view.findViewById(R.id.news_list_rv);
 		mRv.setLayoutManager(mLayoutManager = new LinearLayoutManager(getActivity()));
 		mRv.setHasFixedSize(false);
-		mRv.setAdapter(mAdp = new NewsListAdapter(null));
+		mRv.setAdapter(mAdp = new NewsListAdapter(null, isRefreshBookmark()));
 
 		mNotLoadV = view.findViewById(R.id.not_loaded_pb);
 		mErrorV = view.findViewById(R.id.error_iv);
@@ -108,7 +115,13 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 			}
 		});
 
-		getNewsList();
+	}
+
+	/**
+	 * Should refresh bookmark-list or normal list.
+	 */
+	protected boolean isRefreshBookmark() {
+		return true;
 	}
 
 
@@ -141,7 +154,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 			mAdp.setData(newsEntries.getNewsEntries());
 			mAdp.notifyDataSetChanged();
 		} else {
-			if(mAdp != null && mAdp.getData() != null && mAdp.getData().size() > 0) {
+			if (mAdp != null && mAdp.getData() != null && mAdp.getData().size() > 0) {
 				return;
 			}
 			mErrorV.setVisibility(View.VISIBLE);

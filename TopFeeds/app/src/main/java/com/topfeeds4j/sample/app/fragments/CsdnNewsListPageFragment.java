@@ -3,6 +3,9 @@ package com.topfeeds4j.sample.app.fragments;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 
+import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
+import com.topfeeds4j.sample.app.events.RefreshListEvent;
+
 
 /**
  * The list of news.
@@ -12,6 +15,24 @@ import android.support.v4.app.Fragment;
 public final class CsdnNewsListPageFragment extends TopFeedsFragment {
 
 
+	//------------------------------------------------
+	//Subscribes, event-handlers
+	//------------------------------------------------
+
+
+
+	/**
+	 * Handler for {@link LoadedBookmarkEvent}.
+	 *
+	 * @param e
+	 * 		Event {@link LoadedBookmarkEvent}.
+	 */
+	public void onEvent(LoadedBookmarkEvent e) {
+		getNewsList();
+	}
+
+
+	//------------------------------------------------
 	/**
 	 * Initialize an {@link  CsdnNewsListPageFragment}.
 	 *

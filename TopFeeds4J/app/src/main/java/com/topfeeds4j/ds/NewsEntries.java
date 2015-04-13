@@ -1,14 +1,11 @@
 package com.topfeeds4j.ds;
 
 
-import java.io.Serializable;
 import java.util.List;
 
 import com.google.gson.annotations.SerializedName;
 
-public final class NewsEntries implements Serializable {
-	@SerializedName("status")
-	private int mStatus;
+public final class NewsEntries extends Status {
 	@SerializedName("site")
 	private String mSite;
 	@SerializedName("site_mobile")
@@ -16,10 +13,6 @@ public final class NewsEntries implements Serializable {
 	@SerializedName("result")
 	private List<NewsEntry> mNewsEntries;
 
-
-	public int getStatus() {
-		return mStatus;
-	}
 
 	public String getSite() {
 		return mSite;

@@ -6,11 +6,13 @@
     <string name="lbl_csdn">CSDN</string>
     <string name="lbl_pub_date">发布日期</string>
     <string name="lbl_osc">开源中国</string>
+    <string name="lbl_bookmark_list">收藏</string>
     <string name="lbl_load_more">提取更多</string>
     <string name="lbl_retry">失败，重新尝试？</string>
     <string name="lbl_yes">好</string>
     <string name="lbl_no">不</string>
 
+    <string name="msg_error">发生错误…</string>
     <string name="msg_load_config">读取应用配置…</string>
 
 

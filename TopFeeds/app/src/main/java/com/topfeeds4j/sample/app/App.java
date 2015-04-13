@@ -31,28 +31,78 @@
 
 package com.topfeeds4j.sample.app;
 
+import java.util.List;
+
 import android.app.Application;
 
 import com.chopping.net.TaskHelper;
+import com.facebook.stetho.Stetho;
+import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.utils.Prefs;
 
-/**
- * Created by czhao on 02.04.15.
- */
+
 public final class App extends Application {
 	/**
 	 * Application's instance.
 	 */
 	public static App Instance;
+
 	{
 		Instance = this;
 	}
 
+	/**
+	 * The list of all saved favorite news.
+	 */
+	private List<NewsEntry> mBookmarkList;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        TaskHelper.init(getApplicationContext());
-        Prefs.createInstance(this);
-    }
+	@Override
+	public void onCreate() {
+		super.onCreate();
+		TaskHelper.init(getApplicationContext());
+		Prefs.createInstance(this);
+		Stetho.initialize(Stetho.newInitializerBuilder(this).enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
+				.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this)).build());
+	}
+
+
+	public boolean isBookmarked(NewsEntry item) {
+		if (mBookmarkList == null) {
+			return false;
+		}
+
+		if (item == null) {
+			return false;
+		}
+		for (NewsEntry t : mBookmarkList) {
+			if (t.equals(item)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	public void addBookmark(NewsEntry item) {
+		mBookmarkList.add(0, item);
+	}
+
+
+	public void removeBookmark(NewsEntry item) {
+		for (NewsEntry fi : mBookmarkList) {
+			if (fi.equals(item)) {
+				mBookmarkList.remove(fi);
+				return;
+			}
+		}
+	}
+
+
+	public void setBookmarkList(List<NewsEntry> list) {
+		mBookmarkList = list;
+	}
+
+	public List<NewsEntry> getBookmarkList() {
+		return mBookmarkList;
+	}
 }

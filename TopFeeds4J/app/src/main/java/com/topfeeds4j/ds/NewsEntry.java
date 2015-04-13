@@ -3,6 +3,8 @@ package com.topfeeds4j.ds;
 
 import java.io.Serializable;
 
+import android.text.TextUtils;
+
 import com.google.gson.annotations.SerializedName;
 
 public final class NewsEntry implements Serializable {
@@ -36,5 +38,13 @@ public final class NewsEntry implements Serializable {
 
 	public long getPubDate() {
 		return mPubDate;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		NewsEntry other = (NewsEntry) o;
+		return TextUtils.equals(mTitle, other.mTitle) && TextUtils.equals(mDesc, other.mDesc) && TextUtils.equals(mUrl,
+				other.mUrl) &&
+				TextUtils.equals(mUrlMobile, other.mUrlMobile) && mPubDate == other.mPubDate;
 	}
 }

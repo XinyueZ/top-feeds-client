@@ -6,12 +6,14 @@
     <string name="lbl_csdn">CSDN</string>
     <string name="lbl_pub_date">Publish-date</string>
     <string name="lbl_osc">oschina</string>
+    <string name="lbl_bookmark_list">Bookmarks</string>
     <string name="lbl_load_more">Loading more.</string>
     <string name="lbl_retry">Retry</string>
     <string name="lbl_yes">Yes</string>
     <string name="lbl_no">No</string>
 
     
+    <string name="msg_error">Error…</string>
     <string name="msg_load_config">Load application configuration…</string>
 
 

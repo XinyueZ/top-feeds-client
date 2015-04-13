@@ -22,12 +22,15 @@ import com.chopping.utils.DateTimeUtils;
 import com.tinyurl4j.Api;
 import com.tinyurl4j.data.Response;
 import com.topfeeds4j.ds.NewsEntry;
+import com.topfeeds4j.ds.Status;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.OpenLinkEvent;
+import com.topfeeds4j.sample.app.events.RefreshListEvent;
 import com.topfeeds4j.sample.app.events.ShareEntryEvent;
 import com.topfeeds4j.sample.app.events.ShareEntryEvent.Type;
 import com.topfeeds4j.sample.app.events.ShareEvent;
+import com.topfeeds4j.sample.app.events.ShowToastEvent;
 import com.topfeeds4j.sample.utils.DynamicShareActionProvider;
 import com.topfeeds4j.sample.utils.Prefs;
 
@@ -59,13 +62,19 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	private List<NewsEntry> mData;
 
 	/**
+	 * Should refresh bookmark-list or normal list.
+	 */
+	private boolean mRefreshBookmarkList;
+
+	/**
 	 * Constructor of {@link NewsListAdapter}.
 	 *
 	 * @param data
 	 * 		Data-source.
 	 */
-	public NewsListAdapter(List<NewsEntry> data) {
+	public NewsListAdapter(List<NewsEntry> data, boolean refreshBookmarkList) {
 		setData(data);
+		mRefreshBookmarkList = refreshBookmarkList;
 	}
 
 	/**
@@ -111,8 +120,8 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		holder.mPubDateTv.setText(DateTimeUtils.timeConvert2(App.Instance, entry.getPubDate() * 1000));
 
 		MenuItem shareMi = holder.mToolbar.getMenu().findItem(R.id.action_share_item);
-		DynamicShareActionProvider
-				shareLaterProvider = (DynamicShareActionProvider) MenuItemCompat.getActionProvider(shareMi);
+		DynamicShareActionProvider shareLaterProvider = (DynamicShareActionProvider) MenuItemCompat.getActionProvider(
+				shareMi);
 		shareLaterProvider.setShareDataType("text/plain");
 		shareLaterProvider.setOnShareLaterListener(new DynamicShareActionProvider.OnShareLaterListener() {
 			@Override
@@ -157,6 +166,74 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 				return true;
 			}
 		});
+
+		final MenuItem bookmarkMi = holder.mToolbar.getMenu().findItem(R.id.action_bookmark_item);
+		final MenuItem notBookmarkedMi = holder.mToolbar.getMenu().findItem(R.id.action_not_bookmarked_item);
+
+		notBookmarkedMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(final MenuItem item) {
+				bookmarkMi.setVisible(true);
+				notBookmarkedMi.setVisible(false);
+				bookmarkMi.setEnabled(false);
+				notBookmarkedMi.setEnabled(false);
+				com.topfeeds4j.Api.removeBookmark(entry, new Callback<Status>() {
+					@Override
+					public void success(Status status, retrofit.client.Response response) {
+						App.Instance.removeBookmark(entry);
+						bookmarkMi.setEnabled(true);
+						notBookmarkedMi.setEnabled(true);
+						EventBus.getDefault().post(new RefreshListEvent());
+					}
+
+					@Override
+					public void failure(RetrofitError error) {
+						EventBus.getDefault().post(new ShowToastEvent(ShowToastEvent.Type.ERROR, App.Instance.getString(
+								R.string.msg_error)));
+						bookmarkMi.setEnabled(true);
+						notBookmarkedMi.setEnabled(true);
+					}
+				});
+				return true;
+			}
+		});
+
+		bookmarkMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+			@Override
+			public boolean onMenuItemClick(final MenuItem item) {
+				bookmarkMi.setVisible(false);
+				notBookmarkedMi.setVisible(true);
+				bookmarkMi.setEnabled(false);
+				notBookmarkedMi.setEnabled(false);
+				com.topfeeds4j.Api.bookmark(entry, new Callback<Status>() {
+					@Override
+					public void success(Status status, retrofit.client.Response response) {
+						App.Instance.addBookmark(entry);
+						bookmarkMi.setEnabled(true);
+						notBookmarkedMi.setEnabled(true);
+						EventBus.getDefault().post(new RefreshListEvent());
+					}
+
+					@Override
+					public void failure(RetrofitError error) {
+						EventBus.getDefault().post(new ShowToastEvent(ShowToastEvent.Type.ERROR, App.Instance.getString(
+								R.string.msg_error)));
+						bookmarkMi.setEnabled(true);
+						notBookmarkedMi.setEnabled(true);
+					}
+				});
+				return true;
+			}
+		});
+
+		if (App.Instance.getBookmarkList() == null) {
+			bookmarkMi.setVisible(false);
+			notBookmarkedMi.setVisible(false);
+		} else {
+			boolean notBookmarked = !App.Instance.isBookmarked(entry);
+			bookmarkMi.setVisible(notBookmarked);
+			notBookmarkedMi.setVisible(!notBookmarked);
+		}
 
 		holder.itemView.setOnClickListener(new OnClickListener() {
 			@Override

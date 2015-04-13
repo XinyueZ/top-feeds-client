@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.topfeeds4j.sample.R;
+import com.topfeeds4j.sample.app.fragments.BookmarkListPageFragment;
 import com.topfeeds4j.sample.app.fragments.CsdnNewsListPageFragment;
 import com.topfeeds4j.sample.app.fragments.OscNewsListPageFragment;
 
@@ -15,7 +16,7 @@ import com.topfeeds4j.sample.app.fragments.OscNewsListPageFragment;
  * @author Xinyue Zhao
  */
 public final class NewsListPagersAdapter extends FragmentStatePagerAdapter {
-	private final int[] TITLES = {  R.string.lbl_csdn, R.string.lbl_osc, };
+	private final int[] TITLES = {  R.string.lbl_csdn, R.string.lbl_osc,R.string.lbl_bookmark_list, };
 	private Context mContext;
 
 	public NewsListPagersAdapter(Context cxt, FragmentManager fm) {
@@ -26,6 +27,8 @@ public final class NewsListPagersAdapter extends FragmentStatePagerAdapter {
 	@Override
 	public Fragment getItem(int position) {
 		switch (position) {
+		case 2:
+			return BookmarkListPageFragment.newInstance(mContext);
 		case 1:
 			return OscNewsListPageFragment.newInstance(mContext);
 		case 0:
