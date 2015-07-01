@@ -126,7 +126,7 @@ public final class Api {
 		@GET("/topfeeds")
 		void getNewsEntries(@Query("type") int type, @Query("page") int page, Callback<NewsEntries> callback);
 
-		@POST("/bookmarkList")
+		@GET("/bookmarkList")
 		void getBookmarkList(@Query("ident")String ident, Callback<NewsEntries> callback);
 
 		@POST("/bookmark")
