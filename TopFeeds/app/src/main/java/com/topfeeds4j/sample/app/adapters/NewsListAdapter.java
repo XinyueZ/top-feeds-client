@@ -243,7 +243,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			notBookmarkedMi.setVisible(!notBookmarked);
 		}
 
-		holder.itemView.setOnClickListener(new OnClickListener() {
+		holder.mContentV.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrlMobile()));
@@ -264,6 +264,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		private TextView mDescTv;
 		private TextView mPubDateTv;
 		private Toolbar mToolbar;
+		private View mContentV;
 
 		ViewHolder(View convertView) {
 			super(convertView);
@@ -271,6 +272,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			mDescTv = (TextView) convertView.findViewById(R.id.desc_tv);
 			mPubDateTv = (TextView) convertView.findViewById(R.id.pub_date_tv);
 			mToolbar = (Toolbar) convertView.findViewById(R.id.toolbar);
+			mContentV = convertView.findViewById(R.id.content_v);
 			mToolbar.inflateMenu(MENU_LIST_ITEM);
 		}
 	}

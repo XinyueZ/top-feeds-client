@@ -98,7 +98,7 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 	}
 
 	/**
-	 * Get host type ident, {@code 1} is CSDN, otherwise is oschina.net
+	 * Get host type ident, {@code 1} is CSDN, {@code 2} is techug.com, otherwise is oschina.net
 	 */
 	protected int getNewsHostType() {
 		return 0;

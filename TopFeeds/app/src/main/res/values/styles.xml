@@ -26,16 +26,15 @@
     </style>
 
 
-    <style name="ListItemCardView">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">match_parent</item>
-        <item name="contentPadding">5dp</item>
+
+    <style name="ItemCardView">
+
+        <item name="contentPadding">0dp</item>
         <item name="cardElevation">1dp</item>
-        <item name="cardMaxElevation">2dp</item>
+        <item name="cardMaxElevation">0dp</item>
+        <item name="cardUseCompatPadding">true</item>
+        <item name="cardCornerRadius">0dp</item>
     </style>
-
-
-    <style name="CardView" parent="@style/ListItemCardView" />
 
 
     <style name="GradientProgressBar" parent="SmoothProgressBar">
@@ -73,4 +72,13 @@
         <item name="android:textAppearance">?android:attr/textAppearanceSmall</item>
     </style>
 
+
+    <style name="MaterialRippleLayout">
+
+        <item name="mrl_rippleAlpha">0.2</item>
+        <item name="mrl_rippleColor">@color/primary_dark_color</item>
+        <item name="mrl_rippleDelayClick">true</item>
+        <item name="mrl_rippleHover">true</item>
+        <item name="mrl_rippleOverlay">true</item>
+    </style>
 </resources>

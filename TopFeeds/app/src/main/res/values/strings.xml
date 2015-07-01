@@ -4,6 +4,7 @@
     <string name="lbl_title">Title</string>
     <string name="lbl_desc">Description</string>
     <string name="lbl_csdn">CSDN</string>
+    <string name="lbl_techug">Techug</string>
     <string name="lbl_pub_date">Publish-date</string>
     <string name="lbl_osc">oschina</string>
     <string name="lbl_bookmark_list">Bookmarks</string>
