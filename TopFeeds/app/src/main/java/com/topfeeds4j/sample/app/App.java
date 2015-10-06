@@ -33,7 +33,7 @@ package com.topfeeds4j.sample.app;
 
 import java.util.List;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.chopping.net.TaskHelper;
 import com.facebook.stetho.Stetho;
@@ -41,7 +41,7 @@ import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.utils.Prefs;
 
 
-public final class App extends Application {
+public final class App extends MultiDexApplication {
 	/**
 	 * Application's instance.
 	 */

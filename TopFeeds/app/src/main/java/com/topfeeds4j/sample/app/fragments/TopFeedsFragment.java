@@ -6,7 +6,6 @@ import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -20,6 +19,7 @@ import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListAdapter;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
+import com.topfeeds4j.sample.app.events.TopEvent;
 import com.topfeeds4j.sample.utils.Prefs;
 
 import retrofit.Callback;
@@ -73,6 +73,19 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 			getAdapter().notifyDataSetChanged();
 		}
 	}
+
+	/**
+	 * Handler for {@link com.topfeeds4j.sample.app.events.TopEvent}.
+	 *
+	 * @param e
+	 * 		Event {@link com.topfeeds4j.sample.app.events.TopEvent}.
+	 */
+	public void onEvent(TopEvent e) {
+		if (getUserVisibleHint() && mAdp != null && mAdp.getItemCount() > 0) {
+			mLayoutManager.scrollToPositionWithOffset(0, 0);
+			Utils.showShortToast(App.Instance, R.string.action_to_top);
+		}
+	}
 	//------------------------------------------------
 
 	@Override
@@ -81,23 +94,11 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	}
 
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-		case R.id.action_to_top:
-			if (mAdp != null && mAdp.getItemCount() > 0) {
-				mLayoutManager.scrollToPositionWithOffset(0, 0);
-				Utils.showShortToast(App.Instance, R.string.action_to_top);
-			}
-			break;
-		}
-		return super.onOptionsItemSelected(item);
-	}
 
 	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
-		setHasOptionsMenu(true);
+
 		mRv = (RecyclerView) view.findViewById(R.id.news_list_rv);
 		mRv.setLayoutManager(mLayoutManager = new LinearLayoutManager(getActivity()));
 		mRv.setHasFixedSize(false);

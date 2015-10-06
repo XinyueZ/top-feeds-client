@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -21,8 +22,8 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 
-import com.astuetz.PagerSlidingTabStrip;
 import com.chopping.activities.BaseActivity;
 import com.chopping.application.BasicPrefs;
 import com.chopping.bus.CloseDrawerEvent;
@@ -55,11 +56,13 @@ import com.topfeeds4j.sample.app.events.ShareEntryEvent;
 import com.topfeeds4j.sample.app.events.ShareEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
 import com.topfeeds4j.sample.app.events.ShowToastEvent;
+import com.topfeeds4j.sample.app.events.TopEvent;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment.EulaConfirmationDialog;
 import com.topfeeds4j.sample.app.fragments.AppListImpFragment;
 import com.topfeeds4j.sample.utils.Prefs;
 
+import de.greenrobot.event.EventBus;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 
@@ -74,7 +77,7 @@ public class MainActivity extends BaseActivity {
 	/**
 	 * Tabs.
 	 */
-	private PagerSlidingTabStrip mTabs;
+	private TabLayout mTabs;
 	/**
 	 * Adapter for {@link #mViewPager}.
 	 */
@@ -264,6 +267,13 @@ public class MainActivity extends BaseActivity {
 		mPbDlg.setCancelable(false);
 
 		makeAds();
+
+		findViewById(R.id.top_btn).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				EventBus.getDefault().post(new TopEvent());
+			}
+		});
 	}
 
 
@@ -480,13 +490,12 @@ public class MainActivity extends BaseActivity {
 	 */
 	private void initViewPager() {
 		mViewPager = (ViewPager) findViewById(R.id.vp);
-		mViewPager.setOffscreenPageLimit(4);
+		mViewPager.setOffscreenPageLimit(5);
 		mPagerAdapter = new NewsListPagersAdapter(MainActivity.this, getSupportFragmentManager());
 		mViewPager.setAdapter(mPagerAdapter);
 		// Bind the tabs to the ViewPager
-		mTabs = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-		mTabs.setViewPager(mViewPager);
-		mTabs.setIndicatorColorResource(R.color.common_white);
+		mTabs = (TabLayout) findViewById(R.id.tabs);
+		mTabs.setupWithViewPager(mViewPager);
 		mTabs.setVisibility(View.VISIBLE);
 	}
 

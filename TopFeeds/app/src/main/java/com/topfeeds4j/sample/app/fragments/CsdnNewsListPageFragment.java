@@ -47,7 +47,7 @@ public final class CsdnNewsListPageFragment extends TopFeedsFragment {
 
 
 	/**
-	 * Get host type ident, {@code 1} is CSDN, {@code 2} is techug.com, otherwise is oschina.net
+	 * Get host type ident, {@code 1} is CSDN, {@code 2} is techug.com, {@code 3} is Geeker-news,otherwise is oschina.net
 	 */
 	protected int getNewsHostType() {
 		return 1;

@@ -1,12 +1,12 @@
 package com.topfeeds4j.sample.app.fragments;
 
-import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -28,14 +28,16 @@ import retrofit.client.Response;
  *
  * @author Xinyue Zhao
  */
-public final class OscNewsListPageFragment extends TopFeedsFragment {
+public final class GeekListPageFragment extends TopFeedsFragment {
 
 	/**
-	 * The page of tweets to load.
+	 * First page for Geeker-news.
 	 */
-	private int mPage = DEFAULT_PAGE;
-
-	private static final int DEFAULT_PAGE = 0;
+	private String mFrom = "";
+	/**
+	 * Previous page's start point.
+	 */
+	private String mPrevious = "";
 
 	private int mVisibleItemCount;
 	private int mPastVisibleItems;
@@ -63,15 +65,15 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 
 	//------------------------------------------------
 	/**
-	 * Initialize an {@link  OscNewsListPageFragment}.
+	 * Initialize an {@link  GeekListPageFragment}.
 	 *
 	 * @param context
-	 * 		A {@link android.content.Context} object.
+	 * 		A {@link Context} object.
 	 *
-	 * @return An instance of {@link OscNewsListPageFragment}.
+	 * @return An instance of {@link GeekListPageFragment}.
 	 */
-	public static OscNewsListPageFragment newInstance(Context context) {
-		return (OscNewsListPageFragment) Fragment.instantiate(context, OscNewsListPageFragment.class.getName());
+	public static GeekListPageFragment newInstance(Context context) {
+		return (GeekListPageFragment) Fragment.instantiate(context, GeekListPageFragment.class.getName());
 	}
 
 	@Override
@@ -98,15 +100,16 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 	}
 
 	/**
-	 * Get host type ident, {@code 1} is CSDN, {@code 2} is techug.com,{@code 3} is Geeker-news, otherwise is oschina.net
+	 * Get host type ident, {@code 1} is CSDN, {@code 2} is techug.com, {@code 3} is Geeker-news, otherwise is oschina.net
 	 */
 	protected int getNewsHostType() {
-		return 0;
+		return 3;
 	}
 
 	@Override
 	protected void pull2Load() {
-		mPage = DEFAULT_PAGE;
+		mFrom = "";
+		mPrevious = "";
 		super.pull2Load();
 	}
 
@@ -114,7 +117,8 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 	public void success(NewsEntries newsEntries, Response response) {
 		super.success(newsEntries, response);
 		if (newsEntries.getStatus() == 200) { //Feeds with validated content, otherwise the status is 300 or other else.
-			mPage++;
+			mPrevious = mFrom;
+			mFrom = newsEntries.getFrom();
 		}
 	}
 
@@ -126,23 +130,24 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 		if (!isInProgress()) {
 			EventBus.getDefault().post(new ShowProgressIndicatorEvent(true));
 			setInProgress(true);
-			Api.getNewsEntries(getNewsHostType(), mPage, new Callback<NewsEntries>() {
+			Api.getNewsEntries(getNewsHostType(), mFrom, new Callback<NewsEntries>() {
 				@Override
 				public void success(NewsEntries newsEntries, Response response) {
 					onFinishLoading();
 					if (newsEntries.getStatus() == 200) {
 						getAdapter().getData().addAll(newsEntries.getNewsEntries());
 						getAdapter().notifyDataSetChanged();
-						mPage++;
+						mPrevious = mFrom;
+						mFrom = newsEntries.getFrom();
 					} else {
-						mPage--;
+						mFrom = mPrevious;
 					}
 				}
 
 				@Override
 				public void failure(RetrofitError error) {
 					onFinishLoading();
-					mPage--;
+					mFrom = mPrevious;
 
 					new DialogFragment() {
 						@Override
