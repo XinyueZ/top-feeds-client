@@ -8,11 +8,16 @@ import com.google.gson.annotations.SerializedName;
 public final class NewsEntries extends Status {
 	@SerializedName("site")
 	private String mSite;
+	@SerializedName("from")
+	private String mFrom;
 	@SerializedName("site_mobile")
 	private String mSiteMobile;
 	@SerializedName("result")
 	private List<NewsEntry> mNewsEntries;
 
+	public String getFrom() {
+		return mFrom;
+	}
 
 	public String getSite() {
 		return mSite;
