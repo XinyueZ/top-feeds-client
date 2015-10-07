@@ -122,9 +122,7 @@ public class MainActivity extends BaseActivity {
 	 * 		Event {@link com.topfeeds4j.sample.app.events.OpenLinkEvent}.
 	 */
 	public void onEvent(OpenLinkEvent e) {
-		Intent i = new Intent(Intent.ACTION_VIEW);
-		i.setData(Uri.parse(e.getUrl()));
-		startActivity(i);
+		WebViewActivity.showInstance(this, e.getTitle(), e.getUrl());
 	}
 
 	/**

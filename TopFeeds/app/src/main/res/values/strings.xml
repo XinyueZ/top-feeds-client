@@ -34,6 +34,8 @@
     <string name="action_bookmark">Bookmark</string>
     <string name="action_about">About</string>
     <string name="action_to_top">On top</string>
+    <string name="action_forward">Forward</string>
+    <string name="action_backward">Backward</string>
 
     <string name="lbl_store_url">https://play.google.com/store/apps/details?id=%1$s</string>
     <string name="lbl_play_service">This application needs Google Play Service, you must install it first.</string>

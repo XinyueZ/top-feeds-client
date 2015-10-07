@@ -33,6 +33,8 @@
     <string name="action_bookmark">收藏</string>
     <string name="action_about">关于</string>
     <string name="action_to_top">置顶</string>
+    <string name="action_forward">向前</string>
+    <string name="action_backward">后退</string>
 
     <string name="lbl_play_service">本应用需要谷歌服务，必须先安装然后使用。</string>
     <string name="lbl_share_app_title">一个不错的应用: %s</string>
