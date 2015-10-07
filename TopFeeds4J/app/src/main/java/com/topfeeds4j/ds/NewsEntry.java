@@ -45,6 +45,6 @@ public final class NewsEntry implements Serializable {
 		NewsEntry other = (NewsEntry) o;
 		return TextUtils.equals(mTitle, other.mTitle) && TextUtils.equals(mDesc, other.mDesc) && TextUtils.equals(mUrl,
 				other.mUrl) &&
-				TextUtils.equals(mUrlMobile, other.mUrlMobile) && mPubDate == other.mPubDate;
+				TextUtils.equals(mUrlMobile, other.mUrlMobile)  ;
 	}
 }
