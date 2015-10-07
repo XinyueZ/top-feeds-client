@@ -10,8 +10,6 @@
         <item name="popupTheme">@style/AppTheme</item>
         <item name="android:background">@color/primary_color</item>
         <item name="background">@color/primary_color</item>
-        <item name="android:elevation">@dimen/common_margin</item>
-        <item name="elevation">@dimen/common_margin</item>
     </style>
 
 
