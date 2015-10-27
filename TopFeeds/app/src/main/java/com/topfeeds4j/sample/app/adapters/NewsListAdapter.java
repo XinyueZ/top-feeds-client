@@ -151,7 +151,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		openSiteMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick(MenuItem item) {
-				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrl(), entry.getTitle()));
+				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrl(), entry.getTitle(), entry));
 				return true;
 			}
 		});
@@ -246,7 +246,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		holder.mContentV.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrlMobile(), entry.getTitle()));
+				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrlMobile(), entry.getTitle(), entry));
 			}
 		});
 	}

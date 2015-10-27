@@ -21,6 +21,7 @@ import android.webkit.WebViewClient;
 import com.chopping.utils.Utils;
 import com.tinyurl4j.Api;
 import com.tinyurl4j.data.Response;
+import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.utils.Prefs;
@@ -49,6 +50,10 @@ public final class WebViewActivity extends AppCompatActivity {
 	 */
 	private static final String EXTRAS_TITLE = WebViewActivity.class.getName() + ".EXTRAS.title";
 	/**
+	 * Extras for entry itself
+	 */
+	private static final String EXTRAS_ENTRY = WebViewActivity.class.getName() + ".EXTRAS.entry";
+	/**
 	 * WebView .
 	 */
 	private WebView mWebView;
@@ -66,11 +71,14 @@ public final class WebViewActivity extends AppCompatActivity {
 	 * 		Title shows on actionbar.
 	 * @param url
 	 * 		Url to show.
+	 * 	@param entry
+	 * 		The news-entry.
 	 */
-	public static void showInstance(Activity cxt, String title, String url) {
+	public static void showInstance(Activity cxt, String title, String url, NewsEntry entry) {
 		Intent intent = new Intent(cxt, WebViewActivity.class);
 		intent.putExtra(EXTRAS_URL, url);
 		intent.putExtra(EXTRAS_TITLE, title);
+		intent.putExtra(EXTRAS_ENTRY, entry);
 		intent.setFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
 		ActivityCompat.startActivity(cxt, intent, null);
 	}
@@ -184,6 +192,10 @@ public final class WebViewActivity extends AppCompatActivity {
 			if (mWebView.canGoBack()) {
 				mWebView.goBack();
 			}
+			break;
+		case R.id.action_fb:
+			NewsEntry entry = (NewsEntry) getIntent().getSerializableExtra(EXTRAS_ENTRY);
+			com.topfeeds4j.sample.utils.Utils.facebookShare(this , entry);
 			break;
 		}
 		return super.onOptionsItemSelected(item);

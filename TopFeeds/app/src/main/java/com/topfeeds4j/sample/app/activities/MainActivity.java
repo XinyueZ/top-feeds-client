@@ -28,9 +28,6 @@ import com.chopping.activities.BaseActivity;
 import com.chopping.application.BasicPrefs;
 import com.chopping.bus.CloseDrawerEvent;
 import com.chopping.utils.Utils;
-import com.facebook.FacebookException;
-import com.facebook.widget.WebDialog;
-import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast.Animations;
 import com.github.johnpersano.supertoasts.SuperToast.Background;
@@ -122,7 +119,7 @@ public class MainActivity extends BaseActivity {
 	 * 		Event {@link com.topfeeds4j.sample.app.events.OpenLinkEvent}.
 	 */
 	public void onEvent(OpenLinkEvent e) {
-		WebViewActivity.showInstance(this, e.getTitle(), e.getUrl());
+		WebViewActivity.showInstance(this, e.getTitle(), e.getUrl(), e.getNewsEntry());
 	}
 
 	/**
@@ -188,7 +185,6 @@ public class MainActivity extends BaseActivity {
 		startActivity(e.getIntent());
 	}
 
-	WebDialog fbDlg;
 
 	/**
 	 * Handler for {@link  ShareEntryEvent}.
@@ -200,27 +196,14 @@ public class MainActivity extends BaseActivity {
 		NewsEntry msg = e.getEntry();
 		switch (e.getType()) {
 		case Facebook:
-			Bundle postParams = new Bundle();
-			String desc = !TextUtils.isEmpty(msg.getDesc()) ? msg.getDesc() : null;
-			if (desc == null) {
-				fbDlg = new WebDialog.FeedDialogBuilder(this, getString(R.string.applicationId), postParams).setName(
-						msg.getTitle()).setLink(msg.getUrlMobile()).build();
-			} else {
-				fbDlg = new WebDialog.FeedDialogBuilder(this, getString(R.string.applicationId), postParams).setName(
-						msg.getTitle()).setDescription(desc).setLink(msg.getUrlMobile()).build();
-			}
-			fbDlg.setOnCompleteListener(new OnCompleteListener() {
-				@Override
-				public void onComplete(Bundle bundle, FacebookException e) {
-					fbDlg.dismiss();
-				}
-			});
-			fbDlg.show();
+			com.topfeeds4j.sample.utils.Utils.facebookShare(this , msg);
 			break;
 		case Tweet:
 			break;
 		}
 	}
+
+
 
 
 	/**
