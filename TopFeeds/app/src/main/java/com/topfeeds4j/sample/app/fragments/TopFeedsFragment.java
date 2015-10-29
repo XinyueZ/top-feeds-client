@@ -105,7 +105,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 		mRv.setAdapter(mAdp = new NewsListAdapter(null));
 
 		mNotLoadV = view.findViewById(R.id.not_loaded_pb);
-		mErrorV = view.findViewById(R.id.error_iv);
+		mErrorV = view.findViewById(R.id.error_v);
 		mEmptyV = view.findViewById(R.id.empty_iv);
 
 		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.content_srl);
@@ -129,7 +129,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	/**
 	 * @return A list of {@link NewsEntry}s.
 	 */
-	protected void getNewsList() {
+	public void getNewsList() {
 		if (!isInProgress()) {
 			setInProgress(true);
 			Api.getNewsEntries(getNewsHostType(), 0, this);

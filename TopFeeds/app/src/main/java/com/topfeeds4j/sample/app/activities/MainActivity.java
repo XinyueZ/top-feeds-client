@@ -10,7 +10,9 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -23,10 +25,15 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.Spinner;
 
 import com.chopping.activities.BaseActivity;
 import com.chopping.application.BasicPrefs;
 import com.chopping.bus.CloseDrawerEvent;
+import com.chopping.utils.NetworkUtils;
 import com.chopping.utils.Utils;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast.Animations;
@@ -41,6 +48,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.tinyurl4j.Api;
 import com.tinyurl4j.data.Response;
+import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
@@ -57,6 +65,8 @@ import com.topfeeds4j.sample.app.events.TopEvent;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment.EulaConfirmationDialog;
 import com.topfeeds4j.sample.app.fragments.AppListImpFragment;
+import com.topfeeds4j.sample.app.fragments.BookmarkListPageFragment;
+import com.topfeeds4j.sample.app.fragments.TopFeedsFragment;
 import com.topfeeds4j.sample.utils.Prefs;
 
 import de.greenrobot.event.EventBus;
@@ -71,10 +81,6 @@ public class MainActivity extends BaseActivity {
 	 * The pagers
 	 */
 	private ViewPager mViewPager;
-	/**
-	 * Tabs.
-	 */
-	private TabLayout mTabs;
 	/**
 	 * Adapter for {@link #mViewPager}.
 	 */
@@ -97,6 +103,8 @@ public class MainActivity extends BaseActivity {
 	 * Indicator when loading application config.
 	 */
 	private ProgressDialog mPbDlg;
+	private boolean mWifiOn;
+	private Spinner mProviderSpr;
 
 	//------------------------------------------------
 	//Subscribes, event-handlers
@@ -176,12 +184,6 @@ public class MainActivity extends BaseActivity {
 	 * 		Event {@link com.topfeeds4j.sample.app.events.ShareEvent}.
 	 */
 	public void onEvent(final ShareEvent e) {
-//		Intent sendIntent = new Intent();
-//		sendIntent.setAction(Intent.ACTION_SEND);
-//		sendIntent.putExtra(Intent.EXTRA_SUBJECT, e.getSubject());
-//		sendIntent.putExtra(Intent.EXTRA_TEXT, e.getContent());
-//		sendIntent.setType("text/plain");
-//		startActivity(sendIntent);
 		startActivity(e.getIntent());
 	}
 
@@ -196,14 +198,12 @@ public class MainActivity extends BaseActivity {
 		NewsEntry msg = e.getEntry();
 		switch (e.getType()) {
 		case Facebook:
-			com.topfeeds4j.sample.utils.Utils.facebookShare(this , msg);
+			com.topfeeds4j.sample.utils.Utils.facebookShare(this, msg);
 			break;
 		case Tweet:
 			break;
 		}
 	}
-
-
 
 
 	/**
@@ -231,6 +231,8 @@ public class MainActivity extends BaseActivity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		mWifiOn =  NetworkUtils.getCurrentNetworkType(App.Instance) == NetworkUtils.CONNECTION_WIFI;
+
 		final Wrappers wrappers = new Wrappers();
 		//		wrappers.add(onClickWrapper);
 		//		wrappers.add(onDismissWrapper);
@@ -276,12 +278,78 @@ public class MainActivity extends BaseActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		getMenuInflater().inflate(R.menu.menu_main, menu);
+
+		MenuItem providersMi = menu.findItem(R.id.action_providers);
+		mProviderSpr = (Spinner) MenuItemCompat.getActionView(providersMi);
+		providersMi.setVisible(!mWifiOn);//When wifi is unavailable user can use single page-mode.
+		if (!mWifiOn) {
+			createSingleModeTransactions();
+		}
 		return true;
+	}
+
+	/**
+	 * Container for all created "single-page"s.
+	 */
+	private SparseArrayCompat<Fragment> mSinglePages = new SparseArrayCompat<>();
+
+	/**
+	 * Logical of "single-mode": page-selecting, page-loading, page-reusing etc.
+	 */
+	public void createSingleModeTransactions() {
+		//Init bookmark-list.
+		com.topfeeds4j.sample.utils.Utils.loadBookmarkList(new Callback<NewsEntries>() {
+			@Override
+			public void success(NewsEntries newsEntries, retrofit.client.Response response) {
+				if (newsEntries != null) {
+					App.Instance.setBookmarkList(newsEntries.getNewsEntries());
+				}
+			}
+
+			@Override
+			public void failure(RetrofitError error) {
+
+			}
+		});
+		mProviderSpr.setOnItemSelectedListener(new OnItemSelectedListener() {
+			@Override
+			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+				FragmentManager frgMgr = getSupportFragmentManager();
+				Fragment frg = mSinglePages.get(position);
+				boolean newOne = false;
+				if (frg == null) {
+					//New page that ever been seen before.
+					newOne = true;
+					frg = com.topfeeds4j.sample.utils.Utils.getFragment(App.Instance, position);
+				}
+				if (frg != null) {
+					String tag = frg.getClass().getSimpleName();
+					frgMgr.beginTransaction().setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right,
+							R.anim.slide_in_from_right, R.anim.slide_out_to_right).replace(R.id.single_page_container,
+							frg, tag).commit();
+					frgMgr.executePendingTransactions();
+					if (newOne) {
+						mSinglePages.put(position, frg);
+					}
+					TopFeedsFragment topFeedsFrg = (TopFeedsFragment) frg;
+					if (!(topFeedsFrg instanceof BookmarkListPageFragment) ) {
+						//Except the bookmark-list all other pages should be loaded after be created.
+						//Bookmark-list can load itself when created.
+						topFeedsFrg.getNewsList();
+					}
+				}
+			}
+
+			@Override
+			public void onNothingSelected(AdapterView<?> parent) {
+
+			}
+		});
 	}
 
 	@Override
 	public boolean onPrepareOptionsMenu(final Menu menu) {
-		MenuItem  menuAppShare = menu.findItem(R.id.action_share_app);
+		MenuItem menuAppShare = menu.findItem(R.id.action_share_app);
 		ShareActionProvider provider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuAppShare);
 		//Share application.
 		String subject = String.format(getString(R.string.lbl_share_app_title), getString(R.string.application_name));
@@ -470,14 +538,25 @@ public class MainActivity extends BaseActivity {
 	 * Make the main screen, pages, friends-list etc.
 	 */
 	private void initViewPager() {
+		//Init pagers, bind the tabs to the ViewPager
 		mViewPager = (ViewPager) findViewById(R.id.vp);
-		mViewPager.setOffscreenPageLimit(5);
-		mPagerAdapter = new NewsListPagersAdapter(MainActivity.this, getSupportFragmentManager());
-		mViewPager.setAdapter(mPagerAdapter);
-		// Bind the tabs to the ViewPager
-		mTabs = (TabLayout) findViewById(R.id.tabs);
-		mTabs.setupWithViewPager(mViewPager);
-		mTabs.setVisibility(View.VISIBLE);
+		TabLayout tabs = (TabLayout) findViewById(R.id.tabs);
+		ViewGroup singleContainer = (ViewGroup) findViewById(R.id.single_page_container);
+		if (mWifiOn) {
+			mViewPager.setVisibility(View.VISIBLE);
+			mViewPager.setOffscreenPageLimit(5);
+			mPagerAdapter = new NewsListPagersAdapter(MainActivity.this, getSupportFragmentManager());
+			mViewPager.setAdapter(mPagerAdapter);
+
+			tabs.setupWithViewPager(mViewPager);
+			tabs.setVisibility(View.VISIBLE);
+
+			singleContainer.setVisibility(View.GONE);
+		} else {
+			mViewPager.setVisibility(View.GONE);
+			tabs.setVisibility(View.GONE);
+			singleContainer.setVisibility(View.VISIBLE);
+		}
 	}
 
 

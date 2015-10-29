@@ -29,7 +29,8 @@
 
 
                 <android.support.design.widget.TabLayout
-                    android:id="@+id/tabs" app:tabMode="scrollable"
+                    android:id="@+id/tabs"
+                    app:tabMode="scrollable"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content" />
 
@@ -46,6 +47,11 @@
                     android:id="@+id/vp"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
+
+                <FrameLayout
+                    android:id="@+id/single_page_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
 
                 <fr.castorflex.android.smoothprogressbar.SmoothProgressBar
                     android:id="@+id/loading_pb"

@@ -36,9 +36,12 @@ import java.util.List;
 import android.support.multidex.MultiDexApplication;
 
 import com.chopping.net.TaskHelper;
+import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.utils.Prefs;
+
+import io.fabric.sdk.android.Fabric;
 
 
 public final class App extends MultiDexApplication {
@@ -59,6 +62,7 @@ public final class App extends MultiDexApplication {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		Fabric.with(this, new Crashlytics());
 		TaskHelper.init(getApplicationContext());
 		Prefs.createInstance(this);
 		Stetho.initialize(Stetho.newInitializerBuilder(this).enableDumpapp(Stetho.defaultDumperPluginsProvider(this))

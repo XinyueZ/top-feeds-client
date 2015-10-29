@@ -6,11 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
 import com.topfeeds4j.sample.R;
-import com.topfeeds4j.sample.app.fragments.BookmarkListPageFragment;
-import com.topfeeds4j.sample.app.fragments.CsdnNewsListPageFragment;
-import com.topfeeds4j.sample.app.fragments.GeekListPageFragment;
-import com.topfeeds4j.sample.app.fragments.OscNewsListPageFragment;
-import com.topfeeds4j.sample.app.fragments.TechugNewsListPageFragment;
+import com.topfeeds4j.sample.utils.Utils;
 
 /**
  * Pages's adapter.
@@ -18,38 +14,27 @@ import com.topfeeds4j.sample.app.fragments.TechugNewsListPageFragment;
  * @author Xinyue Zhao
  */
 public final class NewsListPagersAdapter extends FragmentStatePagerAdapter {
-	private final int[] TITLES = { R.string.lbl_geek, R.string.lbl_techug, R.string.lbl_csdn, R.string.lbl_osc,R.string.lbl_bookmark_list, };
 	private Context mContext;
+	private String[] mTitles;
 
 	public NewsListPagersAdapter(Context cxt, FragmentManager fm) {
 		super(fm);
 		mContext = cxt;
+		mTitles = cxt.getResources().getStringArray(R.array.providers_list);
 	}
 
 	@Override
 	public Fragment getItem(int position) {
-		switch (position) {
-		case 4:
-			return BookmarkListPageFragment.newInstance(mContext);
-		case 3:
-			return OscNewsListPageFragment.newInstance(mContext);
-		case 2:
-			return CsdnNewsListPageFragment.newInstance(mContext);
-		case 1:
-			return TechugNewsListPageFragment.newInstance(mContext);
-		case 0:
-			return GeekListPageFragment.newInstance(mContext);
-		}
-		return null;
+		return  Utils.getFragment(mContext, position);
 	}
 
 	@Override
 	public CharSequence getPageTitle(int position) {
-		return mContext.getString(TITLES[position]);
+		return  mTitles[position];
 	}
 
 	@Override
 	public int getCount() {
-		return TITLES.length;
+		return mTitles.length;
 	}
 }

@@ -1,19 +1,16 @@
 package com.topfeeds4j.sample.app.fragments;
 
-import java.security.NoSuchAlgorithmException;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-import com.topfeeds4j.Api;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
-import com.topfeeds4j.sample.utils.DeviceUniqueUtil;
+import com.topfeeds4j.sample.utils.Utils;
 
 import de.greenrobot.event.EventBus;
 import retrofit.RetrofitError;
@@ -79,16 +76,10 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	/**
 	 * @return A list of {@link NewsEntry}s.
 	 */
-	protected void getNewsList() {
+	public void getNewsList() {
 		if (!isInProgress()) {
 			setInProgress(true);
-			String ident = null;
-			try {
-				ident = DeviceUniqueUtil.getDeviceIdent(App.Instance);
-			} catch (NoSuchAlgorithmException e) {
-				e.printStackTrace();
-			}
-			Api.getBookmarkList(ident, this);
+			Utils.loadBookmarkList(this);
 		}
 	}
 
