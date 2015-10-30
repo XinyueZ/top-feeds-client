@@ -6,11 +6,15 @@
     <item
         android:id="@+id/action_providers"
         android:title="@string/application_name"
-        app:actionLayout="@layout/spinner_providers"
         android:visible="true"
+        app:actionLayout="@layout/spinner_providers"
         app:showAsAction="always" />
 
-
+    <item
+        android:id="@+id/action_view_mode"
+        android:icon="@drawable/ic_single_mode"
+        android:title="@string/action_view_mode"
+        app:showAsAction="always" />
     <item
         android:id="@+id/action_share_app"
         android:title="@string/action_share"

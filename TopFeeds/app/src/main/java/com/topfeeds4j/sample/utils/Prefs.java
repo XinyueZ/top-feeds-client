@@ -23,6 +23,10 @@ public final class Prefs extends BasicPrefs {
 	private static final String KEY_SHOWN_DETAILS_ADS_TIMES = "ads";
 	private static final String KEY_SHOWN_DETAILS_TIMES = "key.details.shown.times";
 	private static final String KEY_DEVICE_IDENT = "key.device.ident";
+
+	private static final String KEY_VIEW_MODE = "key.view.mode";
+	public static final int VIEW_MODE_MULTI = 0;
+	public static  final int VIEW_MODE_SINGLE = 1;
 	/**
 	 * The Instance.
 	 */
@@ -132,7 +136,7 @@ public final class Prefs extends BasicPrefs {
 	 * @return Location of API.
 	 */
 	public String getTopFeeds4JHost() {
-		return getString("topfeeds4j_host", "http://top-feeds-90308.appspot.com/");
+		return getString("topfeeds4j_host", "http://top-feeds2-91415.appspot.com/");
 	}
 
 	/**
@@ -150,5 +154,13 @@ public final class Prefs extends BasicPrefs {
 	 */
 	public String getDeviceIdent() {
 		return getString(KEY_DEVICE_IDENT, null);
+	}
+
+	public int getViewMode() {
+		return getInt(KEY_VIEW_MODE, VIEW_MODE_SINGLE);
+	}
+
+	public void setViewMode(int mode) {
+		  setInt(KEY_VIEW_MODE, mode);
 	}
 }

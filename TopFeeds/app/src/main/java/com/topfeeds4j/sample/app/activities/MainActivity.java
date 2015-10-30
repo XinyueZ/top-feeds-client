@@ -13,13 +13,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.util.SparseArrayCompat;
+import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.Toolbar.OnMenuItemClickListener;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -94,10 +94,6 @@ public class MainActivity extends BaseActivity {
 	 * Navigation drawer.
 	 */
 	private DrawerLayout mDrawerLayout;
-	/**
-	 * Use navigation-drawer for this fork.
-	 */
-	private ActionBarDrawerToggle mDrawerToggle;
 
 	/**
 	 * Indicator when loading application config.
@@ -106,9 +102,18 @@ public class MainActivity extends BaseActivity {
 	private boolean mWifiOn;
 	private Spinner mProviderSpr;
 
+	private MenuItem mProvidersMi;
+	private MenuItem mViewModeMi;
+
+	/**
+	 * Container for all created "single-page"s.
+	 */
+	private SparseArrayCompat<Fragment> mSinglePages = new SparseArrayCompat<>();
 	//------------------------------------------------
 	//Subscribes, event-handlers
 	//------------------------------------------------
+
+
 
 	/**
 	 * Handler for {@link com.chopping.bus.CloseDrawerEvent}.
@@ -173,7 +178,6 @@ public class MainActivity extends BaseActivity {
 	 */
 	public void onEvent(EULAConfirmedEvent e) {
 
-		initViewPager();
 
 	}
 
@@ -225,152 +229,152 @@ public class MainActivity extends BaseActivity {
 			break;
 		}
 	}
-
 	//------------------------------------------------
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		mWifiOn =  NetworkUtils.getCurrentNetworkType(App.Instance) == NetworkUtils.CONNECTION_WIFI;
-
-		final Wrappers wrappers = new Wrappers();
-		//		wrappers.add(onClickWrapper);
-		//		wrappers.add(onDismissWrapper);
-		SuperCardToast.onRestoreState(savedInstanceState, this, wrappers);
-
-		//Actionbar and navi-drawer.
-		Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-		setSupportActionBar(toolbar);
 
 
-		//Navi-drawer.
-		initDrawer();
-
-		mPbDlg = ProgressDialog.show(this, null, getString(R.string.msg_load_config));
-		mPbDlg.setCancelable(false);
-
-		makeAds();
-
-		findViewById(R.id.top_btn).setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				EventBus.getDefault().post(new TopEvent());
-			}
-		});
-	}
-
-
-	@Override
-	public void onSaveInstanceState(Bundle outState) {
-		super.onSaveInstanceState(outState);
-		SuperCardToast.onSaveState(outState);
-
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		if (mDrawerToggle != null) {
-			mDrawerToggle.syncState();
-		}
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.menu_main, menu);
-
-		MenuItem providersMi = menu.findItem(R.id.action_providers);
-		mProviderSpr = (Spinner) MenuItemCompat.getActionView(providersMi);
-		providersMi.setVisible(!mWifiOn);//When wifi is unavailable user can use single page-mode.
-		if (!mWifiOn) {
-			createSingleModeTransactions();
-		}
-		return true;
-	}
-
-	/**
-	 * Container for all created "single-page"s.
-	 */
-	private SparseArrayCompat<Fragment> mSinglePages = new SparseArrayCompat<>();
 
 	/**
 	 * Logical of "single-mode": page-selecting, page-loading, page-reusing etc.
 	 */
 	public void createSingleModeTransactions() {
 		//Init bookmark-list.
-		com.topfeeds4j.sample.utils.Utils.loadBookmarkList(new Callback<NewsEntries>() {
-			@Override
-			public void success(NewsEntries newsEntries, retrofit.client.Response response) {
-				if (newsEntries != null) {
-					App.Instance.setBookmarkList(newsEntries.getNewsEntries());
-				}
-			}
-
-			@Override
-			public void failure(RetrofitError error) {
-
-			}
-		});
-		mProviderSpr.setOnItemSelectedListener(new OnItemSelectedListener() {
-			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				FragmentManager frgMgr = getSupportFragmentManager();
-				Fragment frg = mSinglePages.get(position);
-				boolean newOne = false;
-				if (frg == null) {
-					//New page that ever been seen before.
-					newOne = true;
-					frg = com.topfeeds4j.sample.utils.Utils.getFragment(App.Instance, position);
-				}
-				if (frg != null) {
-					String tag = frg.getClass().getSimpleName();
-					frgMgr.beginTransaction().setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right,
-							R.anim.slide_in_from_right, R.anim.slide_out_to_right).replace(R.id.single_page_container,
-							frg, tag).commit();
-					frgMgr.executePendingTransactions();
-					if (newOne) {
-						mSinglePages.put(position, frg);
-					}
-					TopFeedsFragment topFeedsFrg = (TopFeedsFragment) frg;
-					if (!(topFeedsFrg instanceof BookmarkListPageFragment) ) {
-						//Except the bookmark-list all other pages should be loaded after be created.
-						//Bookmark-list can load itself when created.
-						topFeedsFrg.getNewsList();
+		if (App.Instance.getBookmarkList() == null) {
+			com.topfeeds4j.sample.utils.Utils.loadBookmarkList(new Callback<NewsEntries>() {
+				@Override
+				public void success(NewsEntries newsEntries, retrofit.client.Response response) {
+					if (newsEntries != null) {
+						App.Instance.setBookmarkList(newsEntries.getNewsEntries());
 					}
 				}
-			}
 
-			@Override
-			public void onNothingSelected(AdapterView<?> parent) {
+				@Override
+				public void failure(RetrofitError error) {
 
-			}
-		});
-	}
-
-	@Override
-	public boolean onPrepareOptionsMenu(final Menu menu) {
-		MenuItem menuAppShare = menu.findItem(R.id.action_share_app);
-		ShareActionProvider provider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuAppShare);
-		//Share application.
-		String subject = String.format(getString(R.string.lbl_share_app_title), getString(R.string.application_name));
-		String text = getString(R.string.lbl_share_app_content, getString(R.string.application_name),
-				Prefs.getInstance().getAppTinyuUrl());
-		provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
-		return super.onPrepareOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (mDrawerToggle != null && mDrawerToggle.onOptionsItemSelected(item)) {
-			return true;
+				}
+			});
 		}
-		switch (item.getItemId()) {
-		case R.id.action_about:
-			showDialogFragment(AboutDialogFragment.newInstance(this), null);
-			break;
+
+		mProvidersMi.setVisible(!mWifiOn);//When wifi is unavailable, user can use single page-mode.
+		if (mWifiOn && Prefs.getInstance().getViewMode() == Prefs.VIEW_MODE_SINGLE) {
+			//Under wifi, user can use different views.
+			mProvidersMi.setVisible(true);
 		}
-		return super.onOptionsItemSelected(item);
+		mViewModeMi.setVisible(mWifiOn);
+		setViewModeMenuItem(mViewModeMi);
+
+		if (mProviderSpr.getOnItemSelectedListener() == null) {
+			mProviderSpr.setOnItemSelectedListener(new OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+					selectSingleModePage(position);
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> parent) {
+
+				}
+			});
+		}
 	}
+
+	public void buildMenu() {
+		if(mProviderSpr == null) {
+			mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+
+			Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+			toolbar.inflateMenu(R.menu.menu_main);
+			toolbar.setNavigationIcon(R.drawable.ic_menu);
+			toolbar.setNavigationOnClickListener(new OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					mDrawerLayout.openDrawer(GravityCompat.START);
+				}
+			});
+			toolbar.setTitle(R.string.application_name);
+
+			//Build menu.
+			Menu menu = toolbar.getMenu();
+			//A list of all resource providers.
+			mProvidersMi = menu.findItem(R.id.action_providers);
+			mProviderSpr = (Spinner) MenuItemCompat.getActionView(mProvidersMi);
+			//Icon of "view change" menu, it works only when wifi is on.
+			mViewModeMi = menu.findItem(R.id.action_view_mode);
+
+			//Share this app by other applications.
+			MenuItem menuAppShare = menu.findItem(R.id.action_share_app);
+			ShareActionProvider provider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuAppShare);
+			String subject = String.format(getString(R.string.lbl_share_app_title), getString(R.string.application_name));
+			String text = getString(R.string.lbl_share_app_content, getString(R.string.application_name),
+					Prefs.getInstance().getAppTinyuUrl());
+			provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
+
+			//All event-handlers on menu.
+			toolbar.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+				@Override
+				public boolean onMenuItemClick(MenuItem item) {
+					switch (item.getItemId()) {
+					case R.id.action_view_mode:
+						handleViewModeChanging(item);
+						break;
+					case R.id.action_about:
+						showDialogFragment(AboutDialogFragment.newInstance(MainActivity.this), null);
+						break;
+					}
+					return true;
+				}
+			});
+		}
+	}
+
+	/**
+	 * Select a provider under "single-page" mode.
+	 * @param position
+	 */
+	private void selectSingleModePage(int position) {
+		FragmentManager frgMgr = getSupportFragmentManager();
+		Fragment frg = mSinglePages.get(position);
+		boolean newOne = false;
+		if (frg == null) {
+			//New page that ever been seen before.
+			newOne = true;
+			frg = com.topfeeds4j.sample.utils.Utils.getFragment(App.Instance, position);
+		}
+		if (frg != null) {
+			String tag = frg.getClass().getSimpleName();
+			frgMgr.beginTransaction().setCustomAnimations(R.anim.slide_in_from_right, R.anim.slide_out_to_right,
+					R.anim.slide_in_from_right, R.anim.slide_out_to_right).replace(R.id.single_page_container, frg, tag)
+					.commit();
+			frgMgr.executePendingTransactions();
+			if (newOne) {
+				mSinglePages.put(position, frg);
+			}
+			TopFeedsFragment topFeedsFrg = (TopFeedsFragment) frg;
+			if (!(topFeedsFrg instanceof BookmarkListPageFragment)) {
+				//Except the bookmark-list all other pages should be loaded after be created.
+				//Bookmark-list can load itself when created.
+				topFeedsFrg.getNewsList();
+			}
+		}
+	}
+
+	private void setViewModeMenuItem(MenuItem mi) {
+		int mode = Prefs.getInstance().getViewMode();
+		mi.setIcon(mode == Prefs.VIEW_MODE_SINGLE ? R.drawable.ic_multi_mode : R.drawable.ic_single_mode);
+	}
+
+	private void handleViewModeChanging(MenuItem mi) {
+		Prefs prefs = Prefs.getInstance();
+		int mode = prefs.getViewMode();
+		prefs.setViewMode(mode == Prefs.VIEW_MODE_MULTI ? Prefs.VIEW_MODE_SINGLE : Prefs.VIEW_MODE_MULTI);
+		mode = Prefs.getInstance().getViewMode();
+		mProvidersMi.setVisible(mode == Prefs.VIEW_MODE_SINGLE);
+		setViewModeMenuItem(mi);
+		buildViews();
+	}
+
+
+
+
 
 	@Override
 	protected BasicPrefs getPrefs() {
@@ -380,19 +384,13 @@ public class MainActivity extends BaseActivity {
 	@Override
 	protected void onAppConfigLoaded() {
 		super.onAppConfigLoaded();
-		doAppConfig();
-
-		Prefs prefs = Prefs.getInstance();
-		com.topfeeds4j.Api.initialize(App.Instance, prefs.getTopFeeds4JHost(), prefs.getCacheSize());
+		didAppConfig();
 	}
 
 	@Override
 	protected void onAppConfigIgnored() {
 		super.onAppConfigIgnored();
-		doAppConfig();
-
-		Prefs prefs = Prefs.getInstance();
-		com.topfeeds4j.Api.initialize(App.Instance, prefs.getTopFeeds4JHost(), prefs.getCacheSize());
+		didAppConfig();
 	}
 
 	private void showWarningToast(String text) {
@@ -429,7 +427,9 @@ public class MainActivity extends BaseActivity {
 	/**
 	 * Work with application's configuration.
 	 */
-	private void doAppConfig() {
+	private void didAppConfig() {
+		Prefs prefs = Prefs.getInstance();
+		com.topfeeds4j.Api.initialize(App.Instance, prefs.getTopFeeds4JHost(), prefs.getCacheSize());
 		String url = Prefs.getInstance().getAppTinyuUrl();
 		if (TextUtils.isEmpty(url) || !url.contains("tinyurl")) {
 			Api.getTinyUrl(getString(R.string.lbl_store_url, getPackageName()), new Callback<Response>() {
@@ -458,6 +458,7 @@ public class MainActivity extends BaseActivity {
 		checkAndInit();
 		if (mPbDlg != null && mPbDlg.isShowing()) {
 			mPbDlg.dismiss();
+			findViewById(R.id.coordinator_layout).setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -467,9 +468,7 @@ public class MainActivity extends BaseActivity {
 	 */
 	private void checkAndInit() {
 		checkPlayService();
-		if (Prefs.getInstance().isEULAOnceConfirmed() && mViewPager == null) {
-			initViewPager();
-		}
+		buildViews();
 	}
 
 
@@ -517,46 +516,49 @@ public class MainActivity extends BaseActivity {
 	}
 
 
-	/**
-	 * Initialize the navigation drawer.
-	 */
-	private void initDrawer() {
-		ActionBar actionBar = getSupportActionBar();
-		if (actionBar != null) {
-			actionBar.setHomeButtonEnabled(true);
-			actionBar.setDisplayHomeAsUpEnabled(true);
-			mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-			mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, R.string.application_name,
-					R.string.app_name);
-			mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-
-		}
-	}
 
 	/**
 	 * Make the main screen, pages, friends-list etc.
 	 */
-	private void initViewPager() {
+	private void buildViews() {
+		buildMenu();
 		//Init pagers, bind the tabs to the ViewPager
 		mViewPager = (ViewPager) findViewById(R.id.vp);
 		TabLayout tabs = (TabLayout) findViewById(R.id.tabs);
 		ViewGroup singleContainer = (ViewGroup) findViewById(R.id.single_page_container);
 		if (mWifiOn) {
-			mViewPager.setVisibility(View.VISIBLE);
+			int viewMode = Prefs.getInstance().getViewMode();
+			switch (viewMode) {
+			case Prefs.VIEW_MODE_MULTI:
+				changeToMultiPagesMode(tabs, singleContainer);
+				break;
+			case Prefs.VIEW_MODE_SINGLE:
+				changeToSinglePageMode(tabs, singleContainer);
+				break;
+			}
+		} else {
+			changeToSinglePageMode(tabs, singleContainer);
+		}
+	}
+
+	private void changeToMultiPagesMode(TabLayout tabs, ViewGroup singleContainer) {
+		mViewPager.setVisibility(View.VISIBLE);
+		if (mPagerAdapter == null) {
 			mViewPager.setOffscreenPageLimit(5);
 			mPagerAdapter = new NewsListPagersAdapter(MainActivity.this, getSupportFragmentManager());
 			mViewPager.setAdapter(mPagerAdapter);
-
 			tabs.setupWithViewPager(mViewPager);
-			tabs.setVisibility(View.VISIBLE);
-
-			singleContainer.setVisibility(View.GONE);
-		} else {
-			mViewPager.setVisibility(View.GONE);
-			tabs.setVisibility(View.GONE);
-			singleContainer.setVisibility(View.VISIBLE);
 		}
+		tabs.setVisibility(View.VISIBLE);
+		singleContainer.setVisibility(View.GONE);
+	}
+
+	private void changeToSinglePageMode(TabLayout tabs, ViewGroup singleContainer) {
+		mViewPager.setVisibility(View.GONE);
+		tabs.setVisibility(View.GONE);
+		singleContainer.setVisibility(View.VISIBLE);
+		//No wifi and force to use single mode.
+		createSingleModeTransactions();
 	}
 
 
@@ -630,4 +632,34 @@ public class MainActivity extends BaseActivity {
 	}
 
 
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		SuperCardToast.onSaveState(outState);
+
+	}
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		mWifiOn = NetworkUtils.getCurrentNetworkType(App.Instance) == NetworkUtils.CONNECTION_WIFI;
+
+		final Wrappers wrappers = new Wrappers();
+		//		wrappers.add(onClickWrapper);
+		//		wrappers.add(onDismissWrapper);
+		SuperCardToast.onRestoreState(savedInstanceState, this, wrappers);
+
+		mPbDlg = ProgressDialog.show(this, null, getString(R.string.msg_load_config));
+		mPbDlg.setCancelable(false);
+
+		makeAds();
+
+		findViewById(R.id.top_btn).setOnClickListener(new OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				EventBus.getDefault().post(new TopEvent());
+			}
+		});
+	}
 }

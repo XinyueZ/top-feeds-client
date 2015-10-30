@@ -209,4 +209,10 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	protected View getEmptyView() {
 		return mEmptyV;
 	}
+
+	@Override
+	public void onDestroyView() {
+		super.onDestroyView();
+		setInProgress(false);
+	}
 }
