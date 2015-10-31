@@ -547,12 +547,14 @@ public class MainActivity extends BaseActivity {
 		}
 		tabs.setVisibility(View.VISIBLE);
 		singleContainer.setVisibility(View.GONE);
+		mProviderSpr.setVisibility(View.GONE);
 	}
 
 	private void changeToSinglePageMode(TabLayout tabs, ViewGroup singleContainer) {
 		mViewPager.setVisibility(View.GONE);
 		tabs.setVisibility(View.GONE);
 		singleContainer.setVisibility(View.VISIBLE);
+		mProviderSpr.setVisibility(View.VISIBLE);
 		//No wifi and force to use single mode.
 		createSingleModeTransactions();
 	}
