@@ -114,7 +114,6 @@ public class MainActivity extends BaseActivity {
 	//------------------------------------------------
 
 
-
 	/**
 	 * Handler for {@link com.chopping.bus.CloseDrawerEvent}.
 	 *
@@ -232,7 +231,6 @@ public class MainActivity extends BaseActivity {
 	//------------------------------------------------
 
 
-
 	/**
 	 * Logical of "single-mode": page-selecting, page-loading, page-reusing etc.
 	 */
@@ -278,7 +276,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	public void buildMenu() {
-		if(mProviderSpr == null) {
+		if (mProviderSpr == null) {
 			mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
 
 			Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -303,7 +301,8 @@ public class MainActivity extends BaseActivity {
 			//Share this app by other applications.
 			MenuItem menuAppShare = menu.findItem(R.id.action_share_app);
 			ShareActionProvider provider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuAppShare);
-			String subject = String.format(getString(R.string.lbl_share_app_title), getString(R.string.application_name));
+			String subject = String.format(getString(R.string.lbl_share_app_title), getString(
+					R.string.application_name));
 			String text = getString(R.string.lbl_share_app_content, getString(R.string.application_name),
 					Prefs.getInstance().getAppTinyuUrl());
 			provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
@@ -328,6 +327,7 @@ public class MainActivity extends BaseActivity {
 
 	/**
 	 * Select a provider under "single-page" mode.
+	 *
 	 * @param position
 	 */
 	private void selectSingleModePage(int position) {
@@ -371,9 +371,6 @@ public class MainActivity extends BaseActivity {
 		setViewModeMenuItem(mi);
 		buildViews();
 	}
-
-
-
 
 
 	@Override
@@ -514,7 +511,6 @@ public class MainActivity extends BaseActivity {
 		getSupportFragmentManager().beginTransaction().replace(R.id.app_list_fl, AppListImpFragment.newInstance(this))
 				.commit();
 	}
-
 
 
 	/**
@@ -661,5 +657,13 @@ public class MainActivity extends BaseActivity {
 				EventBus.getDefault().post(new TopEvent());
 			}
 		});
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		if (mSinglePages.size() > 0) {
+			mSinglePages.clear();
+		}
 	}
 }

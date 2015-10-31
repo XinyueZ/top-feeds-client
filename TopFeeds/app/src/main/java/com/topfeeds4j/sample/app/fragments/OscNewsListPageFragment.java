@@ -48,7 +48,6 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 	//------------------------------------------------
 
 
-
 	/**
 	 * Handler for {@link LoadedBookmarkEvent}.
 	 *
@@ -74,29 +73,6 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 		return (OscNewsListPageFragment) Fragment.instantiate(context, OscNewsListPageFragment.class.getName());
 	}
 
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		getRecyclerView().setOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-
-				mVisibleItemCount = getLayoutManager().getChildCount();
-				mTotalItemCount = getLayoutManager().getItemCount();
-				mPastVisibleItems = getLayoutManager().findFirstVisibleItemPosition();
-
-				if (mLoading) {
-					if ((mVisibleItemCount + mPastVisibleItems) >= mTotalItemCount) {
-						mLoading = false;
-						EventBus.getDefault().post(new LoadMoreEvent());
-						//showLoadingIndicator();
-						getMoreNews();
-					}
-				}
-			}
-		});
-	}
-
 	/**
 	 * Get host type ident, {@code 1} is CSDN, {@code 2} is techug.com,{@code 3} is Geeker-news, otherwise is oschina.net
 	 */
@@ -106,8 +82,14 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 
 	@Override
 	protected void pull2Load() {
-		mPage = DEFAULT_PAGE;
+		resetPointer();
 		super.pull2Load();
+	}
+
+
+
+	private void resetPointer() {
+		mPage = DEFAULT_PAGE;
 	}
 
 	@Override
@@ -168,5 +150,29 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 		super.onFinishLoading();
 		mLoading = true;
 		EventBus.getDefault().post(new ShowProgressIndicatorEvent(false));
+	}
+
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getRecyclerView().addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+				mVisibleItemCount = getLayoutManager().getChildCount();
+				mTotalItemCount = getLayoutManager().getItemCount();
+				mPastVisibleItems = getLayoutManager().findFirstVisibleItemPosition();
+
+				if (mLoading) {
+					if ((mVisibleItemCount + mPastVisibleItems) >= mTotalItemCount) {
+						mLoading = false;
+						EventBus.getDefault().post(new LoadMoreEvent());
+						//showLoadingIndicator();
+						getMoreNews();
+					}
+				}
+			}
+		});
 	}
 }

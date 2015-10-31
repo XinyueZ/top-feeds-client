@@ -88,38 +88,6 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	}
 	//------------------------------------------------
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(LAYOUT, container, false);
-	}
-
-
-
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-
-		mRv = (RecyclerView) view.findViewById(R.id.news_list_rv);
-		mRv.setLayoutManager(mLayoutManager = new LinearLayoutManager(getActivity()));
-		mRv.setHasFixedSize(false);
-		mRv.setAdapter(mAdp = new NewsListAdapter(null));
-
-		mNotLoadV = view.findViewById(R.id.not_loaded_pb);
-		mErrorV = view.findViewById(R.id.error_v);
-		mEmptyV = view.findViewById(R.id.empty_iv);
-
-		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.content_srl);
-		mSwipeRefreshLayout.setColorSchemeResources(R.color.color_pocket_1, R.color.color_pocket_2,
-				R.color.color_pocket_3, R.color.color_pocket_4);
-		mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
-			@Override
-			public void onRefresh() {
-				pull2Load();
-			}
-		});
-
-	}
-
 
 	/**
 	 * Get host type ident, {@code 1} is CSDN, otherwise is oschina.net
@@ -208,6 +176,38 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 
 	protected View getEmptyView() {
 		return mEmptyV;
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+		return inflater.inflate(LAYOUT, container, false);
+	}
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+
+		mRv = (RecyclerView) view.findViewById(R.id.news_list_rv);
+		mRv.setLayoutManager(mLayoutManager = new LinearLayoutManager(getActivity()));
+		mRv.setHasFixedSize(false);
+
+		if(mAdp == null) mAdp = new NewsListAdapter(null);
+		mRv.setAdapter(mAdp);
+
+		mNotLoadV = view.findViewById(R.id.not_loaded_pb);
+		mErrorV = view.findViewById(R.id.error_v);
+		mEmptyV = view.findViewById(R.id.empty_iv);
+
+		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.content_srl);
+		mSwipeRefreshLayout.setColorSchemeResources(R.color.color_pocket_1, R.color.color_pocket_2,
+				R.color.color_pocket_3, R.color.color_pocket_4);
+		mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+			@Override
+			public void onRefresh() {
+				pull2Load();
+			}
+		});
+
 	}
 
 	@Override

@@ -33,11 +33,13 @@ public final class GeekListPageFragment extends TopFeedsFragment {
 	/**
 	 * First page for Geeker-news.
 	 */
-	private String mFrom = "";
+	private String mFrom = DEFAULT_FROM;
+
+	private static final String DEFAULT_FROM = "";
 	/**
 	 * Previous page's start point.
 	 */
-	private String mPrevious = "";
+	private String mPrevious = DEFAULT_FROM;
 
 	private int mVisibleItemCount;
 	private int mPastVisibleItems;
@@ -76,29 +78,6 @@ public final class GeekListPageFragment extends TopFeedsFragment {
 		return (GeekListPageFragment) Fragment.instantiate(context, GeekListPageFragment.class.getName());
 	}
 
-	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		getRecyclerView().setOnScrollListener(new RecyclerView.OnScrollListener() {
-			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-
-				mVisibleItemCount = getLayoutManager().getChildCount();
-				mTotalItemCount = getLayoutManager().getItemCount();
-				mPastVisibleItems = getLayoutManager().findFirstVisibleItemPosition();
-
-				if (mLoading) {
-					if ((mVisibleItemCount + mPastVisibleItems) >= mTotalItemCount) {
-						mLoading = false;
-						EventBus.getDefault().post(new LoadMoreEvent());
-						//showLoadingIndicator();
-						getMoreNews();
-					}
-				}
-			}
-		});
-	}
-
 	/**
 	 * Get host type ident, {@code 1} is CSDN, {@code 2} is techug.com, {@code 3} is Geeker-news, otherwise is oschina.net
 	 */
@@ -108,9 +87,13 @@ public final class GeekListPageFragment extends TopFeedsFragment {
 
 	@Override
 	protected void pull2Load() {
-		mFrom = "";
-		mPrevious = "";
+		resetPointers();
 		super.pull2Load();
+	}
+
+	private void resetPointers() {
+		mFrom = DEFAULT_FROM;
+		mPrevious = DEFAULT_FROM;
 	}
 
 	@Override
@@ -173,5 +156,29 @@ public final class GeekListPageFragment extends TopFeedsFragment {
 		super.onFinishLoading();
 		mLoading = true;
 		EventBus.getDefault().post(new ShowProgressIndicatorEvent(false));
+	}
+
+
+	@Override
+	public void onViewCreated(View view, Bundle savedInstanceState) {
+		super.onViewCreated(view, savedInstanceState);
+		getRecyclerView().addOnScrollListener(new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+
+				mVisibleItemCount = getLayoutManager().getChildCount();
+				mTotalItemCount = getLayoutManager().getItemCount();
+				mPastVisibleItems = getLayoutManager().findFirstVisibleItemPosition();
+
+				if (mLoading) {
+					if ((mVisibleItemCount + mPastVisibleItems) >= mTotalItemCount) {
+						mLoading = false;
+						EventBus.getDefault().post(new LoadMoreEvent());
+						//showLoadingIndicator();
+						getMoreNews();
+					}
+				}
+			}
+		});
 	}
 }
