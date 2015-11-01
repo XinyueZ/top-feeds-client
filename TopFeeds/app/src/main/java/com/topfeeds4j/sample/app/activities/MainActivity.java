@@ -456,6 +456,7 @@ public class MainActivity extends BaseActivity {
 		if (mPbDlg != null && mPbDlg.isShowing()) {
 			mPbDlg.dismiss();
 			findViewById(R.id.coordinator_layout).setVisibility(View.VISIBLE);
+			findViewById(R.id.top_btn).setVisibility(View.VISIBLE);
 		}
 	}
 
