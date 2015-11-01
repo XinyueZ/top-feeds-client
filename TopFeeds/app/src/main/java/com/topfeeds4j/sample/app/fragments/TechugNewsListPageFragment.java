@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
+import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
+import com.topfeeds4j.sample.utils.TechungNewsListAdapterHelper;
 
 
 /**
@@ -53,5 +55,8 @@ public final class TechugNewsListPageFragment extends TopFeedsFragment {
 		return 2;
 	}
 
-
+	@Override
+	protected AbstractAdapterHelper getAdapterHelper() {
+		return TechungNewsListAdapterHelper.getInstance();
+	}
 }

@@ -20,6 +20,7 @@ import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListAdapter;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
 import com.topfeeds4j.sample.app.events.TopEvent;
+import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
 import com.topfeeds4j.sample.utils.Prefs;
 
 import retrofit.Callback;
@@ -35,10 +36,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	 * Main layout for this component.
 	 */
 	private static final int LAYOUT = R.layout.fragment_news_list;
-	/**
-	 * Adapter for {@link #mRv} to show all comments.
-	 */
-	private NewsListAdapter mAdp;
+
 	/**
 	 * List container for showing all comments.
 	 */
@@ -81,7 +79,8 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	 * 		Event {@link com.topfeeds4j.sample.app.events.TopEvent}.
 	 */
 	public void onEvent(TopEvent e) {
-		if (getUserVisibleHint() && mAdp != null && mAdp.getItemCount() > 0) {
+		NewsListAdapter adapter = getAdapter();
+		if (getUserVisibleHint() && adapter != null && adapter.getItemCount() > 0) {
 			mLayoutManager.scrollToPositionWithOffset(0, 0);
 			Utils.showShortToast(App.Instance, R.string.action_to_top);
 		}
@@ -114,17 +113,18 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	@Override
 	public void success(NewsEntries newsEntries, Response response) {
 		onFinishLoading();
+		NewsListAdapter adp = getAdapter();
 		if (newsEntries.getStatus() == 200) {
 			if (newsEntries.getNewsEntries() != null && newsEntries.getNewsEntries().size() > 0) {
-				mAdp.setData(newsEntries.getNewsEntries());
-				mAdp.notifyDataSetChanged();
+				adp.setData(newsEntries.getNewsEntries());
+				adp.notifyDataSetChanged();
 			} else {
-				if (mAdp.getData() == null || mAdp.getData().size() == 0) {
+				if (adp.getData() == null || adp.getData().size() == 0) {
 					mEmptyV.setVisibility(View.VISIBLE);
 				}
 			}
 		} else {
-			if (mAdp != null && mAdp.getData() != null && mAdp.getData().size() > 0) {
+			if (adp != null && adp.getData() != null && adp.getData().size() > 0) {
 				return;
 			}
 			mErrorV.setVisibility(View.VISIBLE);
@@ -150,8 +150,11 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	}
 
 	protected NewsListAdapter getAdapter() {
-		return mAdp;
+		return getAdapterHelper().getNewsListAdapter();
 	}
+
+
+	protected abstract AbstractAdapterHelper getAdapterHelper();
 
 	protected LinearLayoutManager getLayoutManager() {
 		return mLayoutManager;
@@ -191,8 +194,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 		mRv.setLayoutManager(mLayoutManager = new LinearLayoutManager(getActivity()));
 		mRv.setHasFixedSize(false);
 
-		if(mAdp == null) mAdp = new NewsListAdapter(null);
-		mRv.setAdapter(mAdp);
+		mRv.setAdapter(getAdapter());
 
 		mNotLoadV = view.findViewById(R.id.not_loaded_pb);
 		mErrorV = view.findViewById(R.id.error_v);
@@ -215,4 +217,5 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 		super.onDestroyView();
 		setInProgress(false);
 	}
+
 }

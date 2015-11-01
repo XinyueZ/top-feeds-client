@@ -1,12 +1,12 @@
 package com.topfeeds4j.sample.app.fragments;
 
-import android.support.v7.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
@@ -16,6 +16,8 @@ import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
+import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
+import com.topfeeds4j.sample.utils.OscListAdapterHelper;
 
 import de.greenrobot.event.EventBus;
 import retrofit.Callback;
@@ -30,12 +32,7 @@ import retrofit.client.Response;
  */
 public final class OscNewsListPageFragment extends TopFeedsFragment {
 
-	/**
-	 * The page of tweets to load.
-	 */
-	private int mPage = DEFAULT_PAGE;
 
-	private static final int DEFAULT_PAGE = 0;
 
 	private int mVisibleItemCount;
 	private int mPastVisibleItems;
@@ -82,21 +79,21 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 
 	@Override
 	protected void pull2Load() {
-		resetPointer();
+		getAdapterHelper().resetPointer();
 		super.pull2Load();
 	}
 
 
 
-	private void resetPointer() {
-		mPage = DEFAULT_PAGE;
-	}
 
 	@Override
 	public void success(NewsEntries newsEntries, Response response) {
 		super.success(newsEntries, response);
 		if (newsEntries.getStatus() == 200) { //Feeds with validated content, otherwise the status is 300 or other else.
-			mPage++;
+			OscListAdapterHelper helper = (OscListAdapterHelper) getAdapterHelper();
+			int page = helper.getPage();
+			page++;
+			helper.setPage(page);
 		}
 	}
 
@@ -108,23 +105,35 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 		if (!isInProgress()) {
 			EventBus.getDefault().post(new ShowProgressIndicatorEvent(true));
 			setInProgress(true);
-			Api.getNewsEntries(getNewsHostType(), mPage, new Callback<NewsEntries>() {
+			OscListAdapterHelper helper = (OscListAdapterHelper) getAdapterHelper();
+			Api.getNewsEntries(getNewsHostType(), helper.getPage(), new Callback<NewsEntries>() {
 				@Override
 				public void success(NewsEntries newsEntries, Response response) {
 					onFinishLoading();
+
+					OscListAdapterHelper helper = (OscListAdapterHelper) getAdapterHelper();
+					int page = helper.getPage();
+
 					if (newsEntries.getStatus() == 200) {
 						getAdapter().getData().addAll(newsEntries.getNewsEntries());
 						getAdapter().notifyDataSetChanged();
-						mPage++;
+
+						page++;
+						helper.setPage(page);
 					} else {
-						mPage--;
+						page--;
+						helper.setPage(page);
 					}
 				}
 
 				@Override
 				public void failure(RetrofitError error) {
 					onFinishLoading();
-					mPage--;
+
+					OscListAdapterHelper helper = (OscListAdapterHelper) getAdapterHelper();
+					int page = helper.getPage();
+					page--;
+					helper.setPage(page);
 
 					new DialogFragment() {
 						@Override
@@ -174,5 +183,12 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 				}
 			}
 		});
+	}
+
+
+
+	@Override
+	protected AbstractAdapterHelper getAdapterHelper() {
+		return OscListAdapterHelper.getInstance();
 	}
 }

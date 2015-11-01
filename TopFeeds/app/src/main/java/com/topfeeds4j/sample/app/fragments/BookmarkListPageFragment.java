@@ -10,6 +10,8 @@ import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
+import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
+import com.topfeeds4j.sample.utils.BookmarkListAdapterHelper;
 import com.topfeeds4j.sample.utils.Utils;
 
 import de.greenrobot.event.EventBus;
@@ -97,5 +99,10 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	public void failure(RetrofitError error) {
 		super.failure(error);
 		EventBus.getDefault().post(new LoadedBookmarkEvent());
+	}
+
+	@Override
+	protected AbstractAdapterHelper getAdapterHelper() {
+		return BookmarkListAdapterHelper.getInstance();
 	}
 }

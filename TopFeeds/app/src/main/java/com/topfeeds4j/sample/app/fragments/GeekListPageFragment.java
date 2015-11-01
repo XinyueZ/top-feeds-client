@@ -16,6 +16,8 @@ import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
+import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
+import com.topfeeds4j.sample.utils.GeekListAdapterHelper;
 
 import de.greenrobot.event.EventBus;
 import retrofit.Callback;
@@ -30,16 +32,7 @@ import retrofit.client.Response;
  */
 public final class GeekListPageFragment extends TopFeedsFragment {
 
-	/**
-	 * First page for Geeker-news.
-	 */
-	private String mFrom = DEFAULT_FROM;
 
-	private static final String DEFAULT_FROM = "";
-	/**
-	 * Previous page's start point.
-	 */
-	private String mPrevious = DEFAULT_FROM;
 
 	private int mVisibleItemCount;
 	private int mPastVisibleItems;
@@ -87,21 +80,19 @@ public final class GeekListPageFragment extends TopFeedsFragment {
 
 	@Override
 	protected void pull2Load() {
-		resetPointers();
+		getAdapterHelper().resetPointer();
 		super.pull2Load();
 	}
 
-	private void resetPointers() {
-		mFrom = DEFAULT_FROM;
-		mPrevious = DEFAULT_FROM;
-	}
+
 
 	@Override
 	public void success(NewsEntries newsEntries, Response response) {
 		super.success(newsEntries, response);
 		if (newsEntries.getStatus() == 200) { //Feeds with validated content, otherwise the status is 300 or other else.
-			mPrevious = mFrom;
-			mFrom = newsEntries.getFrom();
+			GeekListAdapterHelper helper = (GeekListAdapterHelper) getAdapterHelper();
+			helper.setPrevious(helper.getFrom() );
+			helper.setFrom(newsEntries.getFrom());
 		}
 	}
 
@@ -113,24 +104,27 @@ public final class GeekListPageFragment extends TopFeedsFragment {
 		if (!isInProgress()) {
 			EventBus.getDefault().post(new ShowProgressIndicatorEvent(true));
 			setInProgress(true);
-			Api.getNewsEntries(getNewsHostType(), mFrom, new Callback<NewsEntries>() {
+			GeekListAdapterHelper helper = (GeekListAdapterHelper) getAdapterHelper();
+			Api.getNewsEntries(getNewsHostType(), helper.getFrom(), new Callback<NewsEntries>() {
 				@Override
 				public void success(NewsEntries newsEntries, Response response) {
 					onFinishLoading();
+					GeekListAdapterHelper helper = (GeekListAdapterHelper) getAdapterHelper();
 					if (newsEntries.getStatus() == 200) {
 						getAdapter().getData().addAll(newsEntries.getNewsEntries());
 						getAdapter().notifyDataSetChanged();
-						mPrevious = mFrom;
-						mFrom = newsEntries.getFrom();
+						helper.setPrevious(helper.getFrom());
+						helper.setFrom(newsEntries.getFrom());
 					} else {
-						mFrom = mPrevious;
+						helper.setFrom(helper.getPrevious());
 					}
 				}
 
 				@Override
 				public void failure(RetrofitError error) {
 					onFinishLoading();
-					mFrom = mPrevious;
+					GeekListAdapterHelper helper = (GeekListAdapterHelper) getAdapterHelper();
+					helper.setFrom(helper.getPrevious());
 
 					new DialogFragment() {
 						@Override
@@ -180,5 +174,10 @@ public final class GeekListPageFragment extends TopFeedsFragment {
 				}
 			}
 		});
+	}
+
+	@Override
+	protected AbstractAdapterHelper getAdapterHelper() {
+		return GeekListAdapterHelper.getInstance();
 	}
 }
