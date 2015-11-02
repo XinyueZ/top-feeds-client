@@ -78,6 +78,7 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	/**
 	 * @return A list of {@link NewsEntry}s.
 	 */
+	@Override
 	public void getNewsList() {
 		if (!isInProgress()) {
 			setInProgress(true);
