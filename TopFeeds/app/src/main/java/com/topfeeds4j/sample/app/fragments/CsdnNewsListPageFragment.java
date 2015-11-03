@@ -4,8 +4,8 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
-import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
-import com.topfeeds4j.sample.utils.CSDNListAdapterHelper;
+import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
+import com.topfeeds4j.sample.utils.helpers.CSDNListAdapterHelper;
 
 
 /**

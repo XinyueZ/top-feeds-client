@@ -16,8 +16,8 @@ import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
-import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
-import com.topfeeds4j.sample.utils.OscListAdapterHelper;
+import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
+import com.topfeeds4j.sample.utils.helpers.OscListAdapterHelper;
 
 import de.greenrobot.event.EventBus;
 import retrofit.Callback;

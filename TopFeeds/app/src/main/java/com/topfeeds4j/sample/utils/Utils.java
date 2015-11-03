@@ -16,7 +16,6 @@ import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
-import com.topfeeds4j.sample.app.fragments.AndroiderPageFragment;
 import com.topfeeds4j.sample.app.fragments.BookmarkListPageFragment;
 import com.topfeeds4j.sample.app.fragments.CsdnNewsListPageFragment;
 import com.topfeeds4j.sample.app.fragments.GeekListPageFragment;
@@ -50,18 +49,16 @@ public final class Utils {
 	@Nullable
 	public static Fragment getFragment(Context cxt, int position) {
 		switch (position) {
-		case 5:
-			return BookmarkListPageFragment.newInstance(cxt);
 		case 4:
-			return OscNewsListPageFragment.newInstance(cxt);
+			return BookmarkListPageFragment.newInstance(cxt);
 		case 3:
-			return CsdnNewsListPageFragment.newInstance(cxt);
+			return OscNewsListPageFragment.newInstance(cxt);
 		case 2:
-			return TechugNewsListPageFragment.newInstance(cxt);
+			return CsdnNewsListPageFragment.newInstance(cxt);
 		case 1:
-			return GeekListPageFragment.newInstance(cxt);
+			return TechugNewsListPageFragment.newInstance(cxt);
 		case 0:
-			return AndroiderPageFragment.newInstance(cxt);
+			return GeekListPageFragment.newInstance(cxt);
 		}
 		return null;
 	}

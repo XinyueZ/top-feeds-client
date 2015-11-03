@@ -1,4 +1,4 @@
-package com.topfeeds4j.sample.utils;
+package com.topfeeds4j.sample.utils.helpers;
 
 
 public final class OscListAdapterHelper extends AbstractAdapterHelper {

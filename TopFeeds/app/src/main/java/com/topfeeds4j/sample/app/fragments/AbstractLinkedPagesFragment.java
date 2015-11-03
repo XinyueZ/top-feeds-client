@@ -11,14 +11,13 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.topfeeds4j.Api;
+import com.topfeeds4j.ds.EntryMeta;
 import com.topfeeds4j.ds.NewsEntries;
-import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
-import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
-import com.topfeeds4j.sample.utils.AndroiderListAdapterHelper;
+import com.topfeeds4j.sample.utils.helpers.AbstractLinkedPagesAdapterHelper;
 
 import de.greenrobot.event.EventBus;
 import retrofit.Callback;
@@ -31,7 +30,7 @@ import retrofit.client.Response;
  *
  * @author Xinyue Zhao
  */
-public final class AndroiderPageFragment extends TopFeedsFragment {
+public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 
 
 
@@ -61,23 +60,18 @@ public final class AndroiderPageFragment extends TopFeedsFragment {
 
 	//------------------------------------------------
 	/**
-	 * Initialize an {@link  AndroiderPageFragment}.
+	 * Initialize an {@link  AbstractLinkedPagesFragment}.
 	 *
 	 * @param context
 	 * 		A {@link Context} object.
 	 *
-	 * @return An instance of {@link AndroiderPageFragment}.
+	 * @return An instance of {@link AbstractLinkedPagesFragment}.
 	 */
-	public static AndroiderPageFragment newInstance(Context context) {
-		return (AndroiderPageFragment) Fragment.instantiate(context, AndroiderPageFragment.class.getName());
+	public static AbstractLinkedPagesFragment newInstance(Context context) {
+		return (AbstractLinkedPagesFragment) Fragment.instantiate(context, AbstractLinkedPagesFragment.class.getName());
 	}
 
-	/**
-	 * Get host type ident, {@code 1} is CSDN, {@code 2} is techug.com, {@code 3} is Geeker-news,{@code 4} is androider-blog, otherwise is oschina.net
-	 */
-	protected int getNewsHostType() {
-		return 4;
-	}
+
 
 	@Override
 	protected void pull2Load() {
@@ -91,7 +85,7 @@ public final class AndroiderPageFragment extends TopFeedsFragment {
 	public void success(NewsEntries newsEntries, Response response) {
 		super.success(newsEntries, response);
 		if (newsEntries.getStatus() == 200) { //Feeds with validated content, otherwise the status is 300 or other else.
-			AndroiderListAdapterHelper helper = (AndroiderListAdapterHelper) getAdapterHelper();
+			AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
 			helper.setPrevious(helper.getFrom() );
 			helper.setFrom(newsEntries.getFrom());
 		}
@@ -105,12 +99,12 @@ public final class AndroiderPageFragment extends TopFeedsFragment {
 		if (!isInProgress()) {
 			EventBus.getDefault().post(new ShowProgressIndicatorEvent(true));
 			setInProgress(true);
-			AndroiderListAdapterHelper helper = (AndroiderListAdapterHelper) getAdapterHelper();
-			Api.getNewsEntries(getNewsHostType(), helper.getFrom(), new Callback<NewsEntries>() {
+			AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
+			Api.getNewsEntries(getNewsHostType(), helper.getFrom(),getEntryMeta(), new Callback<NewsEntries>() {
 				@Override
 				public void success(NewsEntries newsEntries, Response response) {
 					onFinishLoading();
-					AndroiderListAdapterHelper helper = (AndroiderListAdapterHelper) getAdapterHelper();
+					AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
 					if (newsEntries.getStatus() == 200) {
 						getAdapter().getData().addAll(newsEntries.getNewsEntries());
 						getAdapter().notifyDataSetChanged();
@@ -124,7 +118,7 @@ public final class AndroiderPageFragment extends TopFeedsFragment {
 				@Override
 				public void failure(RetrofitError error) {
 					onFinishLoading();
-					AndroiderListAdapterHelper helper = (AndroiderListAdapterHelper) getAdapterHelper();
+					AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
 					helper.setFrom(helper.getPrevious());
 
 					new DialogFragment() {
@@ -134,10 +128,10 @@ public final class AndroiderPageFragment extends TopFeedsFragment {
 							AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 							builder.setMessage(R.string.lbl_retry).setNegativeButton(R.string.lbl_no, null)
 									.setPositiveButton(R.string.lbl_yes, new DialogInterface.OnClickListener() {
-										public void onClick(DialogInterface dialog, int id) {
-											getMoreNews();
-										}
-									});
+												public void onClick(DialogInterface dialog, int id) {
+													getMoreNews();
+												}
+											});
 							return builder.create();
 						}
 					}.show(getChildFragmentManager(), null);
@@ -177,20 +171,8 @@ public final class AndroiderPageFragment extends TopFeedsFragment {
 		});
 	}
 
-	/**
-	 * @return A list of {@link NewsEntry}s.
-	 */
-	@Override
-	public void getNewsList() {
-		if (!isInProgress()) {
-			setInProgress(true);
-			AndroiderListAdapterHelper helper = (AndroiderListAdapterHelper) getAdapterHelper();
-			Api.getNewsEntries(getNewsHostType(), helper.getFirstPage(), this);
-		}
-	}
 
-	@Override
-	protected AbstractAdapterHelper getAdapterHelper() {
-		return AndroiderListAdapterHelper.getInstance();
+	protected   EntryMeta getEntryMeta(){
+		return new EntryMeta("0");
 	}
 }

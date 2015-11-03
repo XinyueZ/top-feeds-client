@@ -89,24 +89,14 @@
             app:rippleColor="@color/primary_color" />
     </FrameLayout>
 
-    <ScrollView
-        android:layout_width="@dimen/drawer_left_width"
+    <android.support.design.widget.NavigationView
+        android:id="@+id/nav_view"
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:background="@android:color/white"
-        android:scrollbars="none">
-
-
-        <LinearLayout
-            android:id="@+id/drawer_menu_ll"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <FrameLayout
-                android:id="@+id/app_list_fl"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-        </LinearLayout>
-    </ScrollView>
+        android:background="@color/common_white"
+        android:fitsSystemWindows="true"
+        android:theme="@style/NavDrawerItem"
+        app:itemIconTint="@color/primary_accent"
+        app:itemTextColor="@color/primary_accent" />
 </android.support.v4.widget.DrawerLayout>

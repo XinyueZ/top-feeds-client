@@ -10,8 +10,8 @@ import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
-import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
-import com.topfeeds4j.sample.utils.BookmarkListAdapterHelper;
+import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
+import com.topfeeds4j.sample.utils.helpers.BookmarkListAdapterHelper;
 import com.topfeeds4j.sample.utils.Utils;
 
 import de.greenrobot.event.EventBus;

@@ -1,13 +1,13 @@
-package com.topfeeds4j.sample.utils;
+package com.topfeeds4j.sample.utils.helpers;
 
 
-public final class GeekListAdapterHelper extends AbstractAdapterHelper {
+public final class GeekListPagesAdapterHelper extends AbstractLinkedPagesAdapterHelper {
 	/**
 	 * First page for Geeker-news.
 	 */
 	private String mFrom = DEFAULT_FROM;
 
-	private static final String DEFAULT_FROM = "";
+	private static final String DEFAULT_FROM = "0";
 	/**
 	 * Previous page's start point.
 	 */
@@ -35,12 +35,12 @@ public final class GeekListAdapterHelper extends AbstractAdapterHelper {
 		mPrevious = previous;
 	}
 
-	private static GeekListAdapterHelper AdapterHelper = new GeekListAdapterHelper();
+	private static GeekListPagesAdapterHelper AdapterHelper = new GeekListPagesAdapterHelper();
 
-	public static GeekListAdapterHelper getInstance() {
+	public static GeekListPagesAdapterHelper getInstance() {
 		return AdapterHelper;
 	}
 
-	protected GeekListAdapterHelper() {
+	protected GeekListPagesAdapterHelper() {
 	}
 }

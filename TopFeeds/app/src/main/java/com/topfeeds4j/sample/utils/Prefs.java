@@ -1,6 +1,7 @@
 package com.topfeeds4j.sample.utils;
 
 import android.content.Context;
+import android.support.v4.util.LongSparseArray;
 
 import com.chopping.application.BasicPrefs;
 
@@ -25,12 +26,17 @@ public final class Prefs extends BasicPrefs {
 	private static final String KEY_DEVICE_IDENT = "key.device.ident";
 
 	private static final String KEY_VIEW_MODE = "key.view.mode";
+	private static final String KEY_BLOGGER_ID_LIST = "blogger_ids";
+	private static final String KEY_BLOGGER_NAME_LIST = "blogger_names";
+
 	public static final int VIEW_MODE_MULTI = 0;
 	public static  final int VIEW_MODE_SINGLE = 1;
 	/**
 	 * The Instance.
 	 */
 	private static Prefs sInstance;
+
+
 
 	private Prefs() {
 		super(null);
@@ -162,5 +168,50 @@ public final class Prefs extends BasicPrefs {
 
 	public void setViewMode(int mode) {
 		  setInt(KEY_VIEW_MODE, mode);
+	}
+
+	/**
+	 * Get all blogger meta information.
+	 * @return A list of [blogger-id : blogger-name].
+	 */
+	public LongSparseArray<String> getBloggersMeta () {
+		LongSparseArray<String> lst = new LongSparseArray<>();
+		String ids = getString(KEY_BLOGGER_ID_LIST, null);
+		String names = getString(KEY_BLOGGER_NAME_LIST, null);
+		String[] idList = ids.split(",");
+		String[] nameList = names.split(",");
+		int i = 0;
+		for(String id : idList) {
+			lst.put(Long.valueOf(id), nameList[i++]);
+		}
+		return lst;
+	}
+
+	/**
+	 * Get id-list of blogger.
+	 */
+	public long[] getBloggerIds() {
+		String ids = getString(KEY_BLOGGER_ID_LIST, null);
+		String[] idList = ids.split(",");
+		long[] ret = new long[idList.length];
+		int i = 0;
+		for(String id : idList) {
+			ret[i++] = Long.valueOf(id);
+		}
+		return ret;
+	}
+
+	/**
+	 * Get name-list of blogger.
+	 */
+	public String[] getBloggerNames() {
+		String names = getString(KEY_BLOGGER_NAME_LIST, null);
+		String[] nameList = names.split(",");
+		String[] ret = new String[nameList.length];
+		int i = 0;
+		for(String name : nameList) {
+			ret[i++] = name;
+		}
+		return ret;
 	}
 }

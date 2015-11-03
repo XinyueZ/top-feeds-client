@@ -80,4 +80,9 @@
         <item name="mrl_rippleHover">false</item>
         <item name="mrl_rippleOverlay">false</item>
     </style>
+
+    <style name="NavDrawerItem" parent="@style/Theme.AppCompat.Light">
+        <item name="android:textColor">@color/primary_accent</item>
+        <item name="android:textColorSecondary">@color/primary_accent</item>
+    </style>
 </resources>

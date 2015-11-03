@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
@@ -28,6 +29,7 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemSelectedListener;
+import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
 import com.chopping.activities.BaseActivity;
@@ -64,10 +66,11 @@ import com.topfeeds4j.sample.app.events.ShowToastEvent;
 import com.topfeeds4j.sample.app.events.TopEvent;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment;
 import com.topfeeds4j.sample.app.fragments.AboutDialogFragment.EulaConfirmationDialog;
-import com.topfeeds4j.sample.app.fragments.AppListImpFragment;
+import com.topfeeds4j.sample.app.fragments.BloggerPageFragment;
 import com.topfeeds4j.sample.app.fragments.BookmarkListPageFragment;
 import com.topfeeds4j.sample.app.fragments.TopFeedsFragment;
 import com.topfeeds4j.sample.utils.Prefs;
+import com.topfeeds4j.sample.utils.helpers.BloggerHelperFactory;
 
 import de.greenrobot.event.EventBus;
 import retrofit.Callback;
@@ -102,9 +105,8 @@ public class MainActivity extends BaseActivity {
 	private boolean mWifiOn;
 	private Spinner mProviderSpr;
 
-	private MenuItem mProvidersMi;
 	private MenuItem mViewModeMi;
-
+	private NavigationView mNavigationView;
 	/**
 	 * Container for all created "single-page"s.
 	 */
@@ -234,7 +236,7 @@ public class MainActivity extends BaseActivity {
 	/**
 	 * Logical of "single-mode": page-selecting, page-loading, page-reusing etc.
 	 */
-	public void createSingleModeTransactions() {
+	public void createSingleModeSelections() {
 		//Init bookmark-list.
 		if (App.Instance.getBookmarkList() == null) {
 			com.topfeeds4j.sample.utils.Utils.loadBookmarkList(new Callback<NewsEntries>() {
@@ -252,15 +254,29 @@ public class MainActivity extends BaseActivity {
 			});
 		}
 
-		mProvidersMi.setVisible(!mWifiOn);//When wifi is unavailable, user can use single page-mode.
+		mProviderSpr.setVisibility(!mWifiOn ? View.VISIBLE : View.GONE);//When wifi is unavailable, user can use single page-mode.
 		if (mWifiOn && Prefs.getInstance().getViewMode() == Prefs.VIEW_MODE_SINGLE) {
 			//Under wifi, user can use different views.
-			mProvidersMi.setVisible(true);
+			mProviderSpr.setVisibility(View.VISIBLE);
 		}
 		mViewModeMi.setVisible(mWifiOn);
 		setViewModeMenuItem(mViewModeMi);
 
 		if (mProviderSpr.getOnItemSelectedListener() == null) {
+			String[] statics =  getResources().getStringArray(R.array.providers_list);
+			String[] dynamics = Prefs.getInstance().getBloggerNames();
+			String[] titles=new String[statics.length + dynamics.length];
+			int i = 0;
+			for(String s : dynamics) {
+				titles[i++] = s;
+			}
+			for(String s : statics) {
+				titles[i++] = s;
+			}
+			ArrayAdapter<String> adp = new ArrayAdapter<>(
+					 App.Instance,  R.layout.spinner_item,
+					titles);
+			mProviderSpr.setAdapter(adp);
 			mProviderSpr.setOnItemSelectedListener(new OnItemSelectedListener() {
 				@Override
 				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
@@ -288,13 +304,11 @@ public class MainActivity extends BaseActivity {
 					mDrawerLayout.openDrawer(GravityCompat.START);
 				}
 			});
-			toolbar.setTitle(R.string.application_name);
+			mProviderSpr = (Spinner)getLayoutInflater().inflate(R.layout.spinner_layout, toolbar, false);
+			toolbar.addView(mProviderSpr);
 
 			//Build menu.
 			Menu menu = toolbar.getMenu();
-			//A list of all resource providers.
-			mProvidersMi = menu.findItem(R.id.action_providers);
-			mProviderSpr = (Spinner) MenuItemCompat.getActionView(mProvidersMi);
 			//Icon of "view change" menu, it works only when wifi is on.
 			mViewModeMi = menu.findItem(R.id.action_view_mode);
 
@@ -337,7 +351,14 @@ public class MainActivity extends BaseActivity {
 		if (frg == null) {
 			//New page that ever been seen before.
 			newOne = true;
-			frg = com.topfeeds4j.sample.utils.Utils.getFragment(App.Instance, position);
+
+			int dynamicTotal = Prefs.getInstance().getBloggerNames().length;
+			if (position < dynamicTotal) {
+				long[] ids = Prefs.getInstance().getBloggerIds();
+				frg = BloggerPageFragment.newInstance(App.Instance,  ids[position]);
+			} else {
+				frg = com.topfeeds4j.sample.utils.Utils.getFragment(App.Instance,position - dynamicTotal );
+			}
 		}
 		if (frg != null) {
 			String tag = frg.getClass().getSimpleName();
@@ -367,7 +388,7 @@ public class MainActivity extends BaseActivity {
 		int mode = prefs.getViewMode();
 		prefs.setViewMode(mode == Prefs.VIEW_MODE_MULTI ? Prefs.VIEW_MODE_SINGLE : Prefs.VIEW_MODE_MULTI);
 		mode = Prefs.getInstance().getViewMode();
-		mProvidersMi.setVisible(mode == Prefs.VIEW_MODE_SINGLE);
+		mProviderSpr.setVisibility(mode == Prefs.VIEW_MODE_SINGLE ? View.VISIBLE : View.GONE);
 		setViewModeMenuItem(mi);
 		buildViews();
 	}
@@ -426,6 +447,7 @@ public class MainActivity extends BaseActivity {
 	 */
 	private void didAppConfig() {
 		Prefs prefs = Prefs.getInstance();
+		BloggerHelperFactory.createInstance();
 		com.topfeeds4j.Api.initialize(App.Instance, prefs.getTopFeeds4JHost(), prefs.getCacheSize());
 		String url = Prefs.getInstance().getAppTinyuUrl();
 		if (TextUtils.isEmpty(url) || !url.contains("tinyurl")) {
@@ -451,7 +473,6 @@ public class MainActivity extends BaseActivity {
 	 * Show all list.
 	 */
 	private void showAll() {
-		showAppList();
 		checkAndInit();
 		if (mPbDlg != null && mPbDlg.isShowing()) {
 			mPbDlg.dismiss();
@@ -505,22 +526,18 @@ public class MainActivity extends BaseActivity {
 	}
 
 
-	/**
-	 * Show all external applications links.
-	 */
-	private void showAppList() {
-		getSupportFragmentManager().beginTransaction().replace(R.id.app_list_fl, AppListImpFragment.newInstance(this))
-				.commit();
-	}
 
 
 	/**
 	 * Make the main screen, pages, friends-list etc.
 	 */
 	private void buildViews() {
+		if(mNavigationView == null) {
+			mNavigationView = (NavigationView) findViewById(R.id.nav_view);
+			mNavigationView.addHeaderView(getLayoutInflater().inflate(R.layout.nav_header, mNavigationView, false));
+		}
 		buildMenu();
 		//Init pagers, bind the tabs to the ViewPager
-		mViewPager = (ViewPager) findViewById(R.id.vp);
 		TabLayout tabs = (TabLayout) findViewById(R.id.tabs);
 		ViewGroup singleContainer = (ViewGroup) findViewById(R.id.single_page_container);
 		if (mWifiOn) {
@@ -541,7 +558,9 @@ public class MainActivity extends BaseActivity {
 	private void changeToMultiPagesMode(TabLayout tabs, ViewGroup singleContainer) {
 		mViewPager.setVisibility(View.VISIBLE);
 		if (mPagerAdapter == null) {
-			mViewPager.setOffscreenPageLimit(5);
+			String[] statics =  getResources().getStringArray(R.array.providers_list);
+			String[] dynamics = Prefs.getInstance().getBloggerNames();
+			mViewPager.setOffscreenPageLimit(statics.length + dynamics.length);
 			mPagerAdapter = new NewsListPagersAdapter(MainActivity.this, getSupportFragmentManager());
 			mViewPager.setAdapter(mPagerAdapter);
 			tabs.setupWithViewPager(mViewPager);
@@ -557,7 +576,7 @@ public class MainActivity extends BaseActivity {
 		singleContainer.setVisibility(View.VISIBLE);
 		mProviderSpr.setVisibility(View.VISIBLE);
 		//No wifi and force to use single mode.
-		createSingleModeTransactions();
+		createSingleModeSelections();
 	}
 
 
@@ -643,6 +662,7 @@ public class MainActivity extends BaseActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		mWifiOn = NetworkUtils.getCurrentNetworkType(App.Instance) == NetworkUtils.CONNECTION_WIFI;
+		mViewPager = (ViewPager) findViewById(R.id.vp);
 
 		final Wrappers wrappers = new Wrappers();
 		//		wrappers.add(onClickWrapper);

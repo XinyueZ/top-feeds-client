@@ -20,7 +20,7 @@ import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListAdapter;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
 import com.topfeeds4j.sample.app.events.TopEvent;
-import com.topfeeds4j.sample.utils.AbstractAdapterHelper;
+import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 import com.topfeeds4j.sample.utils.Prefs;
 
 import retrofit.Callback;

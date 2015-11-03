@@ -9,6 +9,7 @@ import android.util.Log;
 
 import com.facebook.stetho.okhttp.StethoInterceptor;
 import com.squareup.okhttp.OkHttpClient;
+import com.topfeeds4j.ds.EntryMeta;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.ds.Status;
@@ -129,6 +130,9 @@ public final class Api {
 		@GET("/topfeeds")
 		void getNewsEntries(@Query("type") int type, @Query("page") String page, Callback<NewsEntries> callback);
 
+		@POST("/topfeeds")
+		void getNewsEntries(@Query("type") int type, @Query("page") String page, @Body EntryMeta meta,  Callback<NewsEntries> callback);
+
 
 		@GET("/bookmarkList")
 		void getBookmarkList(@Query("ident")String ident, Callback<NewsEntries> callback);
@@ -144,7 +148,7 @@ public final class Api {
 	 * Ask news from different host.
 	 *
 	 * @param type
-	 * 		{@code 0}: oschina.net, {@code 1}: csdn,  {@code 2}: techug,  {@code 3}: geeker-news.
+	 * 		{@code 0}: oschina.net, {@code 1}: csdn,  {@code 2}: techug,  {@code 3}: geeker-news, {@code 4}: some dynamic pages.
 	 * @param page
 	 * 		Paging feeds, it works when {@code type = 0}: oschina.net
 	 * @param callback
@@ -166,9 +170,9 @@ public final class Api {
 	 * Ask news from different host.
 	 *
 	 * @param type
-	 * 		{@code 0}: oschina.net, {@code 1}: csdn,  {@code 2}: techug,  {@code 3}: geeker-news.
+	 * 		{@code 0}: oschina.net, {@code 1}: csdn,  {@code 2}: techug,  {@code 3}: geeker-news, {@code 4}: some dynamic pages.
 	 * @param page
-	 * 		Next page of content, it works when {@code type = 3}: geeker-news
+	 * 		Next page of content, it works when {@code type = 3}: geeker-news, {@code 4}: some dynamic pages.
 	 * @param callback
 	 * 		Callback when feeds is loaded.
 	 */
@@ -181,6 +185,31 @@ public final class Api {
 			s = adapter.create(S.class);
 		}
 		s.getNewsEntries(type, page, callback);
+	}
+
+
+
+	/**
+	 * Ask news from different host.
+	 *
+	 * @param type
+	 * 		{@code 0}: oschina.net, {@code 1}: csdn,  {@code 2}: techug,  {@code 3}: geeker-news, {@code 4}: some dynamic pages.
+	 * @param page
+	 * 		Next page of content, it works when {@code type = 3}: geeker-news, {@code 4}: some dynamic pages.
+	 * @param meta
+	 * 		Some meta information of dynamic entry.
+	 * @param callback
+	 * 		Callback when feeds is loaded.
+	 */
+	public static final void getNewsEntries(@Query("type") int type, @Query("page") String page, @Body EntryMeta meta,
+			Callback<NewsEntries> callback) {
+		assertCall();
+		if (s == null) {
+			RestAdapter adapter = new RestAdapter.Builder().setClient(sClient).setRequestInterceptor(
+					sInterceptor).setLogLevel(RestAdapter.LogLevel.FULL).setEndpoint(sHost).build();
+			s = adapter.create(S.class);
+		}
+		s.getNewsEntries(type, page, meta, callback);
 	}
 
 
