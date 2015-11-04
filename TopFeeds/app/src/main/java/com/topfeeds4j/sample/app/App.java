@@ -88,15 +88,19 @@ public final class App extends MultiDexApplication {
 
 
 	public void addBookmark(NewsEntry item) {
-		mBookmarkList.add(0, item);
+		if(mBookmarkList != null) {
+			mBookmarkList.add(0, item);
+		}
 	}
 
 
 	public void removeBookmark(NewsEntry item) {
-		for (NewsEntry fi : mBookmarkList) {
-			if (fi.equals(item)) {
-				mBookmarkList.remove(fi);
-				return;
+		if(mBookmarkList != null) {
+			for (NewsEntry fi : mBookmarkList) {
+				if (fi.equals(item)) {
+					mBookmarkList.remove(fi);
+					return;
+				}
 			}
 		}
 	}
