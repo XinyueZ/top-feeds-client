@@ -7,7 +7,7 @@ import com.topfeeds4j.sample.utils.Prefs;
 
 public final class BloggerHelperFactory {
 	private static BloggerHelperFactory sInstance = null;
-	private LongSparseArray<BloggerPagesAdapterHelper> mHelpers = new LongSparseArray<>();
+	private LongSparseArray<BloggerPagesAdapterHelper> mHelpers;
 
 	public static void createInstance() {
 		if (sInstance == null) {
@@ -21,6 +21,7 @@ public final class BloggerHelperFactory {
 
 
 	public BloggerHelperFactory() {
+		mHelpers = new LongSparseArray<>();
 		long[] ids = Prefs.getInstance().getBloggerIds();
 		//create adapter-helpers
 		for (long id : ids) {
