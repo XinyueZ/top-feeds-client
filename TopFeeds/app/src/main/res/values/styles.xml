@@ -30,8 +30,8 @@
     <style name="ItemCardView">
 
         <item name="contentPadding">0dp</item>
-        <item name="cardElevation">5dp</item>
-        <item name="cardMaxElevation">5dp</item>
+        <item name="cardElevation">1dp</item>
+        <item name="cardMaxElevation">0dp</item>
         <item name="cardUseCompatPadding">true</item>
         <item name="cardCornerRadius">1dp</item>
     </style>
