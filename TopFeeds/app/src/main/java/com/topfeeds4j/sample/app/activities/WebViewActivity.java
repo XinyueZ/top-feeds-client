@@ -151,7 +151,8 @@ public final class WebViewActivity extends AppCompatActivity {
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		getMenuInflater().inflate(MENU, menu);
-		MenuItem menuShare = menu.findItem(R.id.action_item_share);
+		final MenuItem menuShare = menu.findItem(R.id.action_item_share);
+		menuShare.setVisible(false);
 		final android.support.v7.widget.ShareActionProvider provider =
 				(android.support.v7.widget.ShareActionProvider) MenuItemCompat.getActionProvider(menuShare);
 
@@ -159,10 +160,14 @@ public final class WebViewActivity extends AppCompatActivity {
 		Api.getTinyUrl(url, new Callback<Response>() {
 			@Override
 			public void success(Response response, retrofit.client.Response response2) {
+				Intent intent = getIntent();
 				String subject = App.Instance.getString(R.string.lbl_share_item_title);
 				String text = App.Instance.getString(R.string.lbl_share_item_content, getIntent().getStringExtra(
-						EXTRAS_TITLE), response.getResult(), subject, Prefs.getInstance().getAppTinyuUrl());
+						EXTRAS_TITLE),
+						TextUtils.isEmpty(response.getResult()) ? intent.getStringExtra(EXTRAS_URL) : response.getResult(),
+						subject, Prefs.getInstance().getAppTinyuUrl());
 				provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
+				menuShare.setVisible(true);
 			}
 
 			@Override
@@ -172,6 +177,7 @@ public final class WebViewActivity extends AppCompatActivity {
 				String text = App.Instance.getString(R.string.lbl_share_item_content, intent.getStringExtra(
 						EXTRAS_TITLE), intent.getStringExtra(EXTRAS_URL), subject, Prefs.getInstance().getAppTinyuUrl());
 				provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
+				menuShare.setVisible(true);
 			}
 		});
 		return true;
