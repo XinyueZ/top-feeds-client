@@ -1,6 +1,6 @@
 package com.topfeeds4j.sample.app.activities;
 
-import android.app.AlertDialog.Builder;
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -18,6 +19,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.Toolbar.OnMenuItemClickListener;
@@ -76,6 +78,8 @@ import de.greenrobot.event.EventBus;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
 import static com.github.johnpersano.supertoasts.SuperToast.Icon.Dark.INFO;
 
 
@@ -111,6 +115,7 @@ public class MainActivity extends BaseActivity {
 	 * Container for all created "single-page"s.
 	 */
 	private SparseArrayCompat<Fragment> mSinglePages = new SparseArrayCompat<>();
+	private boolean mAlive;
 	//------------------------------------------------
 	//Subscribes, event-handlers
 	//------------------------------------------------
@@ -232,6 +237,17 @@ public class MainActivity extends BaseActivity {
 	}
 	//------------------------------------------------
 
+	/**
+	 * Show single instance of {@link}
+	 *
+	 * @param cxt
+	 * 		{@link Activity}.
+	 */
+	public static void showInstance(Activity cxt) {
+		Intent intent = new Intent(cxt, MainActivity.class);
+		intent.setFlags(FLAG_ACTIVITY_SINGLE_TOP | FLAG_ACTIVITY_CLEAR_TOP);
+		ActivityCompat.startActivity(cxt, intent, null);
+	}
 
 	/**
 	 * Logical of "single-mode": page-selecting, page-loading, page-reusing etc.
@@ -412,6 +428,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void showWarningToast(String text) {
+		if(!mAlive) return;
 		SuperCardToast toast = new SuperCardToast(this, Type.STANDARD);
 		toast.setAnimations(Animations.POPUP);
 		toast.setBackground(Background.BLUE);
@@ -422,6 +439,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void showErrorToast(String text) {
+		if(!mAlive) return;
 		SuperCardToast toast = new SuperCardToast(this, Type.STANDARD);
 		toast.setAnimations(Animations.FADE);
 		toast.setBackground(Background.RED);
@@ -432,6 +450,7 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void showInfoToast(String text) {
+		if(!mAlive) return;
 		SuperCardToast toast = new SuperCardToast(this, Type.STANDARD);
 		toast.setAnimations(Animations.FLYIN);
 		toast.setBackground(Background.GREEN);
@@ -680,10 +699,12 @@ public class MainActivity extends BaseActivity {
 				EventBus.getDefault().post(new TopEvent());
 			}
 		});
+		mAlive = true;
 	}
 
 	@Override
 	protected void onDestroy() {
+		mAlive = false;
 		super.onDestroy();
 		if (mSinglePages.size() > 0) {
 			mSinglePages.clear();

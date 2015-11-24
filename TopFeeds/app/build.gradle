@@ -9,6 +9,7 @@ buildscript {
 }
 apply plugin: 'com.android.application'
 apply plugin: 'io.fabric'
+apply plugin: 'android-apt'
 
 repositories {
     maven { url 'https://maven.fabric.io/public' }
@@ -31,8 +32,8 @@ android {
         applicationId "com.topfeeds4j.sample"
         minSdkVersion 9
         targetSdkVersion 23
-        versionCode 22
-        versionName "1.4.6"
+        versionCode 23
+        versionName "1.4.7"
     }
     dexOptions {
         incremental true
@@ -76,6 +77,8 @@ dependencies {
     compile('com.crashlytics.sdk.android:crashlytics:2.5.2@aar') {
         transitive = true;
     }
+    compile 'com.github.hotchemi:permissionsdispatcher:1.2.1@aar'
+    apt 'com.github.hotchemi:permissionsdispatcher-processor:1.2.1'
 }
 
 

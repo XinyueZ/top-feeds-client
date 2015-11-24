@@ -128,7 +128,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 					public void success(Response response, retrofit.client.Response response2) {
 						String subject = App.Instance.getString(R.string.lbl_share_item_title);
 						String text = App.Instance.getString(R.string.lbl_share_item_content, entry.getTitle(),
-								response.getResult(), subject, Prefs.getInstance().getAppTinyuUrl());
+								TextUtils.isEmpty(response.getResult()) ? entry.getUrlMobile() : response.getResult(), subject, Prefs.getInstance().getAppTinyuUrl());
 						shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
 						shareIntent.putExtra(Intent.EXTRA_TEXT, text);
 						EventBus.getDefault().post(new ShareEvent(shareIntent));

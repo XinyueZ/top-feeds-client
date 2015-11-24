@@ -151,6 +151,8 @@ public final class WebViewActivity extends AppCompatActivity {
 	@Override
 	public boolean onCreateOptionsMenu(final Menu menu) {
 		getMenuInflater().inflate(MENU, menu);
+		final MenuItem menuFB = menu.findItem(R.id.action_fb);
+		menuFB.setVisible(false);
 		final MenuItem menuShare = menu.findItem(R.id.action_item_share);
 		menuShare.setVisible(false);
 		final android.support.v7.widget.ShareActionProvider provider =
@@ -167,6 +169,7 @@ public final class WebViewActivity extends AppCompatActivity {
 						TextUtils.isEmpty(response.getResult()) ? intent.getStringExtra(EXTRAS_URL) : response.getResult(),
 						subject, Prefs.getInstance().getAppTinyuUrl());
 				provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
+				menuFB.setVisible(true);
 				menuShare.setVisible(true);
 			}
 
@@ -177,6 +180,7 @@ public final class WebViewActivity extends AppCompatActivity {
 				String text = App.Instance.getString(R.string.lbl_share_item_content, intent.getStringExtra(
 						EXTRAS_TITLE), intent.getStringExtra(EXTRAS_URL), subject, Prefs.getInstance().getAppTinyuUrl());
 				provider.setShareIntent(Utils.getDefaultShareIntent(provider, subject, text));
+				menuFB.setVisible(true);
 				menuShare.setVisible(true);
 			}
 		});

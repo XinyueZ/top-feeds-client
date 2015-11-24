@@ -18,6 +18,7 @@
     <string name="msg_added_bookmark">添加收藏</string>
     <string name="msg_removed_bookmark">移出收藏</string>
     <string name="msg_load_config">读取应用配置…</string>
+    <string name="msg_permission_prompt">没有－读取电话状态－的权利，无法运行…</string>
 
 
     <string name="btn_confirm">确认</string>
