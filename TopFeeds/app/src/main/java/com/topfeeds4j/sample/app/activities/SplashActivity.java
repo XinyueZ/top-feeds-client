@@ -33,6 +33,7 @@ public class SplashActivity extends AppCompatActivity {
 	@NeedsPermission(permission.READ_PHONE_STATE)
 	void getReadPhoneStatePermission() {
 		MainActivity.showInstance(this);
+		ActivityCompat.finishAfterTransition(this);
 	}
 
 
