@@ -21,14 +21,13 @@ public final class CsdnNewsListPageFragment extends TopFeedsFragment {
 	//------------------------------------------------
 
 
-
 	/**
 	 * Handler for {@link LoadedBookmarkEvent}.
 	 *
 	 * @param e
 	 * 		Event {@link LoadedBookmarkEvent}.
 	 */
-	public void onEvent(LoadedBookmarkEvent e) {
+	public void onEvent( LoadedBookmarkEvent e ) {
 		getNewsList();
 	}
 
@@ -42,10 +41,9 @@ public final class CsdnNewsListPageFragment extends TopFeedsFragment {
 	 *
 	 * @return An instance of {@link CsdnNewsListPageFragment}.
 	 */
-	public static CsdnNewsListPageFragment newInstance(Context context) {
-		return (CsdnNewsListPageFragment) Fragment.instantiate(context, CsdnNewsListPageFragment.class.getName());
+	public static CsdnNewsListPageFragment newInstance( Context context ) {
+		return (CsdnNewsListPageFragment) Fragment.instantiate( context, CsdnNewsListPageFragment.class.getName() );
 	}
-
 
 
 	/**

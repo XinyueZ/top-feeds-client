@@ -21,14 +21,13 @@ public final class TechugNewsListPageFragment extends TopFeedsFragment {
 	//------------------------------------------------
 
 
-
 	/**
 	 * Handler for {@link LoadedBookmarkEvent}.
 	 *
 	 * @param e
 	 * 		Event {@link LoadedBookmarkEvent}.
 	 */
-	public void onEvent(LoadedBookmarkEvent e) {
+	public void onEvent( LoadedBookmarkEvent e ) {
 		getNewsList();
 	}
 
@@ -42,10 +41,9 @@ public final class TechugNewsListPageFragment extends TopFeedsFragment {
 	 *
 	 * @return An instance of {@link TechugNewsListPageFragment}.
 	 */
-	public static TechugNewsListPageFragment newInstance(Context context) {
-		return (TechugNewsListPageFragment) Fragment.instantiate(context, TechugNewsListPageFragment.class.getName());
+	public static TechugNewsListPageFragment newInstance( Context context ) {
+		return (TechugNewsListPageFragment) Fragment.instantiate( context, TechugNewsListPageFragment.class.getName() );
 	}
-
 
 
 	/**

@@ -33,7 +33,7 @@ public final class ShareEntryEvent {
 	 * @param type
 	 * 		Facebook or Tweet.
 	 */
-	public ShareEntryEvent(NewsEntry entry, Type type) {
+	public ShareEntryEvent( NewsEntry entry, Type type ) {
 		mEntry = entry;
 		mType = type;
 	}

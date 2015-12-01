@@ -20,8 +20,8 @@ import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListAdapter;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
 import com.topfeeds4j.sample.app.events.TopEvent;
-import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 import com.topfeeds4j.sample.utils.Prefs;
+import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 
 import retrofit.Callback;
 import retrofit.RetrofitError;
@@ -54,7 +54,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	/**
 	 * Network action in progress if {@code true}.
 	 */
-	private boolean mInProgress;
+	private boolean             mInProgress;
 
 	//------------------------------------------------
 	//Subscribes, event-handlers
@@ -66,8 +66,8 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	 * @param e
 	 * 		Event {@link RefreshListEvent}.
 	 */
-	public void onEvent(RefreshListEvent e) {
-		if (getAdapter() != null) {
+	public void onEvent( RefreshListEvent e ) {
+		if( getAdapter() != null ) {
 			getAdapter().notifyDataSetChanged();
 		}
 	}
@@ -78,11 +78,11 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	 * @param e
 	 * 		Event {@link com.topfeeds4j.sample.app.events.TopEvent}.
 	 */
-	public void onEvent(TopEvent e) {
+	public void onEvent( TopEvent e ) {
 		NewsListAdapter adapter = getAdapter();
-		if (getUserVisibleHint() && adapter != null && adapter.getItemCount() > 0) {
-			mLayoutManager.scrollToPositionWithOffset(0, 0);
-			Utils.showShortToast(App.Instance, R.string.action_to_top);
+		if( getUserVisibleHint() && adapter != null && adapter.getItemCount() > 0 ) {
+			mLayoutManager.scrollToPositionWithOffset( 0, 0 );
+			Utils.showShortToast( App.Instance, R.string.action_to_top );
 		}
 	}
 	//------------------------------------------------
@@ -97,9 +97,9 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	 * @return A list of {@link NewsEntry}s.
 	 */
 	public void getNewsList() {
-		if (!isInProgress()) {
-			setInProgress(true);
-			Api.getNewsEntries(getNewsHostType(), 0, this);
+		if( !isInProgress() ) {
+			setInProgress( true );
+			Api.getNewsEntries( getNewsHostType(), 0, this );
 		}
 	}
 
@@ -111,42 +111,42 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	}
 
 	@Override
-	public void success(NewsEntries newsEntries, Response response) {
+	public void success( NewsEntries newsEntries, Response response ) {
 		onFinishLoading();
 		NewsListAdapter adp = getAdapter();
-		if (newsEntries.getStatus() == 200) {
-			if (newsEntries.getNewsEntries() != null && newsEntries.getNewsEntries().size() > 0) {
-				adp.setData(newsEntries.getNewsEntries());
+		if( newsEntries.getStatus() == 200 ) {
+			if( newsEntries.getNewsEntries() != null && newsEntries.getNewsEntries().size() > 0 ) {
+				adp.setData( newsEntries.getNewsEntries() );
 				adp.notifyDataSetChanged();
 			} else {
-				if (adp.getData() == null || adp.getData().size() == 0) {
-					mEmptyV.setVisibility(View.VISIBLE);
+				if( adp.getData() == null || adp.getData().size() == 0 ) {
+					mEmptyV.setVisibility( View.VISIBLE );
 				}
 			}
 		} else {
-			if (adp != null && adp.getData() != null && adp.getData().size() > 0) {
+			if( adp != null && adp.getData() != null && adp.getData().size() > 0 ) {
 				return;
 			}
-			mErrorV.setVisibility(View.VISIBLE);
+			mErrorV.setVisibility( View.VISIBLE );
 		}
 	}
 
 
 	@Override
-	public void failure(RetrofitError error) {
+	public void failure( RetrofitError error ) {
 		onFinishLoading();
-		mErrorV.setVisibility(View.VISIBLE);
+		mErrorV.setVisibility( View.VISIBLE );
 	}
 
 	/**
 	 * Views changing after finishing loading feeds.
 	 */
 	protected void onFinishLoading() {
-		setInProgress(false);
-		mNotLoadV.setVisibility(View.GONE);
-		mErrorV.setVisibility(View.GONE);
-		mEmptyV.setVisibility(View.GONE);
-		mSwipeRefreshLayout.setRefreshing(false);
+		setInProgress( false );
+		mNotLoadV.setVisibility( View.GONE );
+		mErrorV.setVisibility( View.GONE );
+		mEmptyV.setVisibility( View.GONE );
+		mSwipeRefreshLayout.setRefreshing( false );
 	}
 
 	protected NewsListAdapter getAdapter() {
@@ -163,15 +163,12 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	protected RecyclerView getRecyclerView() {
 		return mRv;
 	}
-
-	protected void setInProgress(boolean inProgress) {
-		mInProgress = inProgress;
-	}
-
 	protected boolean isInProgress() {
 		return mInProgress;
 	}
-
+	protected void setInProgress( boolean inProgress ) {
+		mInProgress = inProgress;
+	}
 	@Override
 	protected BasicPrefs getPrefs() {
 		return Prefs.getInstance();
@@ -182,40 +179,39 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		return inflater.inflate(LAYOUT, container, false);
+	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
+		return inflater.inflate( LAYOUT, container, false );
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+	public void onViewCreated( View view, Bundle savedInstanceState ) {
+		super.onViewCreated( view, savedInstanceState );
 
-		mRv = (RecyclerView) view.findViewById(R.id.news_list_rv);
-		mRv.setLayoutManager(mLayoutManager = new LinearLayoutManager(getActivity()));
-		mRv.setHasFixedSize(false);
+		mRv = (RecyclerView) view.findViewById( R.id.news_list_rv );
+		mRv.setLayoutManager( mLayoutManager = new LinearLayoutManager( getActivity() ) );
+		mRv.setHasFixedSize( false );
 
-		mRv.setAdapter(getAdapter());
+		mRv.setAdapter( getAdapter() );
 
-		mNotLoadV = view.findViewById(R.id.not_loaded_pb);
-		mErrorV = view.findViewById(R.id.error_v);
-		mEmptyV = view.findViewById(R.id.empty_iv);
+		mNotLoadV = view.findViewById( R.id.not_loaded_pb );
+		mErrorV = view.findViewById( R.id.error_v );
+		mEmptyV = view.findViewById( R.id.empty_iv );
 
-		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.content_srl);
-		mSwipeRefreshLayout.setColorSchemeResources(R.color.color_pocket_1, R.color.color_pocket_2,
-				R.color.color_pocket_3, R.color.color_pocket_4);
-		mSwipeRefreshLayout.setOnRefreshListener(new OnRefreshListener() {
+		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById( R.id.content_srl );
+		mSwipeRefreshLayout.setColorSchemeResources( R.color.color_pocket_1, R.color.color_pocket_2, R.color.color_pocket_3, R.color.color_pocket_4 );
+		mSwipeRefreshLayout.setOnRefreshListener( new OnRefreshListener() {
 			@Override
 			public void onRefresh() {
 				pull2Load();
 			}
-		});
+		} );
 
 	}
 
 	@Override
 	public void onDestroyView() {
 		super.onDestroyView();
-		setInProgress(false);
+		setInProgress( false );
 	}
 
 }

@@ -70,20 +70,9 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	 * @param data
 	 * 		Data-source.
 	 */
-	public NewsListAdapter(List<NewsEntry> data ) {
-		setData(data);
+	public NewsListAdapter( List<NewsEntry> data ) {
+		setData( data );
 	}
-
-	/**
-	 * Set data-source for list-view.
-	 *
-	 * @param data
-	 * 		Data-source.
-	 */
-	public void setData(List<NewsEntry> data) {
-		mData = data;
-	}
-
 	/**
 	 * Get current used data-source.
 	 *
@@ -92,163 +81,172 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	public List<NewsEntry> getData() {
 		return mData;
 	}
-
+	/**
+	 * Set data-source for list-view.
+	 *
+	 * @param data
+	 * 		Data-source.
+	 */
+	public void setData( List<NewsEntry> data ) {
+		mData = data;
+	}
 	@Override
-	public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+	public ViewHolder onCreateViewHolder( ViewGroup parent, int viewType ) {
 		Context cxt = parent.getContext();
 		//		boolean landscape = cxt.getResources().getBoolean(R.bool.landscape);
-		View convertView = LayoutInflater.from(cxt).inflate(ITEM_LAYOUT, parent, false);
-		NewsListAdapter.ViewHolder viewHolder = new NewsListAdapter.ViewHolder(convertView);
+		View                       convertView = LayoutInflater.from( cxt ).inflate( ITEM_LAYOUT, parent, false );
+		NewsListAdapter.ViewHolder viewHolder  = new NewsListAdapter.ViewHolder( convertView );
 		return viewHolder;
 	}
 
 	@Override
-	public void onBindViewHolder(final ViewHolder holder, int position) {
-		final NewsEntry entry = mData.get(position);
-		holder.mTitleTv.setText(entry.getTitle());
-		boolean isToday = DateUtils.isToday(entry.getPubDate() * 1000);
-		holder.mTitleTv.setTypeface(isToday ? Typeface.DEFAULT_BOLD : Typeface.SANS_SERIF);
-		if (TextUtils.isEmpty(entry.getDesc())) {
-			holder.mDescTv.setVisibility(View.GONE);
+	public void onBindViewHolder( final ViewHolder holder, int position ) {
+		final NewsEntry entry = mData.get( position );
+		holder.mTitleTv.setText( entry.getTitle() );
+		boolean isToday = DateUtils.isToday( entry.getPubDate() * 1000 );
+		holder.mTitleTv.setTypeface( isToday ? Typeface.DEFAULT_BOLD : Typeface.SANS_SERIF );
+		if( TextUtils.isEmpty( entry.getDesc() ) ) {
+			holder.mDescTv.setVisibility( View.GONE );
 		} else {
-			holder.mDescTv.setVisibility(View.VISIBLE);
-			holder.mDescTv.setText(entry.getDesc());
+			holder.mDescTv.setVisibility( View.VISIBLE );
+			holder.mDescTv.setText( entry.getDesc() );
 		}
-		holder.mPubDateTv.setText(DateTimeUtils.timeConvert2(App.Instance, entry.getPubDate() * 1000));
+		holder.mPubDateTv.setText( DateTimeUtils.timeConvert2( App.Instance, entry.getPubDate() * 1000 ) );
 
-		MenuItem shareMi = holder.mToolbar.getMenu().findItem(R.id.action_share_item);
-		DynamicShareActionProvider shareLaterProvider = (DynamicShareActionProvider) MenuItemCompat.getActionProvider(
-				shareMi);
-		shareLaterProvider.setShareDataType("text/plain");
-		shareLaterProvider.setOnShareLaterListener(new DynamicShareActionProvider.OnShareLaterListener() {
+		MenuItem shareMi = holder.mToolbar.getMenu().findItem( R.id.action_share_item );
+		DynamicShareActionProvider shareLaterProvider = (DynamicShareActionProvider) MenuItemCompat.getActionProvider( shareMi );
+		shareLaterProvider.setShareDataType( "text/plain" );
+		shareLaterProvider.setOnShareLaterListener( new DynamicShareActionProvider.OnShareLaterListener() {
 			@Override
-			public void onShareClick(final Intent shareIntent) {
-				Api.getTinyUrl(entry.getUrlMobile(), new Callback<Response>() {
+			public void onShareClick( final Intent shareIntent ) {
+				Api.getTinyUrl( entry.getUrlMobile(), new Callback<Response>() {
 					@Override
-					public void success(Response response, retrofit.client.Response response2) {
-						String subject = App.Instance.getString(R.string.lbl_share_item_title);
-						String text = App.Instance.getString(R.string.lbl_share_item_content, entry.getTitle(),
-								TextUtils.isEmpty(response.getResult()) ? entry.getUrlMobile() : response.getResult(), subject, Prefs.getInstance().getAppTinyuUrl());
-						shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-						shareIntent.putExtra(Intent.EXTRA_TEXT, text);
-						EventBus.getDefault().post(new ShareEvent(shareIntent));
+					public void success( Response response, retrofit.client.Response response2 ) {
+						String subject = App.Instance.getString( R.string.lbl_share_item_title );
+						String text = App.Instance.getString( R.string.lbl_share_item_content, entry.getTitle(),
+															  TextUtils.isEmpty( response.getResult() ) ? entry.getUrlMobile() : response.getResult(),
+															  subject, Prefs.getInstance().getAppTinyuUrl()
+						);
+						shareIntent.putExtra( Intent.EXTRA_SUBJECT, subject );
+						shareIntent.putExtra( Intent.EXTRA_TEXT, text );
+						EventBus.getDefault().post( new ShareEvent( shareIntent ) );
 					}
 
 					@Override
-					public void failure(RetrofitError error) {
-						String subject = App.Instance.getString(R.string.lbl_share_item_title);
-						String text = App.Instance.getString(R.string.lbl_share_item_content, entry.getTitle(),
-								entry.getUrlMobile(), subject, Prefs.getInstance().getAppTinyuUrl());
-						shareIntent.putExtra(Intent.EXTRA_SUBJECT, subject);
-						shareIntent.putExtra(Intent.EXTRA_TEXT, text);
-						EventBus.getDefault().post(new ShareEvent(shareIntent));
+					public void failure( RetrofitError error ) {
+						String subject = App.Instance.getString( R.string.lbl_share_item_title );
+						String text = App.Instance.getString( R.string.lbl_share_item_content, entry.getTitle(), entry.getUrlMobile(), subject,
+															  Prefs.getInstance().getAppTinyuUrl()
+						);
+						shareIntent.putExtra( Intent.EXTRA_SUBJECT, subject );
+						shareIntent.putExtra( Intent.EXTRA_TEXT, text );
+						EventBus.getDefault().post( new ShareEvent( shareIntent ) );
 					}
-				});
+				} );
 			}
-		});
+		} );
 
-		MenuItem openSiteMi = holder.mToolbar.getMenu().findItem(R.id.action_open_site);
-		openSiteMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		MenuItem openSiteMi = holder.mToolbar.getMenu().findItem( R.id.action_open_site );
+		openSiteMi.setOnMenuItemClickListener( new OnMenuItemClickListener() {
 			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrl(), entry.getTitle(), entry));
+			public boolean onMenuItemClick( MenuItem item ) {
+				EventBus.getDefault().post( new OpenLinkEvent( entry.getUrl(), entry.getTitle(), entry ) );
 				return true;
 			}
-		});
-		MenuItem fbShareMi = holder.mToolbar.getMenu().findItem(R.id.action_fb_share_item);
-		fbShareMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		} );
+		MenuItem fbShareMi = holder.mToolbar.getMenu().findItem( R.id.action_fb_share_item );
+		fbShareMi.setOnMenuItemClickListener( new OnMenuItemClickListener() {
 			@Override
-			public boolean onMenuItemClick(MenuItem item) {
-				EventBus.getDefault().post(new ShareEntryEvent(entry, Type.Facebook));
+			public boolean onMenuItemClick( MenuItem item ) {
+				EventBus.getDefault().post( new ShareEntryEvent( entry, Type.Facebook ) );
 				return true;
 			}
-		});
+		} );
 
-		final MenuItem bookmarkMi = holder.mToolbar.getMenu().findItem(R.id.action_bookmark_item);
-		final MenuItem notBookmarkedMi = holder.mToolbar.getMenu().findItem(R.id.action_not_bookmarked_item);
+		final MenuItem bookmarkMi      = holder.mToolbar.getMenu().findItem( R.id.action_bookmark_item );
+		final MenuItem notBookmarkedMi = holder.mToolbar.getMenu().findItem( R.id.action_not_bookmarked_item );
 
-		notBookmarkedMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		notBookmarkedMi.setOnMenuItemClickListener( new OnMenuItemClickListener() {
 			@Override
-			public boolean onMenuItemClick(final MenuItem item) {
-				bookmarkMi.setEnabled(false);
-				notBookmarkedMi.setEnabled(false);
+			public boolean onMenuItemClick( final MenuItem item ) {
+				bookmarkMi.setEnabled( false );
+				notBookmarkedMi.setEnabled( false );
 				String ident = null;
 				try {
-					ident = DeviceUniqueUtil.getDeviceIdent(App.Instance);
-				} catch (NoSuchAlgorithmException e) {
+					ident = DeviceUniqueUtil.getDeviceIdent( App.Instance );
+				} catch( NoSuchAlgorithmException e ) {
 					e.printStackTrace();
 				}
-				com.topfeeds4j.Api.removeBookmark(ident, entry, new Callback<Status>() {
+				com.topfeeds4j.Api.removeBookmark( ident, entry, new Callback<Status>() {
 					@Override
-					public void success(Status status, retrofit.client.Response response) {
-						App.Instance.removeBookmark(entry);
-						bookmarkMi.setEnabled(true);
-						notBookmarkedMi.setEnabled(true);
-						EventBus.getDefault().post(new RefreshListEvent());
-						EventBus.getDefault().post(new ShowToastEvent(ShowToastEvent.Type.INFO, App.Instance.getString(
-								R.string.msg_removed_bookmark)));
+					public void success( Status status, retrofit.client.Response response ) {
+						App.Instance.removeBookmark( entry );
+						bookmarkMi.setEnabled( true );
+						notBookmarkedMi.setEnabled( true );
+						EventBus.getDefault().post( new RefreshListEvent() );
+						EventBus.getDefault().post(
+								new ShowToastEvent( ShowToastEvent.Type.INFO, App.Instance.getString( R.string.msg_removed_bookmark ) ) );
 					}
 
 					@Override
-					public void failure(RetrofitError error) {
-						EventBus.getDefault().post(new ShowToastEvent(ShowToastEvent.Type.ERROR, App.Instance.getString(
-								R.string.msg_error)));
-						bookmarkMi.setEnabled(true);
-						notBookmarkedMi.setEnabled(true);
+					public void failure( RetrofitError error ) {
+						EventBus.getDefault().post( new ShowToastEvent( ShowToastEvent.Type.ERROR, App.Instance.getString( R.string.msg_error ) ) );
+						bookmarkMi.setEnabled( true );
+						notBookmarkedMi.setEnabled( true );
 					}
-				});
+				} );
 				return true;
 			}
-		});
+		} );
 
-		bookmarkMi.setOnMenuItemClickListener(new OnMenuItemClickListener() {
+		bookmarkMi.setOnMenuItemClickListener( new OnMenuItemClickListener() {
 			@Override
-			public boolean onMenuItemClick(final MenuItem item) {
-				bookmarkMi.setEnabled(false);
-				notBookmarkedMi.setEnabled(false);
+			public boolean onMenuItemClick( final MenuItem item ) {
+				bookmarkMi.setEnabled( false );
+				notBookmarkedMi.setEnabled( false );
 				String ident = null;
 				try {
-					ident = DeviceUniqueUtil.getDeviceIdent(App.Instance);
-				} catch (NoSuchAlgorithmException e) {
+					ident = DeviceUniqueUtil.getDeviceIdent( App.Instance );
+				} catch( NoSuchAlgorithmException e ) {
 					e.printStackTrace();
 				}
-				com.topfeeds4j.Api.bookmark(ident, entry, new Callback<Status>() {
+				com.topfeeds4j.Api.bookmark( ident, entry, new Callback<Status>() {
 					@Override
-					public void success(Status status, retrofit.client.Response response) {
-						App.Instance.addBookmark(entry);
-						bookmarkMi.setEnabled(true);
-						notBookmarkedMi.setEnabled(true);
-						EventBus.getDefault().post(new RefreshListEvent());	EventBus.getDefault().post(new ShowToastEvent(ShowToastEvent.Type.INFO, App.Instance.getString(
-								R.string.msg_added_bookmark)));
+					public void success( Status status, retrofit.client.Response response ) {
+						App.Instance.addBookmark( entry );
+						bookmarkMi.setEnabled( true );
+						notBookmarkedMi.setEnabled( true );
+						EventBus.getDefault().post( new RefreshListEvent() );
+						EventBus.getDefault().post(
+								new ShowToastEvent( ShowToastEvent.Type.INFO, App.Instance.getString( R.string.msg_added_bookmark ) ) );
 					}
 
 					@Override
-					public void failure(RetrofitError error) {
-						EventBus.getDefault().post(new ShowToastEvent(ShowToastEvent.Type.ERROR, App.Instance.getString(
-								R.string.msg_error)));
-						bookmarkMi.setEnabled(true);
-						notBookmarkedMi.setEnabled(true);
+					public void failure( RetrofitError error ) {
+						EventBus.getDefault().post( new ShowToastEvent( ShowToastEvent.Type.ERROR, App.Instance.getString( R.string.msg_error ) ) );
+						bookmarkMi.setEnabled( true );
+						notBookmarkedMi.setEnabled( true );
 					}
-				});
+				} );
 				return true;
 			}
-		});
+		} );
 
-		if (App.Instance.getBookmarkList() == null) {
-			bookmarkMi.setVisible(false);
-			notBookmarkedMi.setVisible(false);
+		if( App.Instance.getBookmarkList() == null ) {
+			bookmarkMi.setVisible( false );
+			notBookmarkedMi.setVisible( false );
 		} else {
-			boolean notBookmarked = !App.Instance.isBookmarked(entry);
-			bookmarkMi.setVisible(notBookmarked);
-			notBookmarkedMi.setVisible(!notBookmarked);
+			boolean notBookmarked = !App.Instance.isBookmarked( entry );
+			bookmarkMi.setVisible( notBookmarked );
+			notBookmarkedMi.setVisible( !notBookmarked );
 		}
 
-		holder.mContentV.setOnClickListener(new OnClickListener() {
+		holder.mContentV.setOnClickListener( new OnClickListener() {
 			@Override
-			public void onClick(View v) {
-				EventBus.getDefault().post(new OpenLinkEvent(entry.getUrlMobile(), entry.getTitle(), entry));
+			public void onClick( View v ) {
+				EventBus.getDefault().post( new OpenLinkEvent( entry.getUrlMobile(), entry.getTitle(), entry ) );
 			}
-		});
+		} );
 	}
 
 	@Override
@@ -263,17 +261,17 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		private TextView mTitleTv;
 		private TextView mDescTv;
 		private TextView mPubDateTv;
-		private Toolbar mToolbar;
-		private View mContentV;
+		private Toolbar  mToolbar;
+		private View     mContentV;
 
-		ViewHolder(View convertView) {
-			super(convertView);
-			mTitleTv = (TextView) convertView.findViewById(R.id.title_tv);
-			mDescTv = (TextView) convertView.findViewById(R.id.desc_tv);
-			mPubDateTv = (TextView) convertView.findViewById(R.id.pub_date_tv);
-			mToolbar = (Toolbar) convertView.findViewById(R.id.toolbar);
-			mContentV = convertView.findViewById(R.id.content_v);
-			mToolbar.inflateMenu(MENU_LIST_ITEM);
+		ViewHolder( View convertView ) {
+			super( convertView );
+			mTitleTv = (TextView) convertView.findViewById( R.id.title_tv );
+			mDescTv = (TextView) convertView.findViewById( R.id.desc_tv );
+			mPubDateTv = (TextView) convertView.findViewById( R.id.pub_date_tv );
+			mToolbar = (Toolbar) convertView.findViewById( R.id.toolbar );
+			mContentV = convertView.findViewById( R.id.content_v );
+			mToolbar.inflateMenu( MENU_LIST_ITEM );
 		}
 	}
 }

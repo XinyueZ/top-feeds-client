@@ -10,9 +10,9 @@ import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
+import com.topfeeds4j.sample.utils.Utils;
 import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 import com.topfeeds4j.sample.utils.helpers.BookmarkListAdapterHelper;
-import com.topfeeds4j.sample.utils.Utils;
 
 import de.greenrobot.event.EventBus;
 import retrofit.RetrofitError;
@@ -37,16 +37,16 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	 * @param e
 	 * 		Event {@link RefreshListEvent}.
 	 */
-	public void onEvent(RefreshListEvent e) {
-		super.onEvent(e);
-		if (App.Instance.getBookmarkList() == null || App.Instance.getBookmarkList().size() == 0) {
-			getEmptyView().setVisibility(View.VISIBLE);
+	public void onEvent( RefreshListEvent e ) {
+		super.onEvent( e );
+		if( App.Instance.getBookmarkList() == null || App.Instance.getBookmarkList().size() == 0 ) {
+			getEmptyView().setVisibility( View.VISIBLE );
 		} else {
-			if(getAdapter().getData() == null || getAdapter().getData().size() == 0) {
-				getAdapter().setData(App.Instance.getBookmarkList());
+			if( getAdapter().getData() == null || getAdapter().getData().size() == 0 ) {
+				getAdapter().setData( App.Instance.getBookmarkList() );
 			}
 			getAdapter().notifyDataSetChanged();
-			getEmptyView().setVisibility(View.GONE);
+			getEmptyView().setVisibility( View.GONE );
 		}
 	}
 	//------------------------------------------------
@@ -59,13 +59,13 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	 *
 	 * @return An instance of {@link BookmarkListPageFragment}.
 	 */
-	public static BookmarkListPageFragment newInstance(Context context) {
-		return (BookmarkListPageFragment) Fragment.instantiate(context, BookmarkListPageFragment.class.getName());
+	public static BookmarkListPageFragment newInstance( Context context ) {
+		return (BookmarkListPageFragment) Fragment.instantiate( context, BookmarkListPageFragment.class.getName() );
 	}
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
+	public void onViewCreated( View view, Bundle savedInstanceState ) {
+		super.onViewCreated( view, savedInstanceState );
 		getNewsList();
 	}
 
@@ -80,26 +80,26 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	 */
 	@Override
 	public void getNewsList() {
-		if (!isInProgress()) {
-			setInProgress(true);
-			Utils.loadBookmarkList(this);
+		if( !isInProgress() ) {
+			setInProgress( true );
+			Utils.loadBookmarkList( this );
 		}
 	}
 
 
 	@Override
-	public void success(NewsEntries newsEntries, Response response) {
-		if (newsEntries != null) {
-			App.Instance.setBookmarkList(newsEntries.getNewsEntries());
+	public void success( NewsEntries newsEntries, Response response ) {
+		if( newsEntries != null ) {
+			App.Instance.setBookmarkList( newsEntries.getNewsEntries() );
 		}
-		super.success(newsEntries, response);
-		EventBus.getDefault().post(new LoadedBookmarkEvent());
+		super.success( newsEntries, response );
+		EventBus.getDefault().post( new LoadedBookmarkEvent() );
 	}
 
 	@Override
-	public void failure(RetrofitError error) {
-		super.failure(error);
-		EventBus.getDefault().post(new LoadedBookmarkEvent());
+	public void failure( RetrofitError error ) {
+		super.failure( error );
+		EventBus.getDefault().post( new LoadedBookmarkEvent() );
 	}
 
 	@Override

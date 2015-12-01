@@ -1,18 +1,20 @@
 package com.topfeeds4j.sample.app.events;
 
 /**
- *Show toast information.
+ * Show toast information.
  *
  * @author Xinyue Zhao
  */
 public final class ShowToastEvent {
-	public enum Type {WARNING, INFO, ERROR, PROGRESS};
+	public enum Type {WARNING, INFO, ERROR, PROGRESS}
+
+	;
 
 	private Type mType;
 
 	private String mText;
 
-	public ShowToastEvent(Type type, String text) {
+	public ShowToastEvent( Type type, String text ) {
 		mType = type;
 		mText = text;
 	}

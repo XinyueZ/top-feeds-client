@@ -11,7 +11,7 @@ public final class GeekListPagesAdapterHelper extends AbstractLinkedPagesAdapter
 	/**
 	 * Previous page's start point.
 	 */
-	private String mPrevious = DEFAULT_FROM;
+	private              String mPrevious    = DEFAULT_FROM;
 
 	@Override
 	public void resetPointer() {
@@ -23,7 +23,7 @@ public final class GeekListPagesAdapterHelper extends AbstractLinkedPagesAdapter
 		return mFrom;
 	}
 
-	public void setFrom(String from) {
+	public void setFrom( String from ) {
 		mFrom = from;
 	}
 
@@ -31,7 +31,7 @@ public final class GeekListPagesAdapterHelper extends AbstractLinkedPagesAdapter
 		return mPrevious;
 	}
 
-	public void setPrevious(String previous) {
+	public void setPrevious( String previous ) {
 		mPrevious = previous;
 	}
 

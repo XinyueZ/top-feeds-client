@@ -23,38 +23,37 @@ public class SplashActivity extends AppCompatActivity {
 
 
 	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-			@NonNull int[] grantResults) {
+	public void onRequestPermissionsResult( int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults ) {
 		// delegate the permission handling to generated method
-		SplashActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+		SplashActivityPermissionsDispatcher.onRequestPermissionsResult( this, requestCode, grantResults );
 	}
 
 
 	@NeedsPermission(permission.READ_PHONE_STATE)
 	void getReadPhoneStatePermission() {
-		MainActivity.showInstance(this);
-		ActivityCompat.finishAfterTransition(this);
+		MainActivity.showInstance( this );
+		ActivityCompat.finishAfterTransition( this );
 	}
 
 
 	@DeniedPermission(Manifest.permission.READ_PHONE_STATE)
 	void noReadPhoneStatePermission() {
-		Snackbar.make(findViewById(R.id.splash_v), R.string.msg_permission_prompt, Snackbar.LENGTH_INDEFINITE).setAction(
+		Snackbar.make( findViewById( R.id.splash_v ), R.string.msg_permission_prompt, Snackbar.LENGTH_INDEFINITE ).setAction(
 				R.string.btn_agree, new OnClickListener() {
 					@Override
-					public void onClick(View v) {
-						ActivityCompat.finishAffinity(SplashActivity.this);
+					public void onClick( View v ) {
+						ActivityCompat.finishAffinity( SplashActivity.this );
 					}
-				}).show();
+				} ).show();
 
 	}
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		requestWindowFeature(Window.FEATURE_NO_TITLE);
-		getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_splash);
-		SplashActivityPermissionsDispatcher.getReadPhoneStatePermissionWithCheck(this);
+	protected void onCreate( Bundle savedInstanceState ) {
+		requestWindowFeature( Window.FEATURE_NO_TITLE );
+		getWindow().setFlags( WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN );
+		super.onCreate( savedInstanceState );
+		setContentView( R.layout.activity_splash );
+		SplashActivityPermissionsDispatcher.getReadPhoneStatePermissionWithCheck( this );
 	}
 }

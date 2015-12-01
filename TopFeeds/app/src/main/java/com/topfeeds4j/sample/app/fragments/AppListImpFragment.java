@@ -22,8 +22,8 @@ public final class AppListImpFragment extends AppListFragment {
 	 *
 	 * @return An instance of {@link AppListImpFragment}.
 	 */
-	public static Fragment newInstance(Context context) {
-		return AppListImpFragment.instantiate(context, AppListImpFragment.class.getName());
+	public static Fragment newInstance( Context context ) {
+		return AppListImpFragment.instantiate( context, AppListImpFragment.class.getName() );
 	}
 
 	/**

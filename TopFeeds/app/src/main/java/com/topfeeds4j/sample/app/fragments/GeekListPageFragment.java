@@ -15,7 +15,6 @@ import com.topfeeds4j.sample.utils.helpers.GeekListPagesAdapterHelper;
 public final class GeekListPageFragment extends AbstractLinkedPagesFragment {
 
 
-
 	/**
 	 * Initialize an {@link  GeekListPageFragment}.
 	 *
@@ -24,8 +23,8 @@ public final class GeekListPageFragment extends AbstractLinkedPagesFragment {
 	 *
 	 * @return An instance of {@link GeekListPageFragment}.
 	 */
-	public static GeekListPageFragment newInstance(Context context) {
-		return (GeekListPageFragment) Fragment.instantiate(context, GeekListPageFragment.class.getName());
+	public static GeekListPageFragment newInstance( Context context ) {
+		return (GeekListPageFragment) Fragment.instantiate( context, GeekListPageFragment.class.getName() );
 	}
 
 	/**

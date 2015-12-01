@@ -18,7 +18,7 @@ public final class OscListAdapterHelper extends AbstractAdapterHelper {
 		return mPage;
 	}
 
-	public void setPage(int page) {
+	public void setPage( int page ) {
 		mPage = page;
 	}
 

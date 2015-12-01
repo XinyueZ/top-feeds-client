@@ -10,7 +10,7 @@ public final class BloggerHelperFactory {
 	private LongSparseArray<BloggerPagesAdapterHelper> mHelpers;
 
 	public static void createInstance() {
-		if (sInstance == null) {
+		if( sInstance == null ) {
 			sInstance = new BloggerHelperFactory();
 		}
 	}
@@ -24,12 +24,12 @@ public final class BloggerHelperFactory {
 		mHelpers = new LongSparseArray<>();
 		long[] ids = Prefs.getInstance().getBloggerIds();
 		//create adapter-helpers
-		for (long id : ids) {
-			mHelpers.put(id, new BloggerPagesAdapterHelper());
+		for( long id : ids ) {
+			mHelpers.put( id, new BloggerPagesAdapterHelper() );
 		}
 	}
 
-	public BloggerPagesAdapterHelper getHelper(long id) {
-		return mHelpers.get(id);
+	public BloggerPagesAdapterHelper getHelper( long id ) {
+		return mHelpers.get( id );
 	}
 }

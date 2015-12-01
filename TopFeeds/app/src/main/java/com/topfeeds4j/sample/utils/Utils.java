@@ -26,50 +26,50 @@ import retrofit.Callback;
 
 
 public final class Utils {
-	public  static void facebookShare(Context cxt, NewsEntry msg) {
+	public static void facebookShare( Context cxt, NewsEntry msg ) {
 		final WebDialog fbDlg;
-		Bundle postParams = new Bundle();
-		String desc = !TextUtils.isEmpty(msg.getDesc()) ? msg.getDesc() : null;
-		if (desc == null) {
-			  fbDlg = new WebDialog.FeedDialogBuilder(cxt, cxt.getString(R.string.applicationId), postParams).setName(
-					msg.getTitle()).setLink(msg.getUrlMobile()).build();
+		Bundle          postParams = new Bundle();
+		String          desc       = !TextUtils.isEmpty( msg.getDesc() ) ? msg.getDesc() : null;
+		if( desc == null ) {
+			fbDlg = new WebDialog.FeedDialogBuilder( cxt, cxt.getString( R.string.applicationId ), postParams ).setName( msg.getTitle() ).setLink(
+					msg.getUrlMobile() ).build();
 		} else {
-			  fbDlg = new WebDialog.FeedDialogBuilder(cxt, cxt.getString(R.string.applicationId), postParams).setName(
-					msg.getTitle()).setDescription(desc).setLink(msg.getUrlMobile()).build();
+			fbDlg = new WebDialog.FeedDialogBuilder( cxt, cxt.getString( R.string.applicationId ), postParams ).setName( msg.getTitle() )
+					.setDescription( desc ).setLink( msg.getUrlMobile() ).build();
 		}
-		fbDlg.setOnCompleteListener(new OnCompleteListener() {
+		fbDlg.setOnCompleteListener( new OnCompleteListener() {
 			@Override
-			public void onComplete(Bundle bundle, FacebookException e) {
+			public void onComplete( Bundle bundle, FacebookException e ) {
 				fbDlg.dismiss();
 			}
-		});
+		} );
 		fbDlg.show();
 	}
 
 	@Nullable
-	public static Fragment getFragment(Context cxt, int position) {
-		switch (position) {
-		case 4:
-			return BookmarkListPageFragment.newInstance(cxt);
-		case 3:
-			return OscNewsListPageFragment.newInstance(cxt);
-		case 2:
-			return CsdnNewsListPageFragment.newInstance(cxt);
-		case 1:
-			return TechugNewsListPageFragment.newInstance(cxt);
-		case 0:
-			return GeekListPageFragment.newInstance(cxt);
+	public static Fragment getFragment( Context cxt, int position ) {
+		switch( position ) {
+			case 4:
+				return BookmarkListPageFragment.newInstance( cxt );
+			case 3:
+				return OscNewsListPageFragment.newInstance( cxt );
+			case 2:
+				return CsdnNewsListPageFragment.newInstance( cxt );
+			case 1:
+				return TechugNewsListPageFragment.newInstance( cxt );
+			case 0:
+				return GeekListPageFragment.newInstance( cxt );
 		}
 		return null;
 	}
 
 
-	public static void loadBookmarkList(Callback<NewsEntries> callback) {
+	public static void loadBookmarkList( Callback<NewsEntries> callback ) {
 		String ident = null;
 		try {
-			ident = DeviceUniqueUtil.getDeviceIdent(App.Instance);
-			Api.getBookmarkList(ident, callback);
-		} catch (NoSuchAlgorithmException e) {
+			ident = DeviceUniqueUtil.getDeviceIdent( App.Instance );
+			Api.getBookmarkList( ident, callback );
+		} catch( NoSuchAlgorithmException e ) {
 			e.printStackTrace();
 		}
 	}

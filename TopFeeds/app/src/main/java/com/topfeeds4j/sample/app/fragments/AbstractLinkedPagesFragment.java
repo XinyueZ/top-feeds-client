@@ -33,7 +33,6 @@ import retrofit.client.Response;
 public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 
 
-
 	private int mVisibleItemCount;
 	private int mPastVisibleItems;
 	private int mTotalItemCount;
@@ -45,17 +44,15 @@ public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 	//------------------------------------------------
 
 
-
 	/**
 	 * Handler for {@link LoadedBookmarkEvent}.
 	 *
 	 * @param e
 	 * 		Event {@link LoadedBookmarkEvent}.
 	 */
-	public void onEvent(LoadedBookmarkEvent e) {
+	public void onEvent( LoadedBookmarkEvent e ) {
 		getNewsList();
 	}
-
 
 
 	//------------------------------------------------
@@ -67,10 +64,9 @@ public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 	 *
 	 * @return An instance of {@link AbstractLinkedPagesFragment}.
 	 */
-	public static AbstractLinkedPagesFragment newInstance(Context context) {
-		return (AbstractLinkedPagesFragment) Fragment.instantiate(context, AbstractLinkedPagesFragment.class.getName());
+	public static AbstractLinkedPagesFragment newInstance( Context context ) {
+		return (AbstractLinkedPagesFragment) Fragment.instantiate( context, AbstractLinkedPagesFragment.class.getName() );
 	}
-
 
 
 	@Override
@@ -80,14 +76,13 @@ public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 	}
 
 
-
 	@Override
-	public void success(NewsEntries newsEntries, Response response) {
-		super.success(newsEntries, response);
-		if (newsEntries.getStatus() == 200) { //Feeds with validated content, otherwise the status is 300 or other else.
+	public void success( NewsEntries newsEntries, Response response ) {
+		super.success( newsEntries, response );
+		if( newsEntries.getStatus() == 200 ) { //Feeds with validated content, otherwise the status is 300 or other else.
 			AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
-			helper.setPrevious(helper.getFrom() );
-			helper.setFrom(newsEntries.getFrom());
+			helper.setPrevious( helper.getFrom() );
+			helper.setFrom( newsEntries.getFrom() );
 		}
 	}
 
@@ -96,47 +91,47 @@ public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 	 * Load more and more news
 	 */
 	private void getMoreNews() {
-		if (!isInProgress()) {
-			EventBus.getDefault().post(new ShowProgressIndicatorEvent(true));
-			setInProgress(true);
+		if( !isInProgress() ) {
+			EventBus.getDefault().post( new ShowProgressIndicatorEvent( true ) );
+			setInProgress( true );
 			AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
-			Api.getNewsEntries(getNewsHostType(), helper.getFrom(),getEntryMeta(), new Callback<NewsEntries>() {
+			Api.getNewsEntries( getNewsHostType(), helper.getFrom(), getEntryMeta(), new Callback<NewsEntries>() {
 				@Override
-				public void success(NewsEntries newsEntries, Response response) {
+				public void success( NewsEntries newsEntries, Response response ) {
 					onFinishLoading();
 					AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
-					if (newsEntries.getStatus() == 200) {
-						getAdapter().getData().addAll(newsEntries.getNewsEntries());
+					if( newsEntries.getStatus() == 200 ) {
+						getAdapter().getData().addAll( newsEntries.getNewsEntries() );
 						getAdapter().notifyDataSetChanged();
-						helper.setPrevious(helper.getFrom());
-						helper.setFrom(newsEntries.getFrom());
+						helper.setPrevious( helper.getFrom() );
+						helper.setFrom( newsEntries.getFrom() );
 					} else {
-						helper.setFrom(helper.getPrevious());
+						helper.setFrom( helper.getPrevious() );
 					}
 				}
 
 				@Override
-				public void failure(RetrofitError error) {
+				public void failure( RetrofitError error ) {
 					onFinishLoading();
 					AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
-					helper.setFrom(helper.getPrevious());
+					helper.setFrom( helper.getPrevious() );
 
 					new DialogFragment() {
 						@Override
-						public Dialog onCreateDialog(Bundle savedInstanceState) {
+						public Dialog onCreateDialog( Bundle savedInstanceState ) {
 							// Use the Builder class for convenient dialog construction
-							AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-							builder.setMessage(R.string.lbl_retry).setNegativeButton(R.string.lbl_no, null)
-									.setPositiveButton(R.string.lbl_yes, new DialogInterface.OnClickListener() {
-												public void onClick(DialogInterface dialog, int id) {
-													getMoreNews();
-												}
-											});
+							AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+							builder.setMessage( R.string.lbl_retry ).setNegativeButton( R.string.lbl_no, null ).setPositiveButton(
+									R.string.lbl_yes, new DialogInterface.OnClickListener() {
+										public void onClick( DialogInterface dialog, int id ) {
+											getMoreNews();
+										}
+									} );
 							return builder.create();
 						}
-					}.show(getChildFragmentManager(), null);
+					}.show( getChildFragmentManager(), null );
 				}
-			});
+			} );
 		}
 	}
 
@@ -144,35 +139,35 @@ public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 	protected void onFinishLoading() {
 		super.onFinishLoading();
 		mLoading = true;
-		EventBus.getDefault().post(new ShowProgressIndicatorEvent(false));
+		EventBus.getDefault().post( new ShowProgressIndicatorEvent( false ) );
 	}
 
 
 	@Override
-	public void onViewCreated(View view, Bundle savedInstanceState) {
-		super.onViewCreated(view, savedInstanceState);
-		getRecyclerView().addOnScrollListener(new RecyclerView.OnScrollListener() {
+	public void onViewCreated( View view, Bundle savedInstanceState ) {
+		super.onViewCreated( view, savedInstanceState );
+		getRecyclerView().addOnScrollListener( new RecyclerView.OnScrollListener() {
 			@Override
-			public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+			public void onScrolled( RecyclerView recyclerView, int dx, int dy ) {
 
 				mVisibleItemCount = getLayoutManager().getChildCount();
 				mTotalItemCount = getLayoutManager().getItemCount();
 				mPastVisibleItems = getLayoutManager().findFirstVisibleItemPosition();
 
-				if (mLoading) {
-					if ((mVisibleItemCount + mPastVisibleItems) >= mTotalItemCount) {
+				if( mLoading ) {
+					if( ( mVisibleItemCount + mPastVisibleItems ) >= mTotalItemCount ) {
 						mLoading = false;
-						EventBus.getDefault().post(new LoadMoreEvent());
+						EventBus.getDefault().post( new LoadMoreEvent() );
 						//showLoadingIndicator();
 						getMoreNews();
 					}
 				}
 			}
-		});
+		} );
 	}
 
 
-	protected   EntryMeta getEntryMeta(){
-		return new EntryMeta("0");
+	protected EntryMeta getEntryMeta() {
+		return new EntryMeta( "0" );
 	}
 }

@@ -2,9 +2,9 @@ package com.topfeeds4j.sample.utils.helpers;
 
 
 public abstract class AbstractLinkedPagesAdapterHelper extends AbstractAdapterHelper {
-	private String mFrom = DEFAULT_FROM;
+	private              String mFrom        = DEFAULT_FROM;
 	private static final String DEFAULT_FROM = "0";
-	private String mPrevious = DEFAULT_FROM;
+	private              String mPrevious    = DEFAULT_FROM;
 
 	@Override
 	public void resetPointer() {
@@ -16,7 +16,7 @@ public abstract class AbstractLinkedPagesAdapterHelper extends AbstractAdapterHe
 		return mFrom;
 	}
 
-	public void setFrom(String from) {
+	public void setFrom( String from ) {
 		mFrom = from;
 	}
 
@@ -24,7 +24,7 @@ public abstract class AbstractLinkedPagesAdapterHelper extends AbstractAdapterHe
 		return mPrevious;
 	}
 
-	public void setPrevious(String previous) {
+	public void setPrevious( String previous ) {
 		mPrevious = previous;
 	}
 

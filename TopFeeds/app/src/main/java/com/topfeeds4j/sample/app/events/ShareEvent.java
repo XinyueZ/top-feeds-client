@@ -11,7 +11,7 @@ import android.content.Intent;
 public final class ShareEvent {
 	private Intent mIntent;
 
-	public ShareEvent(Intent intent) {
+	public ShareEvent( Intent intent ) {
 		mIntent = intent;
 	}
 

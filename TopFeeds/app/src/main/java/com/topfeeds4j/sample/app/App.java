@@ -62,24 +62,24 @@ public final class App extends MultiDexApplication {
 	@Override
 	public void onCreate() {
 		super.onCreate();
-		Fabric.with(this, new Crashlytics());
-		TaskHelper.init(getApplicationContext());
-		Prefs.createInstance(this);
-		Stetho.initialize(Stetho.newInitializerBuilder(this).enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
-				.enableWebKitInspector(Stetho.defaultInspectorModulesProvider(this)).build());
+		Fabric.with( this, new Crashlytics() );
+		TaskHelper.init( getApplicationContext() );
+		Prefs.createInstance( this );
+		Stetho.initialize( Stetho.newInitializerBuilder( this ).enableDumpapp( Stetho.defaultDumperPluginsProvider( this ) )
+								   .enableWebKitInspector( Stetho.defaultInspectorModulesProvider( this ) ).build() );
 	}
 
 
-	public boolean isBookmarked(NewsEntry item) {
-		if (mBookmarkList == null) {
+	public boolean isBookmarked( NewsEntry item ) {
+		if( mBookmarkList == null ) {
 			return false;
 		}
 
-		if (item == null) {
+		if( item == null ) {
 			return false;
 		}
-		for (NewsEntry t : mBookmarkList) {
-			if (t.equals(item)) {
+		for( NewsEntry t : mBookmarkList ) {
+			if( t.equals( item ) ) {
 				return true;
 			}
 		}
@@ -87,30 +87,27 @@ public final class App extends MultiDexApplication {
 	}
 
 
-	public void addBookmark(NewsEntry item) {
-		if(mBookmarkList != null) {
-			mBookmarkList.add(0, item);
+	public void addBookmark( NewsEntry item ) {
+		if( mBookmarkList != null ) {
+			mBookmarkList.add( 0, item );
 		}
 	}
 
 
-	public void removeBookmark(NewsEntry item) {
-		if(mBookmarkList != null) {
-			for (NewsEntry fi : mBookmarkList) {
-				if (fi.equals(item)) {
-					mBookmarkList.remove(fi);
+	public void removeBookmark( NewsEntry item ) {
+		if( mBookmarkList != null ) {
+			for( NewsEntry fi : mBookmarkList ) {
+				if( fi.equals( item ) ) {
+					mBookmarkList.remove( fi );
 					return;
 				}
 			}
 		}
 	}
-
-
-	public void setBookmarkList(List<NewsEntry> list) {
-		mBookmarkList = list;
-	}
-
 	public List<NewsEntry> getBookmarkList() {
 		return mBookmarkList;
+	}
+	public void setBookmarkList( List<NewsEntry> list ) {
+		mBookmarkList = list;
 	}
 }
