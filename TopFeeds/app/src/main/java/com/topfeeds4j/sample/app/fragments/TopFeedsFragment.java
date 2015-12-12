@@ -1,8 +1,10 @@
 package com.topfeeds4j.sample.app.fragments;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -11,6 +13,8 @@ import android.view.ViewGroup;
 
 import com.chopping.application.BasicPrefs;
 import com.chopping.fragments.BaseFragment;
+import com.chopping.utils.DeviceUtils;
+import com.chopping.utils.DeviceUtils.ScreenSize;
 import com.chopping.utils.Utils;
 import com.topfeeds4j.Api;
 import com.topfeeds4j.ds.NewsEntries;
@@ -40,15 +44,15 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	/**
 	 * List container for showing all comments.
 	 */
-	private RecyclerView mRv;
+	private RecyclerView       mRv;
 	/**
 	 * Pull to load.
 	 */
 	private SwipeRefreshLayout mSwipeRefreshLayout;
 	//Indicator for not load and error.
-	private View mNotLoadV;
-	private View mErrorV;
-	private View mEmptyV;
+	private View               mNotLoadV;
+	private View               mErrorV;
+	private View               mEmptyV;
 
 	private LinearLayoutManager mLayoutManager;
 	/**
@@ -56,6 +60,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	 */
 	private boolean             mInProgress;
 
+	private boolean mLived;
 	//------------------------------------------------
 	//Subscribes, event-handlers
 	//------------------------------------------------
@@ -81,8 +86,14 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	public void onEvent( TopEvent e ) {
 		NewsListAdapter adapter = getAdapter();
 		if( getUserVisibleHint() && adapter != null && adapter.getItemCount() > 0 ) {
-			mLayoutManager.scrollToPositionWithOffset( 0, 0 );
-			Utils.showShortToast( App.Instance, R.string.action_to_top );
+			mLayoutManager.scrollToPositionWithOffset(
+					0,
+					0
+			);
+			Utils.showShortToast(
+					App.Instance,
+					R.string.action_to_top
+			);
 		}
 	}
 	//------------------------------------------------
@@ -99,7 +110,11 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	public void getNewsList() {
 		if( !isInProgress() ) {
 			setInProgress( true );
-			Api.getNewsEntries( getNewsHostType(), 0, this );
+			Api.getNewsEntries(
+					getNewsHostType(),
+					0,
+					this
+			);
 		}
 	}
 
@@ -112,19 +127,25 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 
 	@Override
 	public void success( NewsEntries newsEntries, Response response ) {
+		if( !isLived() ) {
+			return;
+		}
 		onFinishLoading();
 		NewsListAdapter adp = getAdapter();
 		if( newsEntries.getStatus() == 200 ) {
-			if( newsEntries.getNewsEntries() != null && newsEntries.getNewsEntries().size() > 0 ) {
+			if( newsEntries.getNewsEntries() != null && newsEntries.getNewsEntries()
+																   .size() > 0 ) {
 				adp.setData( newsEntries.getNewsEntries() );
 				adp.notifyDataSetChanged();
 			} else {
-				if( adp.getData() == null || adp.getData().size() == 0 ) {
+				if( adp.getData() == null || adp.getData()
+												.size() == 0 ) {
 					mEmptyV.setVisibility( View.VISIBLE );
 				}
 			}
 		} else {
-			if( adp != null && adp.getData() != null && adp.getData().size() > 0 ) {
+			if( adp != null && adp.getData() != null && adp.getData()
+														   .size() > 0 ) {
 				return;
 			}
 			mErrorV.setVisibility( View.VISIBLE );
@@ -163,12 +184,15 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	protected RecyclerView getRecyclerView() {
 		return mRv;
 	}
+
 	protected boolean isInProgress() {
 		return mInProgress;
 	}
+
 	protected void setInProgress( boolean inProgress ) {
 		mInProgress = inProgress;
 	}
+
 	@Override
 	protected BasicPrefs getPrefs() {
 		return Prefs.getInstance();
@@ -180,15 +204,33 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 
 	@Override
 	public View onCreateView( LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState ) {
-		return inflater.inflate( LAYOUT, container, false );
+		return inflater.inflate(
+				LAYOUT,
+				container,
+				false
+		);
 	}
 
 	@Override
 	public void onViewCreated( View view, Bundle savedInstanceState ) {
-		super.onViewCreated( view, savedInstanceState );
+		super.onViewCreated(
+				view,
+				savedInstanceState
+		);
+		setLived( true );
 
+		ScreenSize screenSize   = DeviceUtils.getScreenSize( App.Instance );
+		int        defaultWidth = getDefaultWidth( App.Instance );
+		int        div          = (int) Math.floor( screenSize.Width / defaultWidth );
+
+		if( div > 3 ) {
+			div = 3;
+		}
 		mRv = (RecyclerView) view.findViewById( R.id.news_list_rv );
-		mRv.setLayoutManager( mLayoutManager = new LinearLayoutManager( getActivity() ) );
+		mRv.setLayoutManager( mLayoutManager = new GridLayoutManager(
+				getActivity(),
+				div
+		) );
 		mRv.setHasFixedSize( false );
 
 		mRv.setAdapter( getAdapter() );
@@ -198,7 +240,12 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 		mEmptyV = view.findViewById( R.id.empty_iv );
 
 		mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById( R.id.content_srl );
-		mSwipeRefreshLayout.setColorSchemeResources( R.color.color_pocket_1, R.color.color_pocket_2, R.color.color_pocket_3, R.color.color_pocket_4 );
+		mSwipeRefreshLayout.setColorSchemeResources(
+				R.color.color_pocket_1,
+				R.color.color_pocket_2,
+				R.color.color_pocket_3,
+				R.color.color_pocket_4
+		);
 		mSwipeRefreshLayout.setOnRefreshListener( new OnRefreshListener() {
 			@Override
 			public void onRefresh() {
@@ -210,8 +257,22 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 
 	@Override
 	public void onDestroyView() {
-		super.onDestroyView();
+		setLived( false );
 		setInProgress( false );
+		super.onDestroyView();
 	}
 
+	protected int getDefaultWidth( Context cxt ) {
+		return cxt.getResources()
+				  .getDimensionPixelSize( R.dimen.card_width );
+	}
+
+
+	protected boolean isLived() {
+		return mLived;
+	}
+
+	private void setLived( boolean lived ) {
+		mLived = lived;
+	}
 }

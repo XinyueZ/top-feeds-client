@@ -91,6 +91,9 @@ public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 	 * Load more and more news
 	 */
 	private void getMoreNews() {
+		if( !isLived() ) {
+			return;
+		}
 		if( !isInProgress() ) {
 			EventBus.getDefault().post( new ShowProgressIndicatorEvent( true ) );
 			setInProgress( true );

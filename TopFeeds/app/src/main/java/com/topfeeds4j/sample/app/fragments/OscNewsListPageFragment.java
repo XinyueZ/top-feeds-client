@@ -98,6 +98,9 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 	 * Load more and more news
 	 */
 	private void getMoreNews() {
+		if( !isLived() ) {
+			return;
+		}
 		if( !isInProgress() ) {
 			EventBus.getDefault().post( new ShowProgressIndicatorEvent( true ) );
 			setInProgress( true );

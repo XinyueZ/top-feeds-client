@@ -14,8 +14,6 @@
 
 
     <style name="ActionBar_ToolBar_On_Item">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">30dp</item>
         <item name="android:minHeight">30dp</item>
         <item name="android:theme">@style/AppThemeToolBar</item>
         <item name="theme">@style/AppThemeToolBar</item>
@@ -30,8 +28,8 @@
     <style name="ItemCardView">
 
         <item name="contentPadding">0dp</item>
-        <item name="cardElevation">1dp</item>
-        <item name="cardMaxElevation">0dp</item>
+        <item name="cardElevation">2dp</item>
+        <item name="cardMaxElevation">2dp</item>
         <item name="cardUseCompatPadding">true</item>
         <item name="cardCornerRadius">1dp</item>
     </style>
