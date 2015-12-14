@@ -183,7 +183,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 						App.Instance.removeBookmark( entry );
 						bookmarkMi.setEnabled( true );
 						notBookmarkedMi.setEnabled( true );
-						EventBus.getDefault().post( new RefreshListEvent() );
+						EventBus.getDefault().post( new RefreshListEvent(holder.getAdapterPosition()) );
 						EventBus.getDefault().post(
 								new ShowToastEvent( ShowToastEvent.Type.INFO, App.Instance.getString( R.string.msg_removed_bookmark ) ) );
 					}
@@ -216,7 +216,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 						App.Instance.addBookmark( entry );
 						bookmarkMi.setEnabled( true );
 						notBookmarkedMi.setEnabled( true );
-						EventBus.getDefault().post( new RefreshListEvent() );
+						EventBus.getDefault().post( new RefreshListEvent(holder.getAdapterPosition()) );
 						EventBus.getDefault().post(
 								new ShowToastEvent( ShowToastEvent.Type.INFO, App.Instance.getString( R.string.msg_added_bookmark ) ) );
 					}

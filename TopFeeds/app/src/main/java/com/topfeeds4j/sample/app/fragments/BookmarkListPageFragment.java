@@ -38,15 +38,15 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	 * 		Event {@link RefreshListEvent}.
 	 */
 	public void onEvent( RefreshListEvent e ) {
-		super.onEvent( e );
+//		super.onEvent( e );
 		if( App.Instance.getBookmarkList() == null || App.Instance.getBookmarkList().size() == 0 ) {
 			getEmptyView().setVisibility( View.VISIBLE );
 		} else {
-			if( getAdapter().getData() == null || getAdapter().getData().size() == 0 ) {
-				getAdapter().setData( App.Instance.getBookmarkList() );
-			}
-			getAdapter().notifyDataSetChanged();
-			getEmptyView().setVisibility( View.GONE );
+//			if( getAdapter().getData() == null || getAdapter().getData().size() == 0 ) {
+//				getAdapter().setData( App.Instance.getBookmarkList() );
+//			}
+			getAdapter().notifyItemRemoved(e.getPosition());
+//			getEmptyView().setVisibility( View.GONE );
 		}
 	}
 	//------------------------------------------------

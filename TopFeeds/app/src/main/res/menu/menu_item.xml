@@ -22,11 +22,11 @@
         android:id="@+id/action_fb_share_item"
         android:title="@string/action_fb_share"
         android:icon="@drawable/ic_fb_share"
-        app:showAsAction="always" />
+        app:showAsAction="never" />
     <item
         android:id="@+id/action_share_item"
         android:title="@string/action_share"
         android:icon="@drawable/ic_item_share"
-        app:showAsAction="always"
+        app:showAsAction="never"
         app:actionProviderClass="com.topfeeds4j.sample.utils.DynamicShareActionProvider" />
 </menu>

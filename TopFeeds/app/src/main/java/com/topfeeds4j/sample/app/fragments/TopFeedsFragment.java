@@ -2,6 +2,7 @@ package com.topfeeds4j.sample.app.fragments;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v4.widget.SwipeRefreshLayout.OnRefreshListener;
 import android.support.v7.widget.GridLayoutManager;
@@ -22,11 +23,13 @@ import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListAdapter;
+import com.topfeeds4j.sample.app.events.FABEvent;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
 import com.topfeeds4j.sample.app.events.TopEvent;
 import com.topfeeds4j.sample.utils.Prefs;
 import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 
+import de.greenrobot.event.EventBus;
 import retrofit.Callback;
 import retrofit.RetrofitError;
 import retrofit.client.Response;
@@ -73,7 +76,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	 */
 	public void onEvent( RefreshListEvent e ) {
 		if( getAdapter() != null ) {
-			getAdapter().notifyDataSetChanged();
+			getAdapter().notifyItemChanged( e.getPosition() );
 		}
 	}
 
@@ -227,6 +230,20 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 			div = 3;
 		}
 		mRv = (RecyclerView) view.findViewById( R.id.news_list_rv );
+		mRv.addOnScrollListener( new RecyclerView.OnScrollListener() {
+			@Override
+			public void onScrolled( RecyclerView recyclerView, int dx, int dy ) {
+				float y = ViewCompat.getY( recyclerView );
+				if( y < dy ) {
+					EventBus.getDefault()
+							.post( new FABEvent( true ) );
+				} else {
+					EventBus.getDefault()
+							.post( new FABEvent( false ) );
+				}
+			}
+		} );
+
 		mRv.setLayoutManager( mLayoutManager = new GridLayoutManager(
 				getActivity(),
 				div

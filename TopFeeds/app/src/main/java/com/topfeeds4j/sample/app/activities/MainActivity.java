@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
@@ -59,6 +60,7 @@ import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.adapters.NewsListPagersAdapter;
 import com.topfeeds4j.sample.app.events.EULAConfirmedEvent;
 import com.topfeeds4j.sample.app.events.EULARejectEvent;
+import com.topfeeds4j.sample.app.events.FABEvent;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
 import com.topfeeds4j.sample.app.events.OpenLinkEvent;
 import com.topfeeds4j.sample.app.events.ShareEntryEvent;
@@ -111,6 +113,10 @@ public class MainActivity extends BaseActivity {
 
 	private MenuItem       mViewModeMi;
 	private NavigationView mNavigationView;
+
+
+	private FloatingActionButton mFAB;
+
 	/**
 	 * Container for all created "single-page"s.
 	 */
@@ -120,6 +126,23 @@ public class MainActivity extends BaseActivity {
 	//Subscribes, event-handlers
 	//------------------------------------------------
 
+	/**
+	 * Handler for {@link com.topfeeds4j.sample.app.events.FABEvent}.
+	 *
+	 * @param e
+	 * 		Event {@link com.topfeeds4j.sample.app.events.FABEvent}.
+	 */
+	public void onEvent( FABEvent e ) {
+		if( e.isHide() ) {
+			if( mFAB.isShown() ) {
+				mFAB.hide();
+			}
+		} else {
+			if( !mFAB.isShown() ) {
+				mFAB.show();
+			}
+		}
+	}
 
 	/**
 	 * Handler for {@link com.chopping.bus.CloseDrawerEvent}.
@@ -138,7 +161,12 @@ public class MainActivity extends BaseActivity {
 	 * 		Event {@link com.topfeeds4j.sample.app.events.OpenLinkEvent}.
 	 */
 	public void onEvent( OpenLinkEvent e ) {
-		WebViewActivity.showInstance( this, e.getTitle(), e.getUrl(), e.getNewsEntry() );
+		WebViewActivity.showInstance(
+				this,
+				e.getTitle(),
+				e.getUrl(),
+				e.getNewsEntry()
+		);
 	}
 
 	/**
@@ -148,7 +176,10 @@ public class MainActivity extends BaseActivity {
 	 * 		Event {@link com.topfeeds4j.sample.app.events.LoadMoreEvent}.
 	 */
 	public void onEvent( LoadMoreEvent e ) {
-		Utils.showShortToast( getApplicationContext(), R.string.lbl_load_more );
+		Utils.showShortToast(
+				getApplicationContext(),
+				R.string.lbl_load_more
+		);
 	}
 
 	/**
@@ -208,7 +239,10 @@ public class MainActivity extends BaseActivity {
 		NewsEntry msg = e.getEntry();
 		switch( e.getType() ) {
 			case Facebook:
-				com.topfeeds4j.sample.utils.Utils.facebookShare( this, msg );
+				com.topfeeds4j.sample.utils.Utils.facebookShare(
+						this,
+						msg
+				);
 				break;
 			case Tweet:
 				break;
@@ -244,9 +278,16 @@ public class MainActivity extends BaseActivity {
 	 * 		{@link Activity}.
 	 */
 	public static void showInstance( Activity cxt ) {
-		Intent intent = new Intent( cxt, MainActivity.class );
+		Intent intent = new Intent(
+				cxt,
+				MainActivity.class
+		);
 		intent.setFlags( FLAG_ACTIVITY_SINGLE_TOP|FLAG_ACTIVITY_CLEAR_TOP );
-		ActivityCompat.startActivity( cxt, intent, null );
+		ActivityCompat.startActivity(
+				cxt,
+				intent,
+				null
+		);
 	}
 
 	/**
@@ -271,7 +312,8 @@ public class MainActivity extends BaseActivity {
 		}
 
 		mProviderSpr.setVisibility( !mWifiOn ? View.VISIBLE : View.GONE );//When wifi is unavailable, user can use single page-mode.
-		if( mWifiOn && Prefs.getInstance().getViewMode() == Prefs.VIEW_MODE_SINGLE ) {
+		if( mWifiOn && Prefs.getInstance()
+							.getViewMode() == Prefs.VIEW_MODE_SINGLE ) {
 			//Under wifi, user can use different views.
 			mProviderSpr.setVisibility( View.VISIBLE );
 		}
@@ -280,7 +322,8 @@ public class MainActivity extends BaseActivity {
 
 		if( mProviderSpr.getOnItemSelectedListener() == null ) {
 			String[] statics  = getResources().getStringArray( R.array.providers_list );
-			String[] dynamics = Prefs.getInstance().getBloggerNames();
+			String[] dynamics = Prefs.getInstance()
+									 .getBloggerNames();
 			String[] titles   = new String[ statics.length + dynamics.length ];
 			int      i        = 0;
 			for( String s : dynamics ) {
@@ -289,7 +332,11 @@ public class MainActivity extends BaseActivity {
 			for( String s : statics ) {
 				titles[ i++ ] = s;
 			}
-			ArrayAdapter<String> adp = new ArrayAdapter<>( App.Instance, R.layout.spinner_item, titles );
+			ArrayAdapter<String> adp = new ArrayAdapter<>(
+					App.Instance,
+					R.layout.spinner_item,
+					titles
+			);
 			mProviderSpr.setAdapter( adp );
 			mProviderSpr.setOnItemSelectedListener( new OnItemSelectedListener() {
 				@Override
@@ -318,7 +365,11 @@ public class MainActivity extends BaseActivity {
 					mDrawerLayout.openDrawer( GravityCompat.START );
 				}
 			} );
-			mProviderSpr = (Spinner) getLayoutInflater().inflate( R.layout.spinner_layout, toolbar, false );
+			mProviderSpr = (Spinner) getLayoutInflater().inflate(
+					R.layout.spinner_layout,
+					toolbar,
+					false
+			);
 			toolbar.addView( mProviderSpr );
 
 			//Build menu.
@@ -329,9 +380,21 @@ public class MainActivity extends BaseActivity {
 			//Share this app by other applications.
 			MenuItem            menuAppShare = menu.findItem( R.id.action_share_app );
 			ShareActionProvider provider     = (ShareActionProvider) MenuItemCompat.getActionProvider( menuAppShare );
-			String subject = String.format( getString( R.string.lbl_share_app_title ), getString( R.string.application_name ) );
-			String text = getString( R.string.lbl_share_app_content, getString( R.string.application_name ), Prefs.getInstance().getAppTinyuUrl() );
-			provider.setShareIntent( Utils.getDefaultShareIntent( provider, subject, text ) );
+			String              subject      = String.format(
+					getString( R.string.lbl_share_app_title ),
+					getString( R.string.application_name )
+			);
+			String              text         = getString(
+					R.string.lbl_share_app_content,
+					getString( R.string.application_name ),
+					Prefs.getInstance()
+						 .getAppTinyuUrl()
+			);
+			provider.setShareIntent( Utils.getDefaultShareIntent(
+					provider,
+					subject,
+					text
+			) );
 
 			//All event-handlers on menu.
 			toolbar.setOnMenuItemClickListener( new OnMenuItemClickListener() {
@@ -342,7 +405,10 @@ public class MainActivity extends BaseActivity {
 							handleViewModeChanging( item );
 							break;
 						case R.id.action_about:
-							showDialogFragment( AboutDialogFragment.newInstance( MainActivity.this ), null );
+							showDialogFragment(
+									AboutDialogFragment.newInstance( MainActivity.this ),
+									null
+							);
 							break;
 					}
 					return true;
@@ -364,22 +430,43 @@ public class MainActivity extends BaseActivity {
 			//New page that ever been seen before.
 			newOne = true;
 
-			int dynamicTotal = Prefs.getInstance().getBloggerNames().length;
+			int dynamicTotal = Prefs.getInstance()
+									.getBloggerNames().length;
 			if( position < dynamicTotal ) {
-				long[] ids = Prefs.getInstance().getBloggerIds();
-				frg = BloggerPageFragment.newInstance( App.Instance, ids[ position ] );
+				long[] ids = Prefs.getInstance()
+								  .getBloggerIds();
+				frg = BloggerPageFragment.newInstance(
+						App.Instance,
+						ids[ position ]
+				);
 			} else {
-				frg = com.topfeeds4j.sample.utils.Utils.getFragment( App.Instance, position - dynamicTotal );
+				frg = com.topfeeds4j.sample.utils.Utils.getFragment(
+						App.Instance,
+						position - dynamicTotal
+				);
 			}
 		}
 		if( frg != null ) {
-			String tag = frg.getClass().getSimpleName();
-			frgMgr.beginTransaction().setCustomAnimations( R.anim.slide_in_from_right, R.anim.slide_out_to_right, R.anim.slide_in_from_right,
-														   R.anim.slide_out_to_right
-			).replace( R.id.single_page_container, frg, tag ).commit();
+			String tag = frg.getClass()
+							.getSimpleName();
+			frgMgr.beginTransaction()
+				  .setCustomAnimations( R.anim.slide_in_from_right,
+										R.anim.slide_out_to_right,
+										R.anim.slide_in_from_right,
+										R.anim.slide_out_to_right
+				  )
+				  .replace(
+						  R.id.single_page_container,
+						  frg,
+						  tag
+				  )
+				  .commit();
 			frgMgr.executePendingTransactions();
 			if( newOne ) {
-				mSinglePages.put( position, frg );
+				mSinglePages.put(
+						position,
+						frg
+				);
 			}
 			TopFeedsFragment topFeedsFrg = (TopFeedsFragment) frg;
 			if( !( topFeedsFrg instanceof BookmarkListPageFragment ) ) {
@@ -391,7 +478,8 @@ public class MainActivity extends BaseActivity {
 	}
 
 	private void setViewModeMenuItem( MenuItem mi ) {
-		int mode = Prefs.getInstance().getViewMode();
+		int mode = Prefs.getInstance()
+						.getViewMode();
 		mi.setIcon( mode == Prefs.VIEW_MODE_SINGLE ? R.drawable.ic_multi_mode : R.drawable.ic_single_mode );
 	}
 
@@ -399,7 +487,8 @@ public class MainActivity extends BaseActivity {
 		Prefs prefs = Prefs.getInstance();
 		int   mode  = prefs.getViewMode();
 		prefs.setViewMode( mode == Prefs.VIEW_MODE_MULTI ? Prefs.VIEW_MODE_SINGLE : Prefs.VIEW_MODE_MULTI );
-		mode = Prefs.getInstance().getViewMode();
+		mode = Prefs.getInstance()
+					.getViewMode();
 		mProviderSpr.setVisibility( mode == Prefs.VIEW_MODE_SINGLE ? View.VISIBLE : View.GONE );
 		setViewModeMenuItem( mi );
 		buildViews();
@@ -427,12 +516,18 @@ public class MainActivity extends BaseActivity {
 		if( !mAlive ) {
 			return;
 		}
-		SuperCardToast toast = new SuperCardToast( this, Type.STANDARD );
+		SuperCardToast toast = new SuperCardToast(
+				this,
+				Type.STANDARD
+		);
 		toast.setAnimations( Animations.POPUP );
 		toast.setBackground( Background.BLUE );
 		toast.setText( text );
 		toast.setTextColor( getResources().getColor( R.color.common_white ) );
-		toast.setIcon( INFO, IconPosition.LEFT );
+		toast.setIcon(
+				INFO,
+				IconPosition.LEFT
+		);
 		toast.show();
 	}
 
@@ -440,12 +535,18 @@ public class MainActivity extends BaseActivity {
 		if( !mAlive ) {
 			return;
 		}
-		SuperCardToast toast = new SuperCardToast( this, Type.STANDARD );
+		SuperCardToast toast = new SuperCardToast(
+				this,
+				Type.STANDARD
+		);
 		toast.setAnimations( Animations.FADE );
 		toast.setBackground( Background.RED );
 		toast.setText( text );
 		toast.setTextColor( getResources().getColor( R.color.common_white ) );
-		toast.setIcon( INFO, IconPosition.LEFT );
+		toast.setIcon(
+				INFO,
+				IconPosition.LEFT
+		);
 		toast.show();
 	}
 
@@ -453,12 +554,18 @@ public class MainActivity extends BaseActivity {
 		if( !mAlive ) {
 			return;
 		}
-		SuperCardToast toast = new SuperCardToast( this, Type.STANDARD );
+		SuperCardToast toast = new SuperCardToast(
+				this,
+				Type.STANDARD
+		);
 		toast.setAnimations( Animations.FLYIN );
 		toast.setBackground( Background.GREEN );
 		toast.setText( text );
 		toast.setTextColor( getResources().getColor( R.color.common_white ) );
-		toast.setIcon( INFO, IconPosition.LEFT );
+		toast.setIcon(
+				INFO,
+				IconPosition.LEFT
+		);
 		toast.show();
 	}
 
@@ -469,22 +576,38 @@ public class MainActivity extends BaseActivity {
 	private void didAppConfig() {
 		Prefs prefs = Prefs.getInstance();
 		BloggerHelperFactory.createInstance();
-		com.topfeeds4j.Api.initialize( App.Instance, prefs.getTopFeeds4JHost(), prefs.getCacheSize() );
-		String url = Prefs.getInstance().getAppTinyuUrl();
+		com.topfeeds4j.Api.initialize(
+				App.Instance,
+				prefs.getTopFeeds4JHost(),
+				prefs.getCacheSize()
+		);
+		String url = Prefs.getInstance()
+						  .getAppTinyuUrl();
 		if( TextUtils.isEmpty( url ) || !url.contains( "tinyurl" ) ) {
-			Api.getTinyUrl( getString( R.string.lbl_store_url, getPackageName() ), new Callback<Response>() {
-				@Override
-				public void success( Response response, retrofit.client.Response response2 ) {
-					Prefs.getInstance().setAppTinyUrl( response.getResult() );
-					showAll();
-				}
+			Api.getTinyUrl(
+					getString(
+							R.string.lbl_store_url,
+							getPackageName()
+					),
+					new Callback<Response>() {
+						@Override
+						public void success( Response response, retrofit.client.Response response2 ) {
+							Prefs.getInstance()
+								 .setAppTinyUrl( response.getResult() );
+							showAll();
+						}
 
-				@Override
-				public void failure( RetrofitError error ) {
-					Prefs.getInstance().setAppTinyUrl( getString( R.string.lbl_store_url, getPackageName() ) );
-					showAll();
-				}
-			} );
+						@Override
+						public void failure( RetrofitError error ) {
+							Prefs.getInstance()
+								 .setAppTinyUrl( getString(
+										 R.string.lbl_store_url,
+										 getPackageName()
+								 ) );
+							showAll();
+						}
+					}
+			);
 		} else {
 			showAll();
 		}
@@ -519,30 +642,42 @@ public class MainActivity extends BaseActivity {
 		final int isFound = GooglePlayServicesUtil.isGooglePlayServicesAvailable( this );
 		if( isFound == ConnectionResult.SUCCESS ) {//Ignore update.
 			//The "End User License Agreement" must be confirmed before you use this application.
-			if( !Prefs.getInstance().isEULAOnceConfirmed() ) {
-				showDialogFragment( new EulaConfirmationDialog(), null );
+			if( !Prefs.getInstance()
+					  .isEULAOnceConfirmed() ) {
+				showDialogFragment(
+						new EulaConfirmationDialog(),
+						null
+				);
 			}
 		} else {
-			new Builder( this ).setTitle( R.string.application_name ).setMessage( R.string.lbl_play_service ).setCancelable( false )
-					.setPositiveButton( R.string.lbl_yes, new DialogInterface.OnClickListener() {
-						public void onClick( DialogInterface dialog, int whichButton ) {
-							dialog.dismiss();
-							Intent intent = new Intent( Intent.ACTION_VIEW );
-							intent.setData( Uri.parse( getString( R.string.play_service_url ) ) );
-							try {
-								startActivity( intent );
-							} catch( ActivityNotFoundException e0 ) {
-								intent.setData( Uri.parse( getString( R.string.play_service_web ) ) );
-								try {
-									startActivity( intent );
-								} catch( Exception e1 ) {
-									//Ignore now.
-								}
-							} finally {
-								finish();
-							}
-						}
-					} ).create().show();
+			new Builder( this ).setTitle( R.string.application_name )
+							   .setMessage( R.string.lbl_play_service )
+							   .setCancelable( false )
+							   .setPositiveButton(
+									   R.string.lbl_yes,
+									   new DialogInterface.OnClickListener() {
+										   public void onClick( DialogInterface dialog, int whichButton ) {
+											   dialog.dismiss();
+											   Intent intent = new Intent( Intent.ACTION_VIEW );
+											   intent.setData( Uri.parse( getString( R.string.play_service_url ) ) );
+											   try {
+												   startActivity( intent );
+											   } catch( ActivityNotFoundException e0 ) {
+												   intent.setData( Uri.parse( getString( R.string.play_service_web ) ) );
+												   try {
+													   startActivity( intent );
+												   } catch( Exception e1 ) {
+													   //Ignore now.
+												   }
+											   } finally {
+												   finish();
+											   }
+										   }
+									   }
+							   )
+							   .setCancelable( isFound == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED )
+							   .create()
+							   .show();
 		}
 	}
 
@@ -553,24 +688,38 @@ public class MainActivity extends BaseActivity {
 	private void buildViews() {
 		if( mNavigationView == null ) {
 			mNavigationView = (NavigationView) findViewById( R.id.nav_view );
-			mNavigationView.addHeaderView( getLayoutInflater().inflate( R.layout.nav_header, mNavigationView, false ) );
+			mNavigationView.addHeaderView( getLayoutInflater().inflate(
+					R.layout.nav_header,
+					mNavigationView,
+					false
+			) );
 		}
 		buildMenu();
 		//Init pagers, bind the tabs to the ViewPager
 		TabLayout tabs            = (TabLayout) findViewById( R.id.tabs );
 		ViewGroup singleContainer = (ViewGroup) findViewById( R.id.single_page_container );
 		if( mWifiOn ) {
-			int viewMode = Prefs.getInstance().getViewMode();
+			int viewMode = Prefs.getInstance()
+								.getViewMode();
 			switch( viewMode ) {
 				case Prefs.VIEW_MODE_MULTI:
-					changeToMultiPagesMode( tabs, singleContainer );
+					changeToMultiPagesMode(
+							tabs,
+							singleContainer
+					);
 					break;
 				case Prefs.VIEW_MODE_SINGLE:
-					changeToSinglePageMode( tabs, singleContainer );
+					changeToSinglePageMode(
+							tabs,
+							singleContainer
+					);
 					break;
 			}
 		} else {
-			changeToSinglePageMode( tabs, singleContainer );
+			changeToSinglePageMode(
+					tabs,
+					singleContainer
+			);
 		}
 	}
 
@@ -578,9 +727,13 @@ public class MainActivity extends BaseActivity {
 		mViewPager.setVisibility( View.VISIBLE );
 		if( mPagerAdapter == null ) {
 			String[] statics  = getResources().getStringArray( R.array.providers_list );
-			String[] dynamics = Prefs.getInstance().getBloggerNames();
+			String[] dynamics = Prefs.getInstance()
+									 .getBloggerNames();
 			mViewPager.setOffscreenPageLimit( statics.length + dynamics.length );
-			mPagerAdapter = new NewsListPagersAdapter( MainActivity.this, getSupportFragmentManager() );
+			mPagerAdapter = new NewsListPagersAdapter(
+					MainActivity.this,
+					getSupportFragmentManager()
+			);
 			mViewPager.setAdapter( mPagerAdapter );
 			tabs.setupWithViewPager( mViewPager );
 		}
@@ -619,9 +772,15 @@ public class MainActivity extends BaseActivity {
 				}
 				try {
 					if( TextUtils.isEmpty( tagName ) ) {
-						dialogFragment.show( ft, "dlg" );
+						dialogFragment.show(
+								ft,
+								"dlg"
+						);
 					} else {
-						dialogFragment.show( ft, tagName );
+						dialogFragment.show(
+								ft,
+								tagName
+						);
 					}
 				} catch( Exception _e ) {
 				}
@@ -685,19 +844,31 @@ public class MainActivity extends BaseActivity {
 		final Wrappers wrappers = new Wrappers();
 		//		wrappers.add(onClickWrapper);
 		//		wrappers.add(onDismissWrapper);
-		SuperCardToast.onRestoreState( savedInstanceState, this, wrappers );
+		SuperCardToast.onRestoreState(
+				savedInstanceState,
+				this,
+				wrappers
+		);
 
-		mPbDlg = ProgressDialog.show( this, null, getString( R.string.msg_load_config ) );
+		mPbDlg = ProgressDialog.show(
+				this,
+				null,
+				getString( R.string.msg_load_config )
+		);
 		mPbDlg.setCancelable( false );
 
 		makeAds();
 
-		findViewById( R.id.top_btn ).setOnClickListener( new OnClickListener() {
+		mFAB = (FloatingActionButton) findViewById( R.id.top_btn );
+		mFAB.setOnClickListener( new OnClickListener() {
 			@Override
 			public void onClick( View v ) {
-				EventBus.getDefault().post( new TopEvent() );
+				EventBus.getDefault()
+						.post( new TopEvent() );
 			}
 		} );
+
+
 		mAlive = true;
 	}
 
