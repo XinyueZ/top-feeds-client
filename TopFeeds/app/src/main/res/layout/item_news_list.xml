@@ -14,7 +14,7 @@
             android:id="@+id/toolbar"
             style="@style/ActionBar_ToolBar_On_Item"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="30dp"
             android:layout_gravity="end|top"
             android:layout_marginTop="@dimen/common_margin" />
 

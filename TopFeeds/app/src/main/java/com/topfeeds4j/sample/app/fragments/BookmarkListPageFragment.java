@@ -38,15 +38,11 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	 * 		Event {@link RefreshListEvent}.
 	 */
 	public void onEvent( RefreshListEvent e ) {
-//		super.onEvent( e );
-		if( App.Instance.getBookmarkList() == null || App.Instance.getBookmarkList().size() == 0 ) {
+		if( App.Instance.getBookmarkList() == null || App.Instance.getBookmarkList()
+																  .size() == 0 ) {
 			getEmptyView().setVisibility( View.VISIBLE );
 		} else {
-//			if( getAdapter().getData() == null || getAdapter().getData().size() == 0 ) {
-//				getAdapter().setData( App.Instance.getBookmarkList() );
-//			}
-			getAdapter().notifyItemRemoved(e.getPosition());
-//			getEmptyView().setVisibility( View.GONE );
+			getAdapter().notifyItemRemoved( e.getPosition() );
 		}
 	}
 	//------------------------------------------------
@@ -60,12 +56,18 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	 * @return An instance of {@link BookmarkListPageFragment}.
 	 */
 	public static BookmarkListPageFragment newInstance( Context context ) {
-		return (BookmarkListPageFragment) Fragment.instantiate( context, BookmarkListPageFragment.class.getName() );
+		return (BookmarkListPageFragment) Fragment.instantiate(
+				context,
+				BookmarkListPageFragment.class.getName()
+		);
 	}
 
 	@Override
 	public void onViewCreated( View view, Bundle savedInstanceState ) {
-		super.onViewCreated( view, savedInstanceState );
+		super.onViewCreated(
+				view,
+				savedInstanceState
+		);
 		getNewsList();
 	}
 
@@ -92,14 +94,19 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 		if( newsEntries != null ) {
 			App.Instance.setBookmarkList( newsEntries.getNewsEntries() );
 		}
-		super.success( newsEntries, response );
-		EventBus.getDefault().post( new LoadedBookmarkEvent() );
+		super.success(
+				newsEntries,
+				response
+		);
+		EventBus.getDefault()
+				.post( new LoadedBookmarkEvent() );
 	}
 
 	@Override
 	public void failure( RetrofitError error ) {
 		super.failure( error );
-		EventBus.getDefault().post( new LoadedBookmarkEvent() );
+		EventBus.getDefault()
+				.post( new LoadedBookmarkEvent() );
 	}
 
 	@Override
