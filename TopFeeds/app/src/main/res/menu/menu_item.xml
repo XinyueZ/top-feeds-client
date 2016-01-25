@@ -5,18 +5,18 @@
         android:id="@+id/action_open_site"
         android:title="@string/action_open_site"
         android:icon="@drawable/ic_open_site"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_bookmark_item"
         android:title="@string/action_bookmark"
         android:icon="@drawable/ic_not_bookmarked"
         android:visible="true"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom" />
     <item
         android:id="@+id/action_not_bookmarked_item"
         android:title="@string/action_not_bookmarked"
         android:icon="@drawable/ic_bookmarked"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:visible="false" />
     <item
         android:id="@+id/action_fb_share_item"

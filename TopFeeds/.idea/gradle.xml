@@ -14,6 +14,14 @@
             <option value="$PROJECT_DIR$/submodules/ChoppingBootstrap/submodules/volley_cz" />
           </set>
         </option>
+        <option name="myModules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/app" />
+            <option value="$PROJECT_DIR$/submodules/ChoppingBootstrap" />
+            <option value="$PROJECT_DIR$/submodules/ChoppingBootstrap/submodules/volley_cz" />
+          </set>
+        </option>
       </GradleProjectSettings>
     </option>
   </component>

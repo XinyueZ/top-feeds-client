@@ -226,8 +226,8 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 		int        defaultWidth = getDefaultWidth( App.Instance );
 		int        div          = (int) Math.floor( screenSize.Width / defaultWidth );
 
-		if( div > 3 ) {
-			div = 3;
+		if( div > 2 ) {
+			div = 2;
 		}
 		mRv = (RecyclerView) view.findViewById( R.id.news_list_rv );
 		mRv.addOnScrollListener( new RecyclerView.OnScrollListener() {
