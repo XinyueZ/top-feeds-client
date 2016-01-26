@@ -36,7 +36,7 @@ public final class Api {
 	}
 
 
-	interface TopFeeds {
+	public interface TopFeeds {
 		@GET("/topfeeds")
 		Call<NewsEntries> getNewsEntries( @Query("type") int type, @Query("page") int page );
 
