@@ -12,6 +12,7 @@ import com.facebook.FacebookException;
 import com.facebook.widget.WebDialog;
 import com.facebook.widget.WebDialog.OnCompleteListener;
 import com.topfeeds4j.Api;
+import com.topfeeds4j.Api.TopFeeds;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
@@ -22,7 +23,8 @@ import com.topfeeds4j.sample.app.fragments.GeekListPageFragment;
 import com.topfeeds4j.sample.app.fragments.OscNewsListPageFragment;
 import com.topfeeds4j.sample.app.fragments.TechugNewsListPageFragment;
 
-import retrofit.Callback;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 
 public final class Utils {
@@ -68,7 +70,9 @@ public final class Utils {
 		String ident = null;
 		try {
 			ident = DeviceUniqueUtil.getDeviceIdent( App.Instance );
-			Api.getBookmarkList( ident, callback );
+			Call<NewsEntries> bookmarkListCall = Api.Retrofit.create( TopFeeds.class )
+														 .getBookmarkList( ident );
+			bookmarkListCall.enqueue( callback );
 		} catch( NoSuchAlgorithmException e ) {
 			e.printStackTrace();
 		}

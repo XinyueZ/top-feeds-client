@@ -52,6 +52,7 @@ import com.google.android.gms.ads.InterstitialAd;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.tinyurl4j.Api;
+import com.tinyurl4j.Api.TinyUrl;
 import com.tinyurl4j.data.Response;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
@@ -77,8 +78,8 @@ import com.topfeeds4j.sample.utils.Prefs;
 import com.topfeeds4j.sample.utils.helpers.BloggerHelperFactory;
 
 import de.greenrobot.event.EventBus;
-import retrofit.Callback;
-import retrofit.RetrofitError;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP;
@@ -298,14 +299,15 @@ public class MainActivity extends BaseActivity {
 		if( App.Instance.getBookmarkList() == null ) {
 			com.topfeeds4j.sample.utils.Utils.loadBookmarkList( new Callback<NewsEntries>() {
 				@Override
-				public void success( NewsEntries newsEntries, retrofit.client.Response response ) {
-					if( newsEntries != null ) {
-						App.Instance.setBookmarkList( newsEntries.getNewsEntries() );
+				public void onResponse( retrofit2.Response<NewsEntries> response ) {
+					if( response.isSuccess() ) {
+						App.Instance.setBookmarkList( response.body()
+															  .getNewsEntries() );
 					}
 				}
 
 				@Override
-				public void failure( RetrofitError error ) {
+				public void onFailure( Throwable t ) {
 
 				}
 			} );
@@ -321,11 +323,11 @@ public class MainActivity extends BaseActivity {
 		setViewModeMenuItem( mViewModeMi );
 
 		if( mProviderSpr.getOnItemSelectedListener() == null ) {
-			String[] statics  = getResources().getStringArray( R.array.providers_list );
+			String[] statics = getResources().getStringArray( R.array.providers_list );
 			String[] dynamics = Prefs.getInstance()
 									 .getBloggerNames();
-			String[] titles   = new String[ statics.length + dynamics.length ];
-			int      i        = 0;
+			String[] titles = new String[ statics.length + dynamics.length ];
+			int      i      = 0;
 			for( String s : dynamics ) {
 				titles[ i++ ] = s;
 			}
@@ -380,11 +382,11 @@ public class MainActivity extends BaseActivity {
 			//Share this app by other applications.
 			MenuItem            menuAppShare = menu.findItem( R.id.action_share_app );
 			ShareActionProvider provider     = (ShareActionProvider) MenuItemCompat.getActionProvider( menuAppShare );
-			String              subject      = String.format(
+			String subject = String.format(
 					getString( R.string.lbl_share_app_title ),
 					getString( R.string.application_name )
 			);
-			String              text         = getString(
+			String text = getString(
 					R.string.lbl_share_app_content,
 					getString( R.string.application_name ),
 					Prefs.getInstance()
@@ -450,10 +452,11 @@ public class MainActivity extends BaseActivity {
 			String tag = frg.getClass()
 							.getSimpleName();
 			frgMgr.beginTransaction()
-				  .setCustomAnimations( R.anim.slide_in_from_right,
-										R.anim.slide_out_to_right,
-										R.anim.slide_in_from_right,
-										R.anim.slide_out_to_right
+				  .setCustomAnimations(
+						  R.anim.slide_in_from_right,
+						  R.anim.slide_out_to_right,
+						  R.anim.slide_in_from_right,
+						  R.anim.slide_out_to_right
 				  )
 				  .replace(
 						  R.id.single_page_container,
@@ -576,38 +579,38 @@ public class MainActivity extends BaseActivity {
 	private void didAppConfig() {
 		Prefs prefs = Prefs.getInstance();
 		BloggerHelperFactory.createInstance();
-		com.topfeeds4j.Api.initialize(
-				App.Instance,
-				prefs.getTopFeeds4JHost(),
-				prefs.getCacheSize()
-		);
+		com.topfeeds4j.Api.initialize( prefs.getTopFeeds4JHost() );
 		String url = Prefs.getInstance()
 						  .getAppTinyuUrl();
 		if( TextUtils.isEmpty( url ) || !url.contains( "tinyurl" ) ) {
-			Api.getTinyUrl(
-					getString(
-							R.string.lbl_store_url,
-							getPackageName()
-					),
-					new Callback<Response>() {
-						@Override
-						public void success( Response response, retrofit.client.Response response2 ) {
-							Prefs.getInstance()
-								 .setAppTinyUrl( response.getResult() );
-							showAll();
-						}
-
-						@Override
-						public void failure( RetrofitError error ) {
-							Prefs.getInstance()
-								 .setAppTinyUrl( getString(
-										 R.string.lbl_store_url,
-										 getPackageName()
-								 ) );
-							showAll();
-						}
+			Call<Response> tinyUrlCall = Api.Retrofit.create( TinyUrl.class )
+													 .getTinyUrl( getString(
+															 R.string.lbl_store_url,
+															 getPackageName()
+													 ) );
+			tinyUrlCall.enqueue( new Callback<Response>() {
+				@Override
+				public void onResponse( retrofit2.Response<Response> res ) {
+					if( res.isSuccess() ) {
+						Prefs.getInstance()
+							 .setAppTinyUrl( res.body()
+												.getResult() );
+						showAll();
+					} else {
+						onFailure(null);
 					}
-			);
+				}
+
+				@Override
+				public void onFailure( Throwable t ) {
+					Prefs.getInstance()
+						 .setAppTinyUrl( getString(
+								 R.string.lbl_store_url,
+								 getPackageName()
+						 ) );
+					showAll();
+				}
+			} );
 		} else {
 			showAll();
 		}
@@ -726,7 +729,7 @@ public class MainActivity extends BaseActivity {
 	private void changeToMultiPagesMode( TabLayout tabs, ViewGroup singleContainer ) {
 		mViewPager.setVisibility( View.VISIBLE );
 		if( mPagerAdapter == null ) {
-			String[] statics  = getResources().getStringArray( R.array.providers_list );
+			String[] statics = getResources().getStringArray( R.array.providers_list );
 			String[] dynamics = Prefs.getInstance()
 									 .getBloggerNames();
 			mViewPager.setOffscreenPageLimit( statics.length + dynamics.length );

@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.topfeeds4j.Api;
+import com.topfeeds4j.Api.TopFeeds;
 import com.topfeeds4j.ds.EntryMeta;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.sample.R;
@@ -20,9 +21,9 @@ import com.topfeeds4j.sample.app.events.ShowProgressIndicatorEvent;
 import com.topfeeds4j.sample.utils.helpers.AbstractLinkedPagesAdapterHelper;
 
 import de.greenrobot.event.EventBus;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -77,12 +78,12 @@ public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 
 
 	@Override
-	public void success( NewsEntries newsEntries, Response response ) {
-		super.success( newsEntries, response );
-		if( newsEntries.getStatus() == 200 ) { //Feeds with validated content, otherwise the status is 300 or other else.
+	public void onResponse( Response<NewsEntries> response ){
+		super.onResponse(  response );
+		if( response.isSuccess() && response.body().getStatus() == 200 ) { //Feeds with validated content, otherwise the status is 300 or other else.
 			AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
 			helper.setPrevious( helper.getFrom() );
-			helper.setFrom( newsEntries.getFrom() );
+			helper.setFrom(  response.body().getFrom() );
 		}
 	}
 
@@ -98,23 +99,34 @@ public abstract class AbstractLinkedPagesFragment extends TopFeedsFragment {
 			EventBus.getDefault().post( new ShowProgressIndicatorEvent( true ) );
 			setInProgress( true );
 			AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
-			Api.getNewsEntries( getNewsHostType(), helper.getFrom(), getEntryMeta(), new Callback<NewsEntries>() {
+			Call<NewsEntries>                newsEntriesCall = Api.Retrofit.create( TopFeeds.class )
+																	   .getNewsEntries(
+																			   getNewsHostType(),
+																			   helper.getFrom(),
+																			   getEntryMeta()
+																	   );
+			newsEntriesCall.enqueue( new Callback<NewsEntries>() {
 				@Override
-				public void success( NewsEntries newsEntries, Response response ) {
-					onFinishLoading();
-					AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
-					if( newsEntries.getStatus() == 200 ) {
-						getAdapter().getData().addAll( newsEntries.getNewsEntries() );
-						getAdapter().notifyDataSetChanged();
-						helper.setPrevious( helper.getFrom() );
-						helper.setFrom( newsEntries.getFrom() );
+				public void onResponse( Response<NewsEntries> response ) {
+					if(response.isSuccess()) {
+						NewsEntries newsEntries = response.body();
+						onFinishLoading();
+						AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
+						if( newsEntries.getStatus() == 200 ) {
+							getAdapter().getData().addAll( newsEntries.getNewsEntries() );
+							getAdapter().notifyDataSetChanged();
+							helper.setPrevious( helper.getFrom() );
+							helper.setFrom( newsEntries.getFrom() );
+						} else {
+							helper.setFrom( helper.getPrevious() );
+						}
 					} else {
-						helper.setFrom( helper.getPrevious() );
+						onFailure( null );
 					}
 				}
 
 				@Override
-				public void failure( RetrofitError error ) {
+				public void onFailure( Throwable t ) {
 					onFinishLoading();
 					AbstractLinkedPagesAdapterHelper helper = (AbstractLinkedPagesAdapterHelper) getAdapterHelper();
 					helper.setFrom( helper.getPrevious() );

@@ -15,8 +15,7 @@ import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 import com.topfeeds4j.sample.utils.helpers.BookmarkListAdapterHelper;
 
 import de.greenrobot.event.EventBus;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Response;
 
 
 /**
@@ -90,21 +89,24 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 
 
 	@Override
-	public void success( NewsEntries newsEntries, Response response ) {
-		if( newsEntries != null ) {
-			App.Instance.setBookmarkList( newsEntries.getNewsEntries() );
+	public void onResponse( Response<NewsEntries> response ) {
+		if(response.isSuccess()) {
+			if( response.body()  != null ) {
+				App.Instance.setBookmarkList(  response.body().getNewsEntries() );
+			}
+			super.onResponse(
+					response
+			);
+			EventBus.getDefault()
+					.post( new LoadedBookmarkEvent() );
+		} else {
+			onFailure( null );
 		}
-		super.success(
-				newsEntries,
-				response
-		);
-		EventBus.getDefault()
-				.post( new LoadedBookmarkEvent() );
 	}
 
 	@Override
-	public void failure( RetrofitError error ) {
-		super.failure( error );
+	public void onFailure( Throwable t ){
+		super.onFailure( t );
 		EventBus.getDefault()
 				.post( new LoadedBookmarkEvent() );
 	}

@@ -32,8 +32,8 @@ android {
         applicationId "com.topfeeds4j.sample"
         minSdkVersion 9
         targetSdkVersion 23
-        versionCode 28
-        versionName "1.5.3"
+        versionCode 29
+        versionName "1.6"
     }
     dexOptions {
         incremental true
@@ -63,6 +63,11 @@ android {
         // but continue the build even when errors are found:
         abortOnError false
     }
+
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/NOTICE'
+    }
 }
 
 dependencies {
@@ -74,7 +79,6 @@ dependencies {
     compile 'com.google.android.gms:play-services:8.4.0'
     compile 'com.github.castorflex.smoothprogressbar:library:1.0.0'
     compile 'com.google.code.gson:gson:2.4'
-    compile 'com.squareup.retrofit:retrofit:1.9.0'
     compile 'com.squareup.okhttp:okhttp-urlconnection:2.0.0'
     compile 'com.squareup.okhttp:okhttp:2.0.0'
     compile 'de.greenrobot:eventbus:2.2.1'

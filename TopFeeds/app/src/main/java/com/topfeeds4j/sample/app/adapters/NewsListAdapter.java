@@ -21,7 +21,9 @@ import android.widget.TextView;
 
 import com.chopping.utils.DateTimeUtils;
 import com.tinyurl4j.Api;
+import com.tinyurl4j.Api.TinyUrl;
 import com.tinyurl4j.data.Response;
+import com.topfeeds4j.Api.TopFeeds;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.ds.Status;
 import com.topfeeds4j.sample.R;
@@ -37,8 +39,8 @@ import com.topfeeds4j.sample.utils.DynamicShareActionProvider;
 import com.topfeeds4j.sample.utils.Prefs;
 
 import de.greenrobot.event.EventBus;
-import retrofit.Callback;
-import retrofit.RetrofitError;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 
 /**
@@ -73,6 +75,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	public NewsListAdapter( List<NewsEntry> data ) {
 		setData( data );
 	}
+
 	/**
 	 * Get current used data-source.
 	 *
@@ -81,6 +84,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	public List<NewsEntry> getData() {
 		return mData;
 	}
+
 	/**
 	 * Set data-source for list-view.
 	 *
@@ -90,11 +94,17 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 	public void setData( List<NewsEntry> data ) {
 		mData = data;
 	}
+
 	@Override
 	public ViewHolder onCreateViewHolder( ViewGroup parent, int viewType ) {
 		Context cxt = parent.getContext();
 		//		boolean landscape = cxt.getResources().getBoolean(R.bool.landscape);
-		View                       convertView = LayoutInflater.from( cxt ).inflate( ITEM_LAYOUT, parent, false );
+		View                       convertView = LayoutInflater.from( cxt )
+															   .inflate(
+																	   ITEM_LAYOUT,
+																	   parent,
+																	   false
+															   );
 		NewsListAdapter.ViewHolder viewHolder  = new NewsListAdapter.ViewHolder( convertView );
 		return viewHolder;
 	}
@@ -111,60 +121,106 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			holder.mDescTv.setVisibility( View.VISIBLE );
 			holder.mDescTv.setText( entry.getDesc() );
 		}
-		holder.mPubDateTv.setText( DateTimeUtils.timeConvert2( App.Instance, entry.getPubDate() * 1000 ) );
+		holder.mPubDateTv.setText( DateTimeUtils.timeConvert2(
+				App.Instance,
+				entry.getPubDate() * 1000
+		) );
 
-		MenuItem shareMi = holder.mToolbar.getMenu().findItem( R.id.action_share_item );
+		MenuItem                   shareMi            = holder.mToolbar.getMenu()
+																	   .findItem( R.id.action_share_item );
 		DynamicShareActionProvider shareLaterProvider = (DynamicShareActionProvider) MenuItemCompat.getActionProvider( shareMi );
 		shareLaterProvider.setShareDataType( "text/plain" );
 		shareLaterProvider.setOnShareLaterListener( new DynamicShareActionProvider.OnShareLaterListener() {
 			@Override
 			public void onShareClick( final Intent shareIntent ) {
-				Api.getTinyUrl( entry.getUrlMobile(), new Callback<Response>() {
+				Call<Response> tinyUrlCall = Api.Retrofit.create( TinyUrl.class )
+													 .getTinyUrl( entry.getUrlMobile() );
+				tinyUrlCall.enqueue( new Callback<Response>() {
 					@Override
-					public void success( Response response, retrofit.client.Response response2 ) {
-						String subject = App.Instance.getString( R.string.lbl_share_item_title );
-						String text = App.Instance.getString( R.string.lbl_share_item_content, entry.getTitle(),
-															  TextUtils.isEmpty( response.getResult() ) ? entry.getUrlMobile() : response.getResult(),
-															  subject, Prefs.getInstance().getAppTinyuUrl()
-						);
-						shareIntent.putExtra( Intent.EXTRA_SUBJECT, subject );
-						shareIntent.putExtra( Intent.EXTRA_TEXT, text );
-						EventBus.getDefault().post( new ShareEvent( shareIntent ) );
+					public void onResponse( retrofit2.Response<Response> res ) {
+						if(res.isSuccess()) {
+							Response response  = res.body();
+							String subject = App.Instance.getString( R.string.lbl_share_item_title );
+							String text = App.Instance.getString( R.string.lbl_share_item_content,
+																  entry.getTitle(),
+																  TextUtils.isEmpty( response.getResult() ) ? entry.getUrlMobile() :
+																  response.getResult(),
+																  subject,
+																  Prefs.getInstance()
+																	   .getAppTinyuUrl()
+							);
+							shareIntent.putExtra(
+									Intent.EXTRA_SUBJECT,
+									subject
+							);
+							shareIntent.putExtra(
+									Intent.EXTRA_TEXT,
+									text
+							);
+							EventBus.getDefault()
+									.post( new ShareEvent( shareIntent ) );
+						} else {
+							onFailure( null );
+						}
 					}
 
 					@Override
-					public void failure( RetrofitError error ) {
+					public void onFailure( Throwable t ) {
 						String subject = App.Instance.getString( R.string.lbl_share_item_title );
-						String text = App.Instance.getString( R.string.lbl_share_item_content, entry.getTitle(), entry.getUrlMobile(), subject,
-															  Prefs.getInstance().getAppTinyuUrl()
+						String text = App.Instance.getString( R.string.lbl_share_item_content,
+															  entry.getTitle(),
+															  entry.getUrlMobile(),
+															  subject,
+															  Prefs.getInstance()
+																   .getAppTinyuUrl()
 						);
-						shareIntent.putExtra( Intent.EXTRA_SUBJECT, subject );
-						shareIntent.putExtra( Intent.EXTRA_TEXT, text );
-						EventBus.getDefault().post( new ShareEvent( shareIntent ) );
+						shareIntent.putExtra(
+								Intent.EXTRA_SUBJECT,
+								subject
+						);
+						shareIntent.putExtra(
+								Intent.EXTRA_TEXT,
+								text
+						);
+						EventBus.getDefault()
+								.post( new ShareEvent( shareIntent ) );
 					}
 				} );
 			}
 		} );
 
-		MenuItem openSiteMi = holder.mToolbar.getMenu().findItem( R.id.action_open_site );
+		MenuItem openSiteMi = holder.mToolbar.getMenu()
+											 .findItem( R.id.action_open_site );
 		openSiteMi.setOnMenuItemClickListener( new OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick( MenuItem item ) {
-				EventBus.getDefault().post( new OpenLinkEvent( entry.getUrl(), entry.getTitle(), entry ) );
+				EventBus.getDefault()
+						.post( new OpenLinkEvent(
+								entry.getUrl(),
+								entry.getTitle(),
+								entry
+						) );
 				return true;
 			}
 		} );
-		MenuItem fbShareMi = holder.mToolbar.getMenu().findItem( R.id.action_fb_share_item );
+		MenuItem fbShareMi = holder.mToolbar.getMenu()
+											.findItem( R.id.action_fb_share_item );
 		fbShareMi.setOnMenuItemClickListener( new OnMenuItemClickListener() {
 			@Override
 			public boolean onMenuItemClick( MenuItem item ) {
-				EventBus.getDefault().post( new ShareEntryEvent( entry, Type.Facebook ) );
+				EventBus.getDefault()
+						.post( new ShareEntryEvent(
+								entry,
+								Type.Facebook
+						) );
 				return true;
 			}
 		} );
 
-		final MenuItem bookmarkMi      = holder.mToolbar.getMenu().findItem( R.id.action_bookmark_item );
-		final MenuItem notBookmarkedMi = holder.mToolbar.getMenu().findItem( R.id.action_not_bookmarked_item );
+		final MenuItem bookmarkMi      = holder.mToolbar.getMenu()
+														.findItem( R.id.action_bookmark_item );
+		final MenuItem notBookmarkedMi = holder.mToolbar.getMenu()
+														.findItem( R.id.action_not_bookmarked_item );
 
 		notBookmarkedMi.setOnMenuItemClickListener( new OnMenuItemClickListener() {
 			@Override
@@ -177,20 +233,37 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 				} catch( NoSuchAlgorithmException e ) {
 					e.printStackTrace();
 				}
-				com.topfeeds4j.Api.removeBookmark( ident, entry, new Callback<Status>() {
+				Call<Status> removeBookmarkCall = com.topfeeds4j.Api.Retrofit.create( TopFeeds.class )
+																			 .removeBookmark(
+																					 entry,
+																					 ident
+																			 );
+				removeBookmarkCall.enqueue( new Callback<Status>() {
 					@Override
-					public void success( Status status, retrofit.client.Response response ) {
-						App.Instance.removeBookmark( entry );
-						bookmarkMi.setEnabled( true );
-						notBookmarkedMi.setEnabled( true );
-						EventBus.getDefault().post( new RefreshListEvent(holder.getAdapterPosition()) );
-						EventBus.getDefault().post(
-								new ShowToastEvent( ShowToastEvent.Type.INFO, App.Instance.getString( R.string.msg_removed_bookmark ) ) );
+					public void onResponse( retrofit2.Response<Status> response ) {
+						if( response.isSuccess() ) {
+							App.Instance.removeBookmark( entry );
+							bookmarkMi.setEnabled( true );
+							notBookmarkedMi.setEnabled( true );
+							EventBus.getDefault()
+									.post( new RefreshListEvent( holder.getAdapterPosition() ) );
+							EventBus.getDefault()
+									.post( new ShowToastEvent(
+											ShowToastEvent.Type.INFO,
+											App.Instance.getString( R.string.msg_removed_bookmark )
+									) );
+						} else {
+							onFailure( null );
+						}
 					}
 
 					@Override
-					public void failure( RetrofitError error ) {
-						EventBus.getDefault().post( new ShowToastEvent( ShowToastEvent.Type.ERROR, App.Instance.getString( R.string.msg_error ) ) );
+					public void onFailure( Throwable t ) {
+						EventBus.getDefault()
+								.post( new ShowToastEvent(
+										ShowToastEvent.Type.ERROR,
+										App.Instance.getString( R.string.msg_error )
+								) );
 						bookmarkMi.setEnabled( true );
 						notBookmarkedMi.setEnabled( true );
 					}
@@ -210,20 +283,37 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 				} catch( NoSuchAlgorithmException e ) {
 					e.printStackTrace();
 				}
-				com.topfeeds4j.Api.bookmark( ident, entry, new Callback<Status>() {
+				Call<Status> bookmarkCall = com.topfeeds4j.Api.Retrofit.create( TopFeeds.class )
+																	   .bookmark(
+																			   entry,
+																			   ident
+																	   );
+				bookmarkCall.enqueue( new Callback<Status>() {
 					@Override
-					public void success( Status status, retrofit.client.Response response ) {
-						App.Instance.addBookmark( entry );
-						bookmarkMi.setEnabled( true );
-						notBookmarkedMi.setEnabled( true );
-						EventBus.getDefault().post( new RefreshListEvent(holder.getAdapterPosition()) );
-						EventBus.getDefault().post(
-								new ShowToastEvent( ShowToastEvent.Type.INFO, App.Instance.getString( R.string.msg_added_bookmark ) ) );
+					public void onResponse( retrofit2.Response<Status> response ) {
+						if( response.isSuccess() ) {
+							App.Instance.addBookmark( entry );
+							bookmarkMi.setEnabled( true );
+							notBookmarkedMi.setEnabled( true );
+							EventBus.getDefault()
+									.post( new RefreshListEvent( holder.getAdapterPosition() ) );
+							EventBus.getDefault()
+									.post( new ShowToastEvent(
+											ShowToastEvent.Type.INFO,
+											App.Instance.getString( R.string.msg_added_bookmark )
+									) );
+						} else {
+							onFailure( null );
+						}
 					}
 
 					@Override
-					public void failure( RetrofitError error ) {
-						EventBus.getDefault().post( new ShowToastEvent( ShowToastEvent.Type.ERROR, App.Instance.getString( R.string.msg_error ) ) );
+					public void onFailure( Throwable t ) {
+						EventBus.getDefault()
+								.post( new ShowToastEvent(
+										ShowToastEvent.Type.ERROR,
+										App.Instance.getString( R.string.msg_error )
+								) );
 						bookmarkMi.setEnabled( true );
 						notBookmarkedMi.setEnabled( true );
 					}
@@ -244,7 +334,12 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		holder.mContentV.setOnClickListener( new OnClickListener() {
 			@Override
 			public void onClick( View v ) {
-				EventBus.getDefault().post( new OpenLinkEvent( entry.getUrlMobile(), entry.getTitle(), entry ) );
+				EventBus.getDefault()
+						.post( new OpenLinkEvent(
+								entry.getUrlMobile(),
+								entry.getTitle(),
+								entry
+						) );
 			}
 		} );
 	}

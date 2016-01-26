@@ -20,14 +20,15 @@ import android.webkit.WebViewClient;
 
 import com.chopping.utils.Utils;
 import com.tinyurl4j.Api;
+import com.tinyurl4j.Api.TinyUrl;
 import com.tinyurl4j.data.Response;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.utils.Prefs;
 
-import retrofit.Callback;
-import retrofit.RetrofitError;
+import retrofit2.Call;
+import retrofit2.Callback;
 
 import static android.R.id.home;
 
@@ -75,12 +76,28 @@ public final class WebViewActivity extends AppCompatActivity {
 	 * 		The news-entry.
 	 */
 	public static void showInstance( Activity cxt, String title, String url, NewsEntry entry ) {
-		Intent intent = new Intent( cxt, WebViewActivity.class );
-		intent.putExtra( EXTRAS_URL, url );
-		intent.putExtra( EXTRAS_TITLE, title );
-		intent.putExtra( EXTRAS_ENTRY, entry );
+		Intent intent = new Intent(
+				cxt,
+				WebViewActivity.class
+		);
+		intent.putExtra(
+				EXTRAS_URL,
+				url
+		);
+		intent.putExtra(
+				EXTRAS_TITLE,
+				title
+		);
+		intent.putExtra(
+				EXTRAS_ENTRY,
+				entry
+		);
 		intent.setFlags( Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_CLEAR_TOP );
-		ActivityCompat.startActivity( cxt, intent, null );
+		ActivityCompat.startActivity(
+				cxt,
+				intent,
+				null
+		);
 	}
 
 	@Override
@@ -150,38 +167,63 @@ public final class WebViewActivity extends AppCompatActivity {
 
 	@Override
 	public boolean onCreateOptionsMenu( final Menu menu ) {
-		getMenuInflater().inflate( MENU, menu );
+		getMenuInflater().inflate(
+				MENU,
+				menu
+		);
 		final MenuItem menuFB = menu.findItem( R.id.action_fb );
 		menuFB.setVisible( false );
 		final MenuItem menuShare = menu.findItem( R.id.action_item_share );
 		menuShare.setVisible( false );
-		final android.support.v7.widget.ShareActionProvider provider = (android.support.v7.widget.ShareActionProvider) MenuItemCompat
-				.getActionProvider( menuShare );
+		final android.support.v7.widget.ShareActionProvider provider
+				= (android.support.v7.widget.ShareActionProvider) MenuItemCompat.getActionProvider( menuShare );
 
 		final String url = getIntent().getStringExtra( EXTRAS_URL );
-		Api.getTinyUrl( url, new Callback<Response>() {
+		Call<Response> tinyUrlCall = Api.Retrofit.create( TinyUrl.class )
+												 .getTinyUrl( url );
+		tinyUrlCall.enqueue( new Callback<Response>() {
 			@Override
-			public void success( Response response, retrofit.client.Response response2 ) {
-				Intent intent  = getIntent();
-				String subject = App.Instance.getString( R.string.lbl_share_item_title );
-				String text = App.Instance.getString( R.string.lbl_share_item_content, getIntent().getStringExtra( EXTRAS_TITLE ),
-													  TextUtils.isEmpty( response.getResult() ) ? intent.getStringExtra( EXTRAS_URL ) :
-													  response.getResult(), subject, Prefs.getInstance().getAppTinyuUrl()
-				);
-				provider.setShareIntent( Utils.getDefaultShareIntent( provider, subject, text ) );
-				menuFB.setVisible( true );
-				menuShare.setVisible( true );
+			public void onResponse( retrofit2.Response<Response> res ) {
+				if( res.isSuccess() ) {
+					Response response = res.body();
+					Intent   intent   = getIntent();
+					String   subject  = App.Instance.getString( R.string.lbl_share_item_title );
+					String text = App.Instance.getString( R.string.lbl_share_item_content,
+														  getIntent().getStringExtra( EXTRAS_TITLE ),
+														  TextUtils.isEmpty( response.getResult() ) ? intent.getStringExtra( EXTRAS_URL ) :
+														  response.getResult(),
+														  subject,
+														  Prefs.getInstance()
+															   .getAppTinyuUrl()
+					);
+					provider.setShareIntent( Utils.getDefaultShareIntent(
+							provider,
+							subject,
+							text
+					) );
+					menuFB.setVisible( true );
+					menuShare.setVisible( true );
+				} else {
+					onFailure( null );
+				}
 			}
 
 			@Override
-			public void failure( RetrofitError error ) {
+			public void onFailure( Throwable t ) {
 				Intent intent  = getIntent();
 				String subject = App.Instance.getString( R.string.lbl_share_item_title );
-				String text = App.Instance.getString(
-						R.string.lbl_share_item_content, intent.getStringExtra( EXTRAS_TITLE ), intent.getStringExtra( EXTRAS_URL ), subject,
-						Prefs.getInstance().getAppTinyuUrl()
+				String text = App.Instance.getString( R.string.lbl_share_item_content,
+													  intent.getStringExtra( EXTRAS_TITLE ),
+													  intent.getStringExtra( EXTRAS_URL ),
+													  subject,
+													  Prefs.getInstance()
+														   .getAppTinyuUrl()
 				);
-				provider.setShareIntent( Utils.getDefaultShareIntent( provider, subject, text ) );
+				provider.setShareIntent( Utils.getDefaultShareIntent(
+						provider,
+						subject,
+						text
+				) );
 				menuFB.setVisible( true );
 				menuShare.setVisible( true );
 			}
@@ -207,7 +249,10 @@ public final class WebViewActivity extends AppCompatActivity {
 				break;
 			case R.id.action_fb:
 				NewsEntry entry = (NewsEntry) getIntent().getSerializableExtra( EXTRAS_ENTRY );
-				com.topfeeds4j.sample.utils.Utils.facebookShare( this, entry );
+				com.topfeeds4j.sample.utils.Utils.facebookShare(
+						this,
+						entry
+				);
 				break;
 		}
 		return super.onOptionsItemSelected( item );

@@ -6,7 +6,7 @@
     <color name="common_white">#FFFFFF</color>
     <color name="common_transparent">@android:color/transparent</color>
     <color name="common_grey">#f5f5f5</color>
-    <color name="common_half_grey">#809E9E9E</color>
+    <color name="common_half_grey">#339E9E9E</color>
     <color name="common_orange">#FF9800</color>
     <color name="common_orange_mid">#FFB74D</color>
     <color name="common_orange_deep">#E65100</color>

@@ -5,10 +5,14 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
 import com.topfeeds4j.Api;
+import com.topfeeds4j.Api.TopFeeds;
 import com.topfeeds4j.ds.EntryMeta;
+import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 import com.topfeeds4j.sample.utils.helpers.BloggerHelperFactory;
+
+import retrofit2.Call;
 
 
 /**
@@ -42,12 +46,21 @@ public final class BloggerPageFragment extends AbstractLinkedPagesFragment {
 	public void getNewsList() {
 		if( !isInProgress() ) {
 			setInProgress( true );
-			Api.getNewsEntries( getNewsHostType(), "0", new EntryMeta( getArguments().getLong( EXTRAS_ID ) + "" ), this );
+			Call<NewsEntries> newsEntriesCall = Api.Retrofit.create( TopFeeds.class )
+														.getNewsEntries(
+																getNewsHostType(),
+																"0",
+																new EntryMeta( getArguments().getLong( EXTRAS_ID ) + "" )
+														);
+			newsEntriesCall.enqueue( this );
 		}
 	}
 
 	@Override
 	protected AbstractAdapterHelper getAdapterHelper() {
+		if(BloggerHelperFactory.getInstance() == null) {
+			BloggerHelperFactory.createInstance();
+		}
 		return BloggerHelperFactory.getInstance().getHelper( getArguments().getLong( EXTRAS_ID ) );
 	}
 

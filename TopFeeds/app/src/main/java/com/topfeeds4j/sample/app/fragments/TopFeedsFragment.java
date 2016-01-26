@@ -18,6 +18,7 @@ import com.chopping.utils.DeviceUtils;
 import com.chopping.utils.DeviceUtils.ScreenSize;
 import com.chopping.utils.Utils;
 import com.topfeeds4j.Api;
+import com.topfeeds4j.Api.TopFeeds;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.R;
@@ -30,9 +31,8 @@ import com.topfeeds4j.sample.utils.Prefs;
 import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 
 import de.greenrobot.event.EventBus;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * System base {@link android.support.v4.app.Fragment}
@@ -113,11 +113,13 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	public void getNewsList() {
 		if( !isInProgress() ) {
 			setInProgress( true );
-			Api.getNewsEntries(
-					getNewsHostType(),
-					0,
-					this
-			);
+			Api.Retrofit.create( TopFeeds.class )
+						.getNewsEntries(
+								getNewsHostType(),
+								0
+						)
+						.enqueue( this );
+
 		}
 	}
 
@@ -129,13 +131,14 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 	}
 
 	@Override
-	public void success( NewsEntries newsEntries, Response response ) {
+	public void onResponse( Response<NewsEntries> response ) {
 		if( !isLived() ) {
 			return;
 		}
 		onFinishLoading();
 		NewsListAdapter adp = getAdapter();
-		if( newsEntries.getStatus() == 200 ) {
+		if( response.isSuccess() ) {
+			NewsEntries newsEntries = response.body();
 			if( newsEntries.getNewsEntries() != null && newsEntries.getNewsEntries()
 																   .size() > 0 ) {
 				adp.setData( newsEntries.getNewsEntries() );
@@ -157,7 +160,7 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 
 
 	@Override
-	public void failure( RetrofitError error ) {
+	public void onFailure( Throwable t ) {
 		onFinishLoading();
 		mErrorV.setVisibility( View.VISIBLE );
 	}

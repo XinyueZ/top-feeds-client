@@ -11,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.topfeeds4j.Api;
+import com.topfeeds4j.Api.TopFeeds;
 import com.topfeeds4j.ds.NewsEntries;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.events.LoadMoreEvent;
@@ -20,9 +21,9 @@ import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 import com.topfeeds4j.sample.utils.helpers.OscListAdapterHelper;
 
 import de.greenrobot.event.EventBus;
-import retrofit.Callback;
-import retrofit.RetrofitError;
-import retrofit.client.Response;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 /**
@@ -56,6 +57,7 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 
 
 	//------------------------------------------------
+
 	/**
 	 * Initialize an {@link  OscNewsListPageFragment}.
 	 *
@@ -65,7 +67,10 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 	 * @return An instance of {@link OscNewsListPageFragment}.
 	 */
 	public static OscNewsListPageFragment newInstance( Context context ) {
-		return (OscNewsListPageFragment) Fragment.instantiate( context, OscNewsListPageFragment.class.getName() );
+		return (OscNewsListPageFragment) Fragment.instantiate(
+				context,
+				OscNewsListPageFragment.class.getName()
+		);
 	}
 
 	/**
@@ -83,9 +88,11 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 
 
 	@Override
-	public void success( NewsEntries newsEntries, Response response ) {
-		super.success( newsEntries, response );
-		if( newsEntries.getStatus() == 200 ) { //Feeds with validated content, otherwise the status is 300 or other else.
+	public void onResponse( Response<NewsEntries> response ) {
+		super.onResponse(
+				response
+		);
+		if( response.isSuccess()  && response.body().getStatus() == 200 ) { //Feeds with validated content, otherwise the status is 300 or other else.
 			OscListAdapterHelper helper = (OscListAdapterHelper) getAdapterHelper();
 			int                  page   = helper.getPage();
 			page++;
@@ -102,19 +109,27 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 			return;
 		}
 		if( !isInProgress() ) {
-			EventBus.getDefault().post( new ShowProgressIndicatorEvent( true ) );
+			EventBus.getDefault()
+					.post( new ShowProgressIndicatorEvent( true ) );
 			setInProgress( true );
 			OscListAdapterHelper helper = (OscListAdapterHelper) getAdapterHelper();
-			Api.getNewsEntries( getNewsHostType(), helper.getPage(), new Callback<NewsEntries>() {
+			Call<NewsEntries> newsEntriesCall = Api.Retrofit.create( TopFeeds.class )
+															.getNewsEntries(
+																	getNewsHostType(),
+																	helper.getPage()
+															);
+			newsEntriesCall.enqueue( new Callback<NewsEntries>() {
 				@Override
-				public void success( NewsEntries newsEntries, Response response ) {
+				public void onResponse( Response<NewsEntries> response ) {
 					onFinishLoading();
 
 					OscListAdapterHelper helper = (OscListAdapterHelper) getAdapterHelper();
 					int                  page   = helper.getPage();
 
-					if( newsEntries.getStatus() == 200 ) {
-						getAdapter().getData().addAll( newsEntries.getNewsEntries() );
+					if( response.isSuccess() ) {
+						NewsEntries newsEntries = response.body();
+						getAdapter().getData()
+									.addAll( newsEntries.getNewsEntries() );
 						getAdapter().notifyDataSetChanged();
 
 						page++;
@@ -126,7 +141,7 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 				}
 
 				@Override
-				public void failure( RetrofitError error ) {
+				public void onFailure( Throwable t ) {
 					onFinishLoading();
 
 					OscListAdapterHelper helper = (OscListAdapterHelper) getAdapterHelper();
@@ -139,15 +154,25 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 						public Dialog onCreateDialog( Bundle savedInstanceState ) {
 							// Use the Builder class for convenient dialog construction
 							AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
-							builder.setMessage( R.string.lbl_retry ).setNegativeButton( R.string.lbl_no, null ).setPositiveButton(
-									R.string.lbl_yes, new DialogInterface.OnClickListener() {
-										public void onClick( DialogInterface dialog, int id ) {
-											getMoreNews();
-										}
-									} );
+							builder.setMessage( R.string.lbl_retry )
+								   .setNegativeButton(
+										   R.string.lbl_no,
+										   null
+								   )
+								   .setPositiveButton(
+										   R.string.lbl_yes,
+										   new DialogInterface.OnClickListener() {
+											   public void onClick( DialogInterface dialog, int id ) {
+												   getMoreNews();
+											   }
+										   }
+								   );
 							return builder.create();
 						}
-					}.show( getChildFragmentManager(), null );
+					}.show(
+							getChildFragmentManager(),
+							null
+					);
 				}
 			} );
 		}
@@ -157,13 +182,17 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 	protected void onFinishLoading() {
 		super.onFinishLoading();
 		mLoading = true;
-		EventBus.getDefault().post( new ShowProgressIndicatorEvent( false ) );
+		EventBus.getDefault()
+				.post( new ShowProgressIndicatorEvent( false ) );
 	}
 
 
 	@Override
 	public void onViewCreated( View view, Bundle savedInstanceState ) {
-		super.onViewCreated( view, savedInstanceState );
+		super.onViewCreated(
+				view,
+				savedInstanceState
+		);
 		getRecyclerView().addOnScrollListener( new RecyclerView.OnScrollListener() {
 			@Override
 			public void onScrolled( RecyclerView recyclerView, int dx, int dy ) {
@@ -175,7 +204,8 @@ public final class OscNewsListPageFragment extends TopFeedsFragment {
 				if( mLoading ) {
 					if( ( mVisibleItemCount + mPastVisibleItems ) >= mTotalItemCount ) {
 						mLoading = false;
-						EventBus.getDefault().post( new LoadMoreEvent() );
+						EventBus.getDefault()
+								.post( new LoadMoreEvent() );
 						//showLoadingIndicator();
 						getMoreNews();
 					}
