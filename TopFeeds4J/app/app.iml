@@ -98,8 +98,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" scope="TEST" name="mockable-android-23" level="project" />
     <orderEntry type="library" exported="" name="jackson-annotations-2.4.0" level="project" />
-    <orderEntry type="library" exported="" name="jackson-databind-2.4.3" level="project" />
     <orderEntry type="library" exported="" name="okio-1.6.0" level="project" />
+    <orderEntry type="library" exported="" name="jackson-databind-2.4.3" level="project" />
     <orderEntry type="library" exported="" name="jackson-core-2.4.3" level="project" />
     <orderEntry type="library" exported="" name="okhttp-3.0.0-RC1" level="project" />
     <orderEntry type="library" exported="" name="retrofit-2.0.0-beta3" level="project" />

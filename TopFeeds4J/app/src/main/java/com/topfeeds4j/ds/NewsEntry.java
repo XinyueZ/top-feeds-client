@@ -38,6 +38,7 @@ public final class NewsEntry implements Serializable {
 		return mUrl;
 	}
 
+	@JsonProperty("url_mobile")
 	public String getUrlMobile() {
 		return mUrlMobile;
 	}
