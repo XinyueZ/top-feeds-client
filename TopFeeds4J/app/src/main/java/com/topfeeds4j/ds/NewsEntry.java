@@ -5,18 +5,24 @@ import java.io.Serializable;
 
 import android.text.TextUtils;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.annotations.SerializedName;
 
 public final class NewsEntry implements Serializable {
 	@SerializedName("title")
+	@JsonProperty("title")
 	private String mTitle;
 	@SerializedName("desc")
+	@JsonProperty("desc")
 	private String mDesc;
 	@SerializedName("url")
+	@JsonProperty("url")
 	private String mUrl;
 	@SerializedName("url_mobile")
+	@JsonProperty("url_mobile")
 	private String mUrlMobile;
 	@SerializedName("pubDate")
+	@JsonProperty("pubDate")
 	private long mPubDate;
 
 
