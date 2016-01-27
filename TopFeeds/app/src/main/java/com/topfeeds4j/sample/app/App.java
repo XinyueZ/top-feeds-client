@@ -31,6 +31,7 @@
 
 package com.topfeeds4j.sample.app;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,6 +43,7 @@ import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
 import com.firebase.client.Firebase;
 import com.topfeeds4j.ds.NewsEntry;
+import com.topfeeds4j.sample.utils.DeviceUniqueUtil;
 import com.topfeeds4j.sample.utils.Prefs;
 
 import io.fabric.sdk.android.Fabric;
@@ -68,6 +70,11 @@ public final class App extends MultiDexApplication {
 		Fabric.with( this, new Crashlytics() );
 		TaskHelper.init( getApplicationContext() );
 		Prefs prefs = Prefs.createInstance( this );
+		try {
+			DeviceUniqueUtil.getDeviceIdent( this );
+		} catch( NoSuchAlgorithmException e ) {
+			//Ignore.
+		}
 		Stetho.initialize( Stetho.newInitializerBuilder( this ).enableDumpapp( Stetho.defaultDumperPluginsProvider( this ) )
 								   .enableWebKitInspector( Stetho.defaultInspectorModulesProvider( this ) ).build() );
 

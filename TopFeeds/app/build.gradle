@@ -33,7 +33,7 @@ android {
         minSdkVersion 9
         targetSdkVersion 23
         versionCode 30
-        versionName "1.7"
+        versionName "1.6.1"
     }
     dexOptions {
         incremental true
