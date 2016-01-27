@@ -1,6 +1,5 @@
 package com.topfeeds4j.sample.app.adapters;
 
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import android.content.Context;
@@ -20,12 +19,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.chopping.utils.DateTimeUtils;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.ValueEventListener;
 import com.tinyurl4j.Api;
 import com.tinyurl4j.Api.TinyUrl;
 import com.tinyurl4j.data.Response;
-import com.topfeeds4j.Api.TopFeeds;
 import com.topfeeds4j.ds.NewsEntry;
-import com.topfeeds4j.ds.Status;
 import com.topfeeds4j.sample.R;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.OpenLinkEvent;
@@ -34,7 +35,6 @@ import com.topfeeds4j.sample.app.events.ShareEntryEvent;
 import com.topfeeds4j.sample.app.events.ShareEntryEvent.Type;
 import com.topfeeds4j.sample.app.events.ShareEvent;
 import com.topfeeds4j.sample.app.events.ShowToastEvent;
-import com.topfeeds4j.sample.utils.DeviceUniqueUtil;
 import com.topfeeds4j.sample.utils.DynamicShareActionProvider;
 import com.topfeeds4j.sample.utils.Prefs;
 
@@ -227,38 +227,27 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			public boolean onMenuItemClick( final MenuItem item ) {
 				bookmarkMi.setEnabled( false );
 				notBookmarkedMi.setEnabled( false );
-				String ident = null;
-				try {
-					ident = DeviceUniqueUtil.getDeviceIdent( App.Instance );
-				} catch( NoSuchAlgorithmException e ) {
-					e.printStackTrace();
-				}
-				Call<Status> removeBookmarkCall = com.topfeeds4j.Api.Retrofit.create( TopFeeds.class )
-																			 .removeBookmark(
-																					 entry,
-																					 ident
-																			 );
-				removeBookmarkCall.enqueue( new Callback<Status>() {
+				Prefs    prefs    = Prefs.getInstance();
+				App.Instance.removeBookmark( entry );
+				Firebase firebase = new Firebase( prefs.getFirebaseUrl() + prefs.getDeviceIdent() );
+				firebase.authWithCustomToken( prefs.getFirebaseAuth(), null );
+				firebase.setValue( App.Instance.getBookmarkList() );
+				firebase.addListenerForSingleValueEvent( new ValueEventListener() {
 					@Override
-					public void onResponse( retrofit2.Response<Status> response ) {
-						if( response.isSuccess() ) {
-							App.Instance.removeBookmark( entry );
-							bookmarkMi.setEnabled( true );
-							notBookmarkedMi.setEnabled( true );
-							EventBus.getDefault()
-									.post( new RefreshListEvent( holder.getAdapterPosition() ) );
-							EventBus.getDefault()
-									.post( new ShowToastEvent(
-											ShowToastEvent.Type.INFO,
-											App.Instance.getString( R.string.msg_removed_bookmark )
-									) );
-						} else {
-							onFailure( null );
-						}
+					public void onDataChange( DataSnapshot dataSnapshot ) {
+						bookmarkMi.setEnabled( true );
+						notBookmarkedMi.setEnabled( true );
+						EventBus.getDefault()
+								.post( new RefreshListEvent( holder.getAdapterPosition() ) );
+						EventBus.getDefault()
+								.post( new ShowToastEvent(
+										ShowToastEvent.Type.INFO,
+										App.Instance.getString( R.string.msg_removed_bookmark )
+								) );
 					}
 
 					@Override
-					public void onFailure( Throwable t ) {
+					public void onCancelled( FirebaseError firebaseError ) {
 						EventBus.getDefault()
 								.post( new ShowToastEvent(
 										ShowToastEvent.Type.ERROR,
@@ -277,38 +266,27 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 			public boolean onMenuItemClick( final MenuItem item ) {
 				bookmarkMi.setEnabled( false );
 				notBookmarkedMi.setEnabled( false );
-				String ident = null;
-				try {
-					ident = DeviceUniqueUtil.getDeviceIdent( App.Instance );
-				} catch( NoSuchAlgorithmException e ) {
-					e.printStackTrace();
-				}
-				Call<Status> bookmarkCall = com.topfeeds4j.Api.Retrofit.create( TopFeeds.class )
-																	   .bookmark(
-																			   entry,
-																			   ident
-																	   );
-				bookmarkCall.enqueue( new Callback<Status>() {
+				Prefs    prefs    = Prefs.getInstance();
+				App.Instance.addBookmark( entry );
+				Firebase firebase = new Firebase( prefs.getFirebaseUrl() + prefs.getDeviceIdent() );
+				firebase.authWithCustomToken( prefs.getFirebaseAuth(), null );
+				firebase.setValue( App.Instance.getBookmarkList() );
+				firebase.addListenerForSingleValueEvent( new ValueEventListener() {
 					@Override
-					public void onResponse( retrofit2.Response<Status> response ) {
-						if( response.isSuccess() ) {
-							App.Instance.addBookmark( entry );
-							bookmarkMi.setEnabled( true );
-							notBookmarkedMi.setEnabled( true );
-							EventBus.getDefault()
-									.post( new RefreshListEvent( holder.getAdapterPosition() ) );
-							EventBus.getDefault()
-									.post( new ShowToastEvent(
-											ShowToastEvent.Type.INFO,
-											App.Instance.getString( R.string.msg_added_bookmark )
-									) );
-						} else {
-							onFailure( null );
-						}
+					public void onDataChange( DataSnapshot dataSnapshot ) {
+						bookmarkMi.setEnabled( true );
+						notBookmarkedMi.setEnabled( true );
+						EventBus.getDefault()
+								.post( new RefreshListEvent( holder.getAdapterPosition() ) );
+						EventBus.getDefault()
+								.post( new ShowToastEvent(
+										ShowToastEvent.Type.INFO,
+										App.Instance.getString( R.string.msg_added_bookmark )
+								) );
 					}
 
 					@Override
-					public void onFailure( Throwable t ) {
+					public void onCancelled( FirebaseError firebaseError ) {
 						EventBus.getDefault()
 								.post( new ShowToastEvent(
 										ShowToastEvent.Type.ERROR,
@@ -323,7 +301,7 @@ public final class NewsListAdapter extends RecyclerView.Adapter<NewsListAdapter.
 		} );
 
 		if( App.Instance.getBookmarkList() == null ) {
-			bookmarkMi.setVisible( false );
+			bookmarkMi.setVisible( true );
 			notBookmarkedMi.setVisible( false );
 		} else {
 			boolean notBookmarked = !App.Instance.isBookmarked( entry );

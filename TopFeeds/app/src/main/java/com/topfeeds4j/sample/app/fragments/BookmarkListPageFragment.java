@@ -1,21 +1,26 @@
 package com.topfeeds4j.sample.app.fragments;
 
+import java.util.List;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.View;
 
-import com.topfeeds4j.ds.NewsEntries;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.GenericTypeIndicator;
+import com.firebase.client.ValueEventListener;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.app.App;
 import com.topfeeds4j.sample.app.events.LoadedBookmarkEvent;
 import com.topfeeds4j.sample.app.events.RefreshListEvent;
-import com.topfeeds4j.sample.utils.Utils;
+import com.topfeeds4j.sample.utils.Prefs;
 import com.topfeeds4j.sample.utils.helpers.AbstractAdapterHelper;
 import com.topfeeds4j.sample.utils.helpers.BookmarkListAdapterHelper;
 
 import de.greenrobot.event.EventBus;
-import retrofit2.Response;
 
 
 /**
@@ -83,33 +88,40 @@ public final class BookmarkListPageFragment extends TopFeedsFragment {
 	public void getNewsList() {
 		if( !isInProgress() ) {
 			setInProgress( true );
-			Utils.loadBookmarkList( this );
+			loadedFromFirebase();
 		}
 	}
 
 
-	@Override
-	public void onResponse( Response<NewsEntries> response ) {
-		if(response.isSuccess()) {
-			if( response.body()  != null ) {
-				App.Instance.setBookmarkList(  response.body().getNewsEntries() );
+	private void loadedFromFirebase() {
+		Prefs    prefs    = Prefs.getInstance();
+		Firebase firebase = new Firebase( prefs.getFirebaseUrl() + prefs.getDeviceIdent() );
+		firebase.authWithCustomToken( prefs.getFirebaseAuth(), null );
+		firebase.addListenerForSingleValueEvent( new ValueEventListener() {
+			@Override
+			public void onDataChange( DataSnapshot dataSnapshot ) {
+				setInProgress( false );
+				if( dataSnapshot != null ) {
+					GenericTypeIndicator<List<NewsEntry>> t = new GenericTypeIndicator<List<NewsEntry>>() {
+					};
+					App.Instance.setBookmarkList( dataSnapshot.getValue( t ) );
+					showEntryList( App.Instance.getBookmarkList() );
+					EventBus.getDefault()
+							.post( new LoadedBookmarkEvent() );
+				}
 			}
-			super.onResponse(
-					response
-			);
-			EventBus.getDefault()
-					.post( new LoadedBookmarkEvent() );
-		} else {
-			onFailure( null );
-		}
+
+			@Override
+			public void onCancelled( FirebaseError firebaseError ) {
+				EventBus.getDefault()
+						.post( new LoadedBookmarkEvent() );
+				onFailure( null );
+			}
+		} );
 	}
 
-	@Override
-	public void onFailure( Throwable t ){
-		super.onFailure( t );
-		EventBus.getDefault()
-				.post( new LoadedBookmarkEvent() );
-	}
+
+
 
 	@Override
 	protected AbstractAdapterHelper getAdapterHelper() {

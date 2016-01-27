@@ -31,13 +31,16 @@
 
 package com.topfeeds4j.sample.app;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.support.multidex.MultiDexApplication;
 
 import com.chopping.net.TaskHelper;
+import com.chopping.utils.RestUtils;
 import com.crashlytics.android.Crashlytics;
 import com.facebook.stetho.Stetho;
+import com.firebase.client.Firebase;
 import com.topfeeds4j.ds.NewsEntry;
 import com.topfeeds4j.sample.utils.Prefs;
 
@@ -64,9 +67,20 @@ public final class App extends MultiDexApplication {
 		super.onCreate();
 		Fabric.with( this, new Crashlytics() );
 		TaskHelper.init( getApplicationContext() );
-		Prefs.createInstance( this );
+		Prefs prefs = Prefs.createInstance( this );
 		Stetho.initialize( Stetho.newInitializerBuilder( this ).enableDumpapp( Stetho.defaultDumperPluginsProvider( this ) )
 								   .enableWebKitInspector( Stetho.defaultInspectorModulesProvider( this ) ).build() );
+
+
+
+		Firebase.setAndroidContext( App.Instance );
+		String[] fireInfo = RestUtils.initRest(
+				this,
+				true
+		);
+		prefs.setFirebaseUrl( fireInfo[ 0 ] );
+		prefs.setFirebaseAuth( fireInfo[ 1 ] );
+		prefs.setFirebaseStandardLastLimit( Integer.valueOf( fireInfo[ 2 ] ) );
 	}
 
 
@@ -88,9 +102,10 @@ public final class App extends MultiDexApplication {
 
 
 	public void addBookmark( NewsEntry item ) {
-		if( mBookmarkList != null ) {
-			mBookmarkList.add( 0, item );
+		if(mBookmarkList == null) {
+			mBookmarkList = new ArrayList<>(  );
 		}
+		mBookmarkList.add( 0, item );
 	}
 
 

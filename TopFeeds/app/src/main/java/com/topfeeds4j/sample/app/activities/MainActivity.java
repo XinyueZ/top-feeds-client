@@ -1,5 +1,7 @@
 package com.topfeeds4j.sample.app.activities;
 
+import java.util.List;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
@@ -40,6 +42,11 @@ import com.chopping.application.BasicPrefs;
 import com.chopping.bus.CloseDrawerEvent;
 import com.chopping.utils.NetworkUtils;
 import com.chopping.utils.Utils;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.GenericTypeIndicator;
+import com.firebase.client.ValueEventListener;
 import com.github.johnpersano.supertoasts.SuperCardToast;
 import com.github.johnpersano.supertoasts.SuperToast.Animations;
 import com.github.johnpersano.supertoasts.SuperToast.Background;
@@ -291,28 +298,13 @@ public class MainActivity extends BaseActivity {
 		);
 	}
 
+
 	/**
 	 * Logical of "single-mode": page-selecting, page-loading, page-reusing etc.
 	 */
 	public void createSingleModeSelections() {
 		//Init bookmark-list.
-		if( App.Instance.getBookmarkList() == null ) {
-			com.topfeeds4j.sample.utils.Utils.loadBookmarkList( new Callback<NewsEntries>() {
-				@Override
-				public void onResponse( retrofit2.Response<NewsEntries> response ) {
-					if( response.isSuccess() ) {
-						App.Instance.setBookmarkList( response.body()
-															  .getNewsEntries() );
-					}
-				}
-
-				@Override
-				public void onFailure( Throwable t ) {
-
-				}
-			} );
-		}
-
+		initBookmarkList();
 		mProviderSpr.setVisibility( !mWifiOn ? View.VISIBLE : View.GONE );//When wifi is unavailable, user can use single page-mode.
 		if( mWifiOn && Prefs.getInstance()
 							.getViewMode() == Prefs.VIEW_MODE_SINGLE ) {
@@ -352,6 +344,83 @@ public class MainActivity extends BaseActivity {
 				}
 			} );
 		}
+	}
+
+	public void initBookmarkList() {
+		Prefs    prefs    = Prefs.getInstance();
+		Firebase firebase = new Firebase( prefs.getFirebaseUrl() + "TransferConfirmList/" + prefs.getDeviceIdent() );
+		firebase.authWithCustomToken( prefs.getFirebaseAuth(), null );
+		firebase.addListenerForSingleValueEvent( new ValueEventListener() {
+			@Override
+			public void onDataChange( DataSnapshot dataSnapshot ) {
+				if( dataSnapshot != null ) {
+					if( dataSnapshot.getValue() == null ) {
+						//Need transfer.
+						com.topfeeds4j.sample.utils.Utils.loadBookmarkList( new Callback<NewsEntries>() {
+							@Override
+							public void onResponse( final retrofit2.Response<NewsEntries> response ) {
+								if( response.isSuccess() && response.body()
+																	.getStatus() == 200 ) {
+									transferToFirebase( response );
+									toggleTransferFlag();
+								}
+							}
+
+							@Override
+							public void onFailure( Throwable t ) {
+
+							}
+						} );
+					} else {
+						loadedFromFirebase();
+					}
+				}
+			}
+
+			@Override
+			public void onCancelled( FirebaseError firebaseError ) {
+
+			}
+		} );
+	}
+
+	private void loadedFromFirebase() {
+		Prefs    prefs    = Prefs.getInstance();
+		Firebase firebase = new Firebase( prefs.getFirebaseUrl() + prefs.getDeviceIdent() );
+		firebase.authWithCustomToken( prefs.getFirebaseAuth(), null );
+		firebase.addListenerForSingleValueEvent( new ValueEventListener() {
+			@Override
+			public void onDataChange( DataSnapshot dataSnapshot ) {
+				if( dataSnapshot != null ) {
+					GenericTypeIndicator<List<NewsEntry>> t = new GenericTypeIndicator<List<NewsEntry>>() {
+					};
+					App.Instance.setBookmarkList( dataSnapshot.getValue( t ) );
+				}
+			}
+
+			@Override
+			public void onCancelled( FirebaseError firebaseError ) {
+
+			}
+		} );
+	}
+
+	private void toggleTransferFlag() {
+		Prefs    prefs    = Prefs.getInstance();
+		Firebase firebase = new Firebase( prefs.getFirebaseUrl() + "TransferConfirmList" );
+		firebase.authWithCustomToken( prefs.getFirebaseAuth(), null );
+		firebase.child( prefs.getDeviceIdent() )
+				.setValue( true );
+	}
+
+	private void transferToFirebase( retrofit2.Response<NewsEntries> response ) {
+		Prefs    prefs    = Prefs.getInstance();
+		Firebase firebase = new Firebase( prefs.getFirebaseUrl() + prefs.getDeviceIdent() );
+		firebase.authWithCustomToken( prefs.getFirebaseAuth(), null );
+		firebase.setValue( response.body()
+								   .getNewsEntries() );
+		App.Instance.setBookmarkList( response.body()
+											  .getNewsEntries() );
 	}
 
 	public void buildMenu() {
@@ -597,7 +666,7 @@ public class MainActivity extends BaseActivity {
 												.getResult() );
 						showAll();
 					} else {
-						onFailure(null);
+						onFailure( null );
 					}
 				}
 

@@ -1,5 +1,7 @@
 package com.topfeeds4j.sample.app.fragments;
 
+import java.util.List;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.view.ViewCompat;
@@ -132,29 +134,38 @@ public abstract class TopFeedsFragment extends BaseFragment implements Callback<
 
 	@Override
 	public void onResponse( Response<NewsEntries> response ) {
-		if( !isLived() ) {
-			return;
-		}
-		onFinishLoading();
-		NewsListAdapter adp = getAdapter();
 		if( response.isSuccess() ) {
-			NewsEntries newsEntries = response.body();
-			if( newsEntries.getNewsEntries() != null && newsEntries.getNewsEntries()
-																   .size() > 0 ) {
-				adp.setData( newsEntries.getNewsEntries() );
-				adp.notifyDataSetChanged();
-			} else {
-				if( adp.getData() == null || adp.getData()
-												.size() == 0 ) {
-					mEmptyV.setVisibility( View.VISIBLE );
-				}
-			}
+			NewsEntries     newsEntries = response.body();
+			List<NewsEntry> entryList = newsEntries.getNewsEntries();
+			showEntryList( entryList );
 		} else {
+			if( !isLived() ) {
+				return;
+			}
+			onFinishLoading();
+			NewsListAdapter adp = getAdapter();
 			if( adp != null && adp.getData() != null && adp.getData()
 														   .size() > 0 ) {
 				return;
 			}
 			mErrorV.setVisibility( View.VISIBLE );
+		}
+	}
+
+	protected void showEntryList( List<NewsEntry> entryList ) {
+		if( !isLived() ) {
+			return;
+		}
+		onFinishLoading();
+		NewsListAdapter adp = getAdapter();
+		if( entryList != null && entryList.size() > 0 ) {
+			adp.setData( entryList );
+			adp.notifyDataSetChanged();
+		} else {
+			if( adp.getData() == null || adp.getData()
+											.size() == 0 ) {
+				mEmptyV.setVisibility( View.VISIBLE );
+			}
 		}
 	}
 

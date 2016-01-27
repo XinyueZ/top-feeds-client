@@ -29,6 +29,10 @@ public final class Prefs extends BasicPrefs {
 	private static final String KEY_BLOGGER_ID_LIST   = "blogger_ids";
 	private static final String KEY_BLOGGER_NAME_LIST = "blogger_names";
 
+	private static final String KEY_FIREBASE_URL                 = "firebase_url";
+	private static final String KEY_FIREBASE_AUTH                = "firebase_auth";
+	private static final String KEY_FIREBASE_STANDARD_LAST_LIMIT = "firebase_standard_limit";
+
 	public static final int VIEW_MODE_MULTI  = 0;
 	public static final int VIEW_MODE_SINGLE = 1;
 	/**
@@ -87,7 +91,10 @@ public final class Prefs extends BasicPrefs {
 	 * @return {@code true} if EULA has been shown and agreed.
 	 */
 	public boolean isEULAOnceConfirmed() {
-		return getBoolean( KEY_EULA_SHOWN, false );
+		return getBoolean(
+				KEY_EULA_SHOWN,
+				false
+		);
 	}
 
 	/**
@@ -98,14 +105,20 @@ public final class Prefs extends BasicPrefs {
 	 * 		{@code true} if EULA has been shown and agreed.
 	 */
 	public void setEULAOnceConfirmed( boolean isConfirmed ) {
-		setBoolean( KEY_EULA_SHOWN, isConfirmed );
+		setBoolean(
+				KEY_EULA_SHOWN,
+				isConfirmed
+		);
 	}
 
 	/**
 	 * @return Storage for the tinyurl of the application's store-location.
 	 */
 	public String getAppTinyuUrl() {
-		return getString( KEY_APP_TINYURL, null );
+		return getString(
+				KEY_APP_TINYURL,
+				null
+		);
 	}
 
 	/**
@@ -115,37 +128,63 @@ public final class Prefs extends BasicPrefs {
 	 * 		the application's store-location.
 	 */
 	public void setAppTinyUrl( String url ) {
-		setString( KEY_APP_TINYURL, url );
+		setString(
+				KEY_APP_TINYURL,
+				url
+		);
 	}
 
 	public int getShownDetailsAdsTimes() {
-		return getInt( KEY_SHOWN_DETAILS_ADS_TIMES, 5 );
+		return getInt(
+				KEY_SHOWN_DETAILS_ADS_TIMES,
+				5
+		);
 	}
+
 	public int getShownDetailsTimes() {
-		return getInt( KEY_SHOWN_DETAILS_TIMES, 1 );
+		return getInt(
+				KEY_SHOWN_DETAILS_TIMES,
+				1
+		);
 	}
+
 	public void setShownDetailsTimes( int times ) {
-		setInt( KEY_SHOWN_DETAILS_TIMES, times );
+		setInt(
+				KEY_SHOWN_DETAILS_TIMES,
+				times
+		);
 	}
+
 	/**
 	 * @return Cache size for response.
 	 */
 	public int getCacheSize() {
-		return getInt( "cache_size", 1024 );
+		return getInt(
+				"cache_size",
+				1024
+		);
 	}
 
 	/**
 	 * @return Location of API.
 	 */
 	public String getTopFeeds4JHost() {
-		return getString( "topfeeds4j_host", "http://top-feeds2-91415.appspot.com/" );
+		return getString(
+				"topfeeds4j_host",
+				"http://top-feeds2-91415.appspot.com/"
+		);
 	}
+
 	/**
 	 * @return The device identifier for remote storage.
 	 */
 	public String getDeviceIdent() {
-		return getString( KEY_DEVICE_IDENT, null );
+		return getString(
+				KEY_DEVICE_IDENT,
+				null
+		);
 	}
+
 	/**
 	 * Set device identifier for remote storage.
 	 *
@@ -153,14 +192,24 @@ public final class Prefs extends BasicPrefs {
 	 * 		An identifier.
 	 */
 	public void setDeviceIdent( String ident ) {
-		setString( KEY_DEVICE_IDENT, ident );
+		setString(
+				KEY_DEVICE_IDENT,
+				ident
+		);
 	}
+
 	public int getViewMode() {
-		return getInt( KEY_VIEW_MODE, VIEW_MODE_SINGLE );
+		return getInt(
+				KEY_VIEW_MODE,
+				VIEW_MODE_SINGLE
+		);
 	}
 
 	public void setViewMode( int mode ) {
-		setInt( KEY_VIEW_MODE, mode );
+		setInt(
+				KEY_VIEW_MODE,
+				mode
+		);
 	}
 
 	/**
@@ -170,13 +219,22 @@ public final class Prefs extends BasicPrefs {
 	 */
 	public LongSparseArray<String> getBloggersMeta() {
 		LongSparseArray<String> lst      = new LongSparseArray<>();
-		String                  ids      = getString( KEY_BLOGGER_ID_LIST, null );
-		String                  names    = getString( KEY_BLOGGER_NAME_LIST, null );
+		String                  ids      = getString(
+				KEY_BLOGGER_ID_LIST,
+				null
+		);
+		String                  names    = getString(
+				KEY_BLOGGER_NAME_LIST,
+				null
+		);
 		String[]                idList   = ids.split( "," );
 		String[]                nameList = names.split( "," );
 		int                     i        = 0;
 		for( String id : idList ) {
-			lst.put( Long.valueOf( id ), nameList[ i++ ] );
+			lst.put(
+					Long.valueOf( id ),
+					nameList[ i++ ]
+			);
 		}
 		return lst;
 	}
@@ -185,7 +243,10 @@ public final class Prefs extends BasicPrefs {
 	 * Get id-list of blogger.
 	 */
 	public long[] getBloggerIds() {
-		String   ids    = getString( KEY_BLOGGER_ID_LIST, null );
+		String   ids    = getString(
+				KEY_BLOGGER_ID_LIST,
+				null
+		);
 		String[] idList = ids.split( "," );
 		long[]   ret    = new long[ idList.length ];
 		int      i      = 0;
@@ -199,7 +260,10 @@ public final class Prefs extends BasicPrefs {
 	 * Get name-list of blogger.
 	 */
 	public String[] getBloggerNames() {
-		String   names    = getString( KEY_BLOGGER_NAME_LIST, null );
+		String   names    = getString(
+				KEY_BLOGGER_NAME_LIST,
+				null
+		);
 		String[] nameList = names.split( "," );
 		String[] ret      = new String[ nameList.length ];
 		int      i        = 0;
@@ -207,5 +271,53 @@ public final class Prefs extends BasicPrefs {
 			ret[ i++ ] = name;
 		}
 		return ret;
+	}
+
+
+	public String getFirebaseAuth() {
+		return getString(
+				KEY_FIREBASE_AUTH,
+				null
+		);
+	}
+
+	public String getFirebaseUrl() {
+		return getString(
+				KEY_FIREBASE_URL,
+				null
+		);
+
+	}
+
+
+	public int getFirebaseStandardLastLimit() {
+		return getInt(
+				KEY_FIREBASE_STANDARD_LAST_LIMIT,
+				100
+		);
+	}
+
+
+	public void setFirebaseAuth( String s ) {
+		setString(
+				KEY_FIREBASE_AUTH,
+				s
+		);
+	}
+
+	public void setFirebaseUrl( String s ) {
+		setString(
+				KEY_FIREBASE_URL,
+				s
+		);
+
+	}
+
+
+	public void setFirebaseStandardLastLimit( int i ) {
+		setInt(
+				KEY_FIREBASE_STANDARD_LAST_LIMIT,
+				i
+		);
 	}
 }
